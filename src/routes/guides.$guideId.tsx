@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 import { ShoppingBag, ArrowLeft, Stethoscope } from 'lucide-react'
 import { DRUG_GUIDES, getGuide, PHARMACIST_DISCLAIMER } from '@/lib/content/drug-guides'
 import { Reveal } from '@/shared/components/motion/Reveal'
+import { StickyToc, type TocItem } from '@/shared/components/engage/StickyToc'
 
 export const Route = createFileRoute('/guides/$guideId')({
   loader: ({ params }) => {
@@ -71,9 +72,15 @@ export const Route = createFileRoute('/guides/$guideId')({
 function GuidePage() {
   const { guide } = Route.useLoaderData()
   const others = DRUG_GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 4)
+  const tocItems: TocItem[] = [
+    ...guide.sections.map((s, i) => ({ id: `guide-section-${i}`, label: s.heading })),
+    { id: 'guide-faq', label: 'أسئلة شائعة' },
+    { id: 'guide-related', label: 'أدلة أخرى قد تهمّك' },
+  ]
 
   return (
-    <article dir="rtl" className="mx-auto max-w-3xl px-4 py-10">
+    <div dir="rtl" className="mx-auto grid max-w-6xl gap-8 px-4 py-10 lg:grid-cols-[minmax(0,1fr)_260px]">
+    <article className="min-w-0">
       <Reveal>
         <nav className="mb-3 text-xs text-gray-500">
           <Link to="/guides" className="hover:text-primary">
@@ -108,8 +115,8 @@ function GuidePage() {
         </Link>
       </div>
 
-      {guide.sections.map((section) => (
-        <section key={section.heading} className="mt-8">
+      {guide.sections.map((section, i) => (
+        <section key={section.heading} id={`guide-section-${i}`} className="mt-8 scroll-mt-24">
           <h2 className="text-lg font-bold text-gray-900">{section.heading}</h2>
           <ul className="mt-2 list-disc space-y-2 pr-5 text-sm leading-8 text-gray-700">
             {section.items.map((item) => (
@@ -119,7 +126,7 @@ function GuidePage() {
         </section>
       ))}
 
-      <section className="mt-8">
+      <section id="guide-faq" className="mt-8 scroll-mt-24">
         <h2 className="text-lg font-bold text-gray-900">أسئلة شائعة</h2>
         <div className="mt-3 space-y-3">
           {guide.faqs.map((f) => (
@@ -131,7 +138,7 @@ function GuidePage() {
         </div>
       </section>
 
-      <section className="mt-10">
+      <section id="guide-related" className="mt-10 scroll-mt-24">
         <h2 className="mb-3 text-lg font-bold text-gray-900">أدلة أخرى قد تهمّك</h2>
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {others.map((g) => (
@@ -149,6 +156,11 @@ function GuidePage() {
         </ul>
       </section>
     </article>
+
+      <aside className="hidden lg:block">
+        <StickyToc items={tocItems} />
+      </aside>
+    </div>
   )
 }
 
