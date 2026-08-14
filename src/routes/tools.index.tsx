@@ -132,10 +132,12 @@ function ToolsHub() {
           أدوات إرشادية · لا تغني عن استشارة الطبيب
         </p>
         <h1 className="text-fluid-title font-black text-gray-900">الأدوات الطبية التفاعلية</h1>
-        <p className="mx-auto mt-2 max-w-xl text-sm leading-7 text-gray-600">
-          أربع أدوات سريعة تساعدك على اتخاذ قرار دوائي أكثر أماناً — مبنية على بيانات صيدلية
-          المصلي المعتمدة.
+        <p className="mx-auto mt-2 max-w-2xl text-sm leading-7 text-gray-600">
+          خمس أدوات عربية سريعة تساعدك على اتخاذ قرار دوائي أكثر أماناً — حساب جرعات الأطفال،
+          فحص التداخلات، فرز الأعراض، تنظيم مواعيد الأدوية، وقياس كتلة الجسم — مبنية على مراجع
+          دوائية وبيانات صيدلية المصلي المعتمدة في عدن.
         </p>
+
       </Reveal>
 
       <Stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2">
