@@ -168,9 +168,9 @@ async function orderStatus(raw: unknown, ctx: ToolContext): Promise<unknown> {
   try {
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
     const { data, error } = await supabaseAdmin
-      .from('store_orders')
-      .select('order_code, status, total_amount, created_at, user_id')
-      .eq('order_code', parsed.data.order_code.slice(0, 40))
+      .from('orders')
+      .select('id, status, payment_status, total, created_at')
+      .eq('id', parsed.data.order_code.slice(0, 40))
       .eq('user_id', ctx.userId) // scoped to the verified caller, always
       .maybeSingle()
     if (error || !data) return { found: false }
@@ -178,13 +178,15 @@ async function orderStatus(raw: unknown, ctx: ToolContext): Promise<unknown> {
     return {
       found: true,
       order: {
-        code: row['order_code'],
+        code: row['id'],
         status: row['status'],
-        total: row['total_amount'],
+        payment_status: row['payment_status'],
+        total: row['total'],
         created_at: row['created_at'],
       },
-      source: 'store_orders',
+      source: 'orders',
     }
+
   } catch {
     return { found: false }
   }
