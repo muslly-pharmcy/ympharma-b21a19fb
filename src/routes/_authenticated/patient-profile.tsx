@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { Camera, ImagePlus, Loader2, Pill, ShieldAlert, Trash2, UserRound } from 'lucide-react'
 import { FamilyHealthProfile } from '@/components/account/FamilyHealthProfile'
 import { BarcodeScanButton } from '@/shared/components/BarcodeScanButton'
+import { useFeatureFlags } from '@/hooks/useFeatureFlags'
 import { RefillReminderCard } from '@/components/store/RefillReminderCard'
 import { supabase } from '@/integrations/supabase/client'
 import {
