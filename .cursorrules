@@ -1,0 +1,68 @@
+# YMPharma / صيدلية المصلي — Cursor Rules
+# Project: ympharma-b21a19fb · Domain: https://muslly.com
+
+## 1. Stack (fixed — do not change)
+- TanStack Start v1 (React 19 + Vite 7). File-based routing in `src/routes/`.
+- NEVER install or use `react-router-dom`, `BrowserRouter`, Next.js APIs, or `src/pages` as a routing mechanism.
+- `src/routeTree.gen.ts` is generated. Never edit it by hand.
+- There is no `src/App.tsx`. Global providers and global UI live in `src/routes/__root.tsx`.
+- Tailwind CSS v4 via `src/index.css` (`@theme`, native `@import`). No `tailwind.config.js` colour authoring.
+- Backend is Supabase (Lovable Cloud). Toasts come from `sonner`, not `@/components/ui/toaster`.
+
+## 2. TypeScript
+- Strict mode. `any` is prohibited — use `unknown` + a narrowing guard, or a real type.
+- No `@ts-ignore`. Use `@ts-expect-error` with a one-line justification if truly unavoidable.
+- Import with the absolute alias `@/*` (maps to `src/*`). Relative paths only within the same folder.
+- Do not annotate values TanStack Router already infers (params, search, loader data, context).
+- Portable types only: `ReturnType<typeof setTimeout>`, `import type { ReactNode } from 'react'`.
+
+## 3. Server / client boundary
+- App-internal server logic: `createServerFn` from `@tanstack/react-start`, in `src/lib/*.functions.ts`.
+- Server-only helpers: `*.server.ts`. Never import `@/integrations/supabase/client.server` at the module
+  scope of a `.functions.ts` file — lazy-import it inside the handler.
+- Public HTTP endpoints (webhooks, cron): `src/routes/api/public/*`, always signature- or cron-auth-verified.
+- Read `process.env.*` only inside a handler. Client code uses `import.meta.env.VITE_*` only.
+- Browser globals (`window`, `document`, `localStorage`) only in `useEffect`, event handlers, or `<ClientOnly>`.
+
+## 4. Security & data access (clinical platform — non-negotiable)
+- Roles live in `public.user_roles`, checked via `has_role(auth.uid(), 'admin'::app_role)`.
+  NEVER read or write a role from `profiles` or any client-controlled field.
+- Every new `public` table: `CREATE TABLE` → `GRANT` → `ENABLE ROW LEVEL SECURITY` → `CREATE POLICY`, same migration.
+- Patient data (`medical_vault_files`, `patient_chronic_medications`, `family_health_profiles`,
+  `family_health_accounts`, `hc_patients`) is owner-scoped to `auth.uid()`. Staff access is a separate,
+  explicitly role-gated SELECT policy — never a blanket `true` policy.
+- The `medical-vault` storage bucket is private; object paths are `"<auth.uid()>/<file>"` and policies
+  match on `storage.foldername(name)[1]`. Serve images through signed URLs only.
+- Never log, return, or render PHI/PII beyond what the current user is entitled to see.
+
+## 5. Medical harness (mandatory)
+- Any AI-generated or automated clinical content (drug guides, dose calculators, interaction results,
+  prescription OCR output, chat answers) MUST render a visible Arabic pharmacist disclaimer, e.g.
+  "هذه المعلومات للتثقيف الصحي فقط ولا تُغني عن استشارة الصيدلي أو الطبيب."
+- Never present AI output as a diagnosis, and never auto-dispense based on it. Dosing and interaction
+  logic must go through `src/lib/medical/*` — do not hardcode clinical rules inside components.
+- Emergency and controlled-medicine flows always route to a human pharmacist.
+
+## 6. UI / UX
+- Arabic-first, RTL (`dir="rtl"`) on page containers; content in Arabic unless the surface is admin-internal.
+- Semantic design tokens only — no `text-white`, `bg-black`, or `bg-[#hex]` in components.
+- Glassmorphism house style: soft translucency, `backdrop-blur`, rounded-2xl surfaces, teal palette
+  on the `#D9EEEB` base. Motion is subtle and spring-based; respect `prefers-reduced-motion`.
+- Images: always `loading="lazy"`, `srcset` where available, and meaningful `alt` text.
+- Customer surfaces and admin surfaces stay separate: no admin links in customer navigation.
+
+## 7. SEO
+- Every content route defines its own `head()` with a unique title, description, `og:title`, `og:description`.
+- Never put `og:image` on `__root.tsx`. Canonical URLs use `https://muslly.com`.
+- New public routes must be added to `src/routes/sitemap[.]xml.ts`.
+
+## 8. Context map
+- `src/lib/medical/*` — interaction engine, pharmacology tree, clinical safety matrices.
+- `src/lib/*.functions.ts` — server functions (the app's RPC surface).
+- `src/lib/content/drug-guides.ts` — pharmacist-reviewed Arabic guides behind `/guides`.
+- `src/components/store/*` — customer storefront. `src/components/admin/*` — staff tools.
+- `src/integrations/supabase/*` — generated clients and types. Never edit these files.
+- `supabase/migrations/` — applied history. Add new migrations; never rewrite existing ones.
+
+## 9. Definition of done
+Typecheck clean, no broken imports, no orphaned files, routes reachable, RLS verified for any new table.
