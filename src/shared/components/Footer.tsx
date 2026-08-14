@@ -27,7 +27,11 @@ export function Footer() {
             <li><Link to="/contact" className="hover:text-primary">تواصل معنا</Link></li>
             <li><Link to="/store" className="hover:text-primary">المتجر</Link></li>
             <li><Link to="/medical-directory" className="hover:text-primary">الدليل الطبي</Link></li>
+            <li><Link to="/guides" className="hover:text-primary">الأدلة الدوائية</Link></li>
+            <li><Link to="/tools" className="hover:text-primary">الأدوات الطبية</Link></li>
+            <li><Link to="/delivery/aden" className="hover:text-primary">توصيل الأدوية في عدن</Link></li>
           </ul>
+
         </div>
 
         <div>

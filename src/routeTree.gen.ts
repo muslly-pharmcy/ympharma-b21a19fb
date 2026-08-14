@@ -61,7 +61,10 @@ import { Route as AuthenticatedVisionLabRouteImport } from './routes/_authentica
 import { Route as AuthenticatedWarehousesRouteImport } from './routes/_authenticated/warehouses'
 import { Route as ApiChatWidgetRouteImport } from './routes/api/chat-widget'
 import { Route as ApiWhatsappWebhookRouteImport } from './routes/api/whatsapp-webhook'
+import { Route as DeliveryAdenRouteImport } from './routes/delivery.aden'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as GuidesIndexRouteImport } from './routes/guides.index'
+import { Route as GuidesGuideIdRouteImport } from './routes/guides.$guideId'
 import { Route as PlanetPlanetIdRouteImport } from './routes/planet.$planetId'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
@@ -389,9 +392,24 @@ const ApiWhatsappWebhookRoute = ApiWhatsappWebhookRouteImport.update({
   path: '/api/whatsapp-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeliveryAdenRoute = DeliveryAdenRouteImport.update({
+  id: '/delivery/aden',
+  path: '/delivery/aden',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesIndexRoute = GuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesGuideIdRoute = GuidesGuideIdRouteImport.update({
+  id: '/guides/$guideId',
+  path: '/guides/$guideId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanetPlanetIdRoute = PlanetPlanetIdRouteImport.update({
@@ -731,7 +749,9 @@ export interface FileRoutesByFullPath {
   '/warehouses': typeof AuthenticatedWarehousesRoute
   '/api/chat-widget': typeof ApiChatWidgetRoute
   '/api/whatsapp-webhook': typeof ApiWhatsappWebhookRoute
+  '/delivery/aden': typeof DeliveryAdenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/guides/$guideId': typeof GuidesGuideIdRoute
   '/planet/$planetId': typeof PlanetPlanetIdRoute
   '/product/$handle': typeof ProductHandleRoute
   '/product/$productId': typeof ProductProductIdRoute
@@ -740,6 +760,7 @@ export interface FileRoutesByFullPath {
   '/tools/pediatric-dose': typeof ToolsPediatricDoseRoute
   '/tools/schedule': typeof ToolsScheduleRoute
   '/tools/symptoms': typeof ToolsSymptomsRoute
+  '/guides/': typeof GuidesIndexRoute
   '/tools/': typeof ToolsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -834,7 +855,9 @@ export interface FileRoutesByTo {
   '/warehouses': typeof AuthenticatedWarehousesRoute
   '/api/chat-widget': typeof ApiChatWidgetRoute
   '/api/whatsapp-webhook': typeof ApiWhatsappWebhookRoute
+  '/delivery/aden': typeof DeliveryAdenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/guides/$guideId': typeof GuidesGuideIdRoute
   '/planet/$planetId': typeof PlanetPlanetIdRoute
   '/product/$handle': typeof ProductHandleRoute
   '/product/$productId': typeof ProductProductIdRoute
@@ -843,6 +866,7 @@ export interface FileRoutesByTo {
   '/tools/pediatric-dose': typeof ToolsPediatricDoseRoute
   '/tools/schedule': typeof ToolsScheduleRoute
   '/tools/symptoms': typeof ToolsSymptomsRoute
+  '/guides': typeof GuidesIndexRoute
   '/tools': typeof ToolsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -940,7 +964,9 @@ export interface FileRoutesById {
   '/_authenticated/warehouses': typeof AuthenticatedWarehousesRoute
   '/api/chat-widget': typeof ApiChatWidgetRoute
   '/api/whatsapp-webhook': typeof ApiWhatsappWebhookRoute
+  '/delivery/aden': typeof DeliveryAdenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/guides/$guideId': typeof GuidesGuideIdRoute
   '/planet/$planetId': typeof PlanetPlanetIdRoute
   '/product/$handle': typeof ProductHandleRoute
   '/product/$productId': typeof ProductProductIdRoute
@@ -949,6 +975,7 @@ export interface FileRoutesById {
   '/tools/pediatric-dose': typeof ToolsPediatricDoseRoute
   '/tools/schedule': typeof ToolsScheduleRoute
   '/tools/symptoms': typeof ToolsSymptomsRoute
+  '/guides/': typeof GuidesIndexRoute
   '/tools/': typeof ToolsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -1046,7 +1073,9 @@ export interface FileRouteTypes {
     | '/warehouses'
     | '/api/chat-widget'
     | '/api/whatsapp-webhook'
+    | '/delivery/aden'
     | '/email/unsubscribe'
+    | '/guides/$guideId'
     | '/planet/$planetId'
     | '/product/$handle'
     | '/product/$productId'
@@ -1055,6 +1084,7 @@ export interface FileRouteTypes {
     | '/tools/pediatric-dose'
     | '/tools/schedule'
     | '/tools/symptoms'
+    | '/guides/'
     | '/tools/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -1149,7 +1179,9 @@ export interface FileRouteTypes {
     | '/warehouses'
     | '/api/chat-widget'
     | '/api/whatsapp-webhook'
+    | '/delivery/aden'
     | '/email/unsubscribe'
+    | '/guides/$guideId'
     | '/planet/$planetId'
     | '/product/$handle'
     | '/product/$productId'
@@ -1158,6 +1190,7 @@ export interface FileRouteTypes {
     | '/tools/pediatric-dose'
     | '/tools/schedule'
     | '/tools/symptoms'
+    | '/guides'
     | '/tools'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -1254,7 +1287,9 @@ export interface FileRouteTypes {
     | '/_authenticated/warehouses'
     | '/api/chat-widget'
     | '/api/whatsapp-webhook'
+    | '/delivery/aden'
     | '/email/unsubscribe'
+    | '/guides/$guideId'
     | '/planet/$planetId'
     | '/product/$handle'
     | '/product/$productId'
@@ -1263,6 +1298,7 @@ export interface FileRouteTypes {
     | '/tools/pediatric-dose'
     | '/tools/schedule'
     | '/tools/symptoms'
+    | '/guides/'
     | '/tools/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -1328,10 +1364,13 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatWidgetRoute: typeof ApiChatWidgetRoute
   ApiWhatsappWebhookRoute: typeof ApiWhatsappWebhookRoute
+  DeliveryAdenRoute: typeof DeliveryAdenRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  GuidesGuideIdRoute: typeof GuidesGuideIdRoute
   PlanetPlanetIdRoute: typeof PlanetPlanetIdRoute
   ProductHandleRoute: typeof ProductHandleRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
+  GuidesIndexRoute: typeof GuidesIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicCspReportRoute: typeof ApiPublicCspReportRoute
@@ -1714,11 +1753,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWhatsappWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/delivery/aden': {
+      id: '/delivery/aden'
+      path: '/delivery/aden'
+      fullPath: '/delivery/aden'
+      preLoaderRoute: typeof DeliveryAdenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
       path: '/email/unsubscribe'
       fullPath: '/email/unsubscribe'
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/': {
+      id: '/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof GuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$guideId': {
+      id: '/guides/$guideId'
+      path: '/guides/$guideId'
+      fullPath: '/guides/$guideId'
+      preLoaderRoute: typeof GuidesGuideIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planet/$planetId': {
@@ -2359,10 +2419,13 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatWidgetRoute: ApiChatWidgetRoute,
   ApiWhatsappWebhookRoute: ApiWhatsappWebhookRoute,
+  DeliveryAdenRoute: DeliveryAdenRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  GuidesGuideIdRoute: GuidesGuideIdRoute,
   PlanetPlanetIdRoute: PlanetPlanetIdRoute,
   ProductHandleRoute: ProductHandleRoute,
   ProductProductIdRoute: ProductProductIdRoute,
+  GuidesIndexRoute: GuidesIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicCspReportRoute: ApiPublicCspReportRoute,
