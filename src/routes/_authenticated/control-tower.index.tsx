@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Activity, ScrollText, Settings2, SlidersHorizontal, Truck } from 'lucide-react'
+import { Activity, BrainCircuit, ScrollText, Settings2, SlidersHorizontal, Truck } from 'lucide-react'
 import { ControlTowerShell, GlassCard } from '@/components/admin/ControlTowerShell'
 import { useSystemSettings } from '@/hooks/useSystemSettings'
 import {
@@ -38,6 +38,12 @@ const MODULES = [
     icon: Settings2,
     title: 'إعدادات النظام',
     desc: 'حالة الصيدلية والإعلان العاجل.',
+  },
+  {
+    to: '/control-tower/ai-health' as const,
+    icon: BrainCircuit,
+    title: 'صحة الذكاء الاصطناعي',
+    desc: 'أداء وأعطال كل نداءات الذكاء (قراءة فقط).',
   },
   {
     to: '/control-tower/audit' as const,
