@@ -55,6 +55,18 @@ export default tseslint.config(
       'no-empty': ['warn', { allowEmptyCatch: true }],
       'no-useless-escape': 'warn',
       'prefer-const': 'warn',
+
+      // --- Classified as warnings (style / known-safe patterns) ---
+      // Deliberate control-character stripping in sanitisers and filters.
+      'no-control-regex': 'warn',
+      // Common `let x = base; if (...) x = ...` query-builder shape.
+      'no-useless-assignment': 'warn',
+      'preserve-caught-error': 'warn',
+      'prefer-rest-params': 'warn',
+      // TanStack `errorComponent`/`pendingComponent` are real components, but
+      // the rule cannot infer that from the option-property name.
+      'react-hooks/rules-of-hooks': 'warn',
+
     },
   },
   {
