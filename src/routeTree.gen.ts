@@ -60,6 +60,7 @@ import { Route as AuthenticatedSuppliersRouteImport } from './routes/_authentica
 import { Route as AuthenticatedVisionLabRouteImport } from './routes/_authenticated/vision-lab'
 import { Route as AuthenticatedWarehousesRouteImport } from './routes/_authenticated/warehouses'
 import { Route as ApiChatWidgetRouteImport } from './routes/api/chat-widget'
+import { Route as ApiWhatsappWebhookRouteImport } from './routes/api/whatsapp-webhook'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as PlanetPlanetIdRouteImport } from './routes/planet.$planetId'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
@@ -73,6 +74,7 @@ import { Route as ToolsSymptomsRouteImport } from './routes/tools.symptoms'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AuthenticatedAdminKernelEvolutionRouteImport } from './routes/_authenticated/admin.kernel-evolution'
+import { Route as AuthenticatedAdminMedicationInspectorRouteImport } from './routes/_authenticated/admin.medication-inspector'
 import { Route as AuthenticatedAdminPhoenixReportRouteImport } from './routes/_authenticated/admin.phoenix-report'
 import { Route as AuthenticatedAdminPrescriptionsRouteImport } from './routes/_authenticated/admin.prescriptions'
 import { Route as AuthenticatedAdminSunCoreRouteImport } from './routes/_authenticated/admin.sun-core'
@@ -382,6 +384,11 @@ const ApiChatWidgetRoute = ApiChatWidgetRouteImport.update({
   path: '/api/chat-widget',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWhatsappWebhookRoute = ApiWhatsappWebhookRouteImport.update({
+  id: '/api/whatsapp-webhook',
+  path: '/api/whatsapp-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
@@ -447,6 +454,12 @@ const AuthenticatedAdminKernelEvolutionRoute =
   AuthenticatedAdminKernelEvolutionRouteImport.update({
     id: '/admin/kernel-evolution',
     path: '/admin/kernel-evolution',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminMedicationInspectorRoute =
+  AuthenticatedAdminMedicationInspectorRouteImport.update({
+    id: '/admin/medication-inspector',
+    path: '/admin/medication-inspector',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminPhoenixReportRoute =
@@ -717,6 +730,7 @@ export interface FileRoutesByFullPath {
   '/vision-lab': typeof AuthenticatedVisionLabRoute
   '/warehouses': typeof AuthenticatedWarehousesRoute
   '/api/chat-widget': typeof ApiChatWidgetRoute
+  '/api/whatsapp-webhook': typeof ApiWhatsappWebhookRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/planet/$planetId': typeof PlanetPlanetIdRoute
   '/product/$handle': typeof ProductHandleRoute
@@ -730,6 +744,7 @@ export interface FileRoutesByFullPath {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/kernel-evolution': typeof AuthenticatedAdminKernelEvolutionRoute
+  '/admin/medication-inspector': typeof AuthenticatedAdminMedicationInspectorRoute
   '/admin/phoenix-report': typeof AuthenticatedAdminPhoenixReportRoute
   '/admin/prescriptions': typeof AuthenticatedAdminPrescriptionsRoute
   '/admin/sun-core': typeof AuthenticatedAdminSunCoreRoute
@@ -818,6 +833,7 @@ export interface FileRoutesByTo {
   '/vision-lab': typeof AuthenticatedVisionLabRoute
   '/warehouses': typeof AuthenticatedWarehousesRoute
   '/api/chat-widget': typeof ApiChatWidgetRoute
+  '/api/whatsapp-webhook': typeof ApiWhatsappWebhookRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/planet/$planetId': typeof PlanetPlanetIdRoute
   '/product/$handle': typeof ProductHandleRoute
@@ -831,6 +847,7 @@ export interface FileRoutesByTo {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/kernel-evolution': typeof AuthenticatedAdminKernelEvolutionRoute
+  '/admin/medication-inspector': typeof AuthenticatedAdminMedicationInspectorRoute
   '/admin/phoenix-report': typeof AuthenticatedAdminPhoenixReportRoute
   '/admin/prescriptions': typeof AuthenticatedAdminPrescriptionsRoute
   '/admin/sun-core': typeof AuthenticatedAdminSunCoreRoute
@@ -922,6 +939,7 @@ export interface FileRoutesById {
   '/_authenticated/vision-lab': typeof AuthenticatedVisionLabRoute
   '/_authenticated/warehouses': typeof AuthenticatedWarehousesRoute
   '/api/chat-widget': typeof ApiChatWidgetRoute
+  '/api/whatsapp-webhook': typeof ApiWhatsappWebhookRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/planet/$planetId': typeof PlanetPlanetIdRoute
   '/product/$handle': typeof ProductHandleRoute
@@ -935,6 +953,7 @@ export interface FileRoutesById {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/kernel-evolution': typeof AuthenticatedAdminKernelEvolutionRoute
+  '/_authenticated/admin/medication-inspector': typeof AuthenticatedAdminMedicationInspectorRoute
   '/_authenticated/admin/phoenix-report': typeof AuthenticatedAdminPhoenixReportRoute
   '/_authenticated/admin/prescriptions': typeof AuthenticatedAdminPrescriptionsRoute
   '/_authenticated/admin/sun-core': typeof AuthenticatedAdminSunCoreRoute
@@ -1026,6 +1045,7 @@ export interface FileRouteTypes {
     | '/vision-lab'
     | '/warehouses'
     | '/api/chat-widget'
+    | '/api/whatsapp-webhook'
     | '/email/unsubscribe'
     | '/planet/$planetId'
     | '/product/$handle'
@@ -1039,6 +1059,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/kernel-evolution'
+    | '/admin/medication-inspector'
     | '/admin/phoenix-report'
     | '/admin/prescriptions'
     | '/admin/sun-core'
@@ -1127,6 +1148,7 @@ export interface FileRouteTypes {
     | '/vision-lab'
     | '/warehouses'
     | '/api/chat-widget'
+    | '/api/whatsapp-webhook'
     | '/email/unsubscribe'
     | '/planet/$planetId'
     | '/product/$handle'
@@ -1140,6 +1162,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/kernel-evolution'
+    | '/admin/medication-inspector'
     | '/admin/phoenix-report'
     | '/admin/prescriptions'
     | '/admin/sun-core'
@@ -1230,6 +1253,7 @@ export interface FileRouteTypes {
     | '/_authenticated/vision-lab'
     | '/_authenticated/warehouses'
     | '/api/chat-widget'
+    | '/api/whatsapp-webhook'
     | '/email/unsubscribe'
     | '/planet/$planetId'
     | '/product/$handle'
@@ -1243,6 +1267,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/kernel-evolution'
+    | '/_authenticated/admin/medication-inspector'
     | '/_authenticated/admin/phoenix-report'
     | '/_authenticated/admin/prescriptions'
     | '/_authenticated/admin/sun-core'
@@ -1302,6 +1327,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatWidgetRoute: typeof ApiChatWidgetRoute
+  ApiWhatsappWebhookRoute: typeof ApiWhatsappWebhookRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   PlanetPlanetIdRoute: typeof PlanetPlanetIdRoute
   ProductHandleRoute: typeof ProductHandleRoute
@@ -1681,6 +1707,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatWidgetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/whatsapp-webhook': {
+      id: '/api/whatsapp-webhook'
+      path: '/api/whatsapp-webhook'
+      fullPath: '/api/whatsapp-webhook'
+      preLoaderRoute: typeof ApiWhatsappWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
       path: '/email/unsubscribe'
@@ -1770,6 +1803,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/kernel-evolution'
       fullPath: '/admin/kernel-evolution'
       preLoaderRoute: typeof AuthenticatedAdminKernelEvolutionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/medication-inspector': {
+      id: '/_authenticated/admin/medication-inspector'
+      path: '/admin/medication-inspector'
+      fullPath: '/admin/medication-inspector'
+      preLoaderRoute: typeof AuthenticatedAdminMedicationInspectorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/phoenix-report': {
@@ -2198,6 +2238,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedVisionLabRoute: typeof AuthenticatedVisionLabRoute
   AuthenticatedWarehousesRoute: typeof AuthenticatedWarehousesRoute
   AuthenticatedAdminKernelEvolutionRoute: typeof AuthenticatedAdminKernelEvolutionRoute
+  AuthenticatedAdminMedicationInspectorRoute: typeof AuthenticatedAdminMedicationInspectorRoute
   AuthenticatedAdminPhoenixReportRoute: typeof AuthenticatedAdminPhoenixReportRoute
   AuthenticatedAdminPrescriptionsRoute: typeof AuthenticatedAdminPrescriptionsRoute
   AuthenticatedAdminSunCoreRoute: typeof AuthenticatedAdminSunCoreRoute
@@ -2251,6 +2292,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWarehousesRoute: AuthenticatedWarehousesRoute,
   AuthenticatedAdminKernelEvolutionRoute:
     AuthenticatedAdminKernelEvolutionRoute,
+  AuthenticatedAdminMedicationInspectorRoute:
+    AuthenticatedAdminMedicationInspectorRoute,
   AuthenticatedAdminPhoenixReportRoute: AuthenticatedAdminPhoenixReportRoute,
   AuthenticatedAdminPrescriptionsRoute: AuthenticatedAdminPrescriptionsRoute,
   AuthenticatedAdminSunCoreRoute: AuthenticatedAdminSunCoreRoute,
@@ -2315,6 +2358,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatWidgetRoute: ApiChatWidgetRoute,
+  ApiWhatsappWebhookRoute: ApiWhatsappWebhookRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   PlanetPlanetIdRoute: PlanetPlanetIdRoute,
   ProductHandleRoute: ProductHandleRoute,
