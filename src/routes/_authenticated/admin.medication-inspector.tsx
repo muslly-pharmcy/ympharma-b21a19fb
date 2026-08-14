@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { PatientMedicationInspector } from '@/components/admin/PatientMedicationInspector'
+import { useFeatureFlags } from '@/hooks/useFeatureFlags'
+
 
 export const Route = createFileRoute('/_authenticated/admin/medication-inspector')({
   head: () => ({
@@ -19,11 +21,8 @@ export const Route = createFileRoute('/_authenticated/admin/medication-inspector
       { name: 'twitter:card', content: 'summary' },
     ],
   }),
-  component: () => (
-    <main dir="rtl" className="mx-auto w-full max-w-3xl px-4 py-8">
-      <PatientMedicationInspector />
-    </main>
-  ),
+  component: InspectorPage,
+
   errorComponent: ({ error }) => (
     <div className="p-8 text-center text-red-600" dir="rtl">
       {error.message}
