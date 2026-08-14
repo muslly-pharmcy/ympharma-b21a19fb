@@ -11,7 +11,7 @@ import almoslyLogo from '@/assets/almosly-logo-optimized.webp'
 import { GlassLogo } from '@/shared/components/GlassLogo'
 import {
   Sun, Moon, Bell, MessageSquare, LogOut, Shield, LogIn,
-  Stethoscope, Database, Search, ShoppingCart, Store, Sparkles, ClipboardList,
+  Stethoscope, Database, Search, ShoppingCart, Store, Sparkles, ClipboardList, Gauge,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -158,10 +158,16 @@ export default function Navbar() {
                 )}
               </Link>
               {isAdmin && (
-                <Link to="/admin-orders" className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors" title="إدارة الطلبات">
-                  <ClipboardList className="w-5 h-5 text-gold" />
-                </Link>
+                <>
+                  <Link to="/admin-orders" className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors" title="إدارة الطلبات">
+                    <ClipboardList className="w-5 h-5 text-gold" />
+                  </Link>
+                  <Link to="/control-tower" className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors" title="الإدارة المركزية">
+                    <Gauge className="w-5 h-5 text-gold" />
+                  </Link>
+                </>
               )}
+
             </>
           )}
 

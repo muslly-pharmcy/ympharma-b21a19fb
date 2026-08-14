@@ -56,6 +56,10 @@ const TABS: Array<{ key: TabKey; label: string; icon: typeof UserRound }> = [
 
 function PatientProfileRoute() {
   const [tab, setTab] = useState<TabKey>('profile')
+  const { isFlagEnabled } = useFeatureFlags()
+  const vaultEnabled = isFlagEnabled('enable_medication_vault')
+  const visibleTabs = vaultEnabled ? TABS : TABS.filter((t) => t.key === 'profile')
+  const activeTab: TabKey = vaultEnabled ? tab : 'profile'
 
   return (
     <main dir="rtl" className="mx-auto w-full max-w-4xl px-4 py-8">
@@ -67,13 +71,20 @@ function PatientProfileRoute() {
         بياناتك مشفّرة وخاصة بك وحدك، ويطّلع عليها الصيدلي فقط عند المراجعة السريرية.
       </p>
 
+      {!vaultEnabled && (
+        <p className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          خزينة الأدوية والعلب متوقفة مؤقتًا من إدارة الصيدلية. بياناتك المحفوظة آمنة وستعود عند
+          إعادة التفعيل.
+        </p>
+      )}
+
       <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
-        {TABS.map(({ key, label, icon: Icon }) => (
+        {visibleTabs.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
             className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
-              tab === key
+              activeTab === key
                 ? 'border-primary bg-primary text-primary-foreground'
                 : 'border-border bg-card text-foreground hover:bg-muted'
             }`}
@@ -84,9 +95,10 @@ function PatientProfileRoute() {
         ))}
       </div>
 
-      {tab === 'profile' && <FamilyHealthProfile />}
-      {tab === 'vault' && <VaultTab />}
-      {tab === 'meds' && <MedicationsTab />}
+      {activeTab === 'profile' && <FamilyHealthProfile />}
+      {activeTab === 'vault' && <VaultTab />}
+      {activeTab === 'meds' && <MedicationsTab />}
+
     </main>
   )
 }

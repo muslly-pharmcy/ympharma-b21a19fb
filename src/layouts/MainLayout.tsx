@@ -8,6 +8,7 @@ import { ChatWidget } from '@/shared/components/ChatWidget'
 import { ExitIntentModal } from '@/shared/components/engage/ExitIntentModal'
 import { ScrollDepthPrompt } from '@/shared/components/engage/ScrollDepthPrompt'
 import { AuthenticityBadge } from '@/components/store/AuthenticityBadge'
+import { SystemBanner } from '@/shared/components/SystemBanner'
 import { useShopifyCartSync } from '@/hooks/useShopifyCartSync'
 
 interface MainLayoutProps {
@@ -23,8 +24,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <Navbar />
       {/* pb keeps content clear of the mobile bottom nav + speed dial */}
       <main id="main-content" role="main" className="pt-16 pb-24 md:pb-0 flex-1">
+        <SystemBanner />
         {children}
       </main>
+
 
       {/* Site-wide trust strip */}
       <section dir="rtl" className="px-4 pb-8 sm:px-6 lg:px-8">
