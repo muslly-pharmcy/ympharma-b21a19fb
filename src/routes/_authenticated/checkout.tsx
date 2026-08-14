@@ -37,6 +37,8 @@ export const Route = createFileRoute('/_authenticated/checkout')({
 function CheckoutPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
+  const { isFlagEnabled } = useFeatureFlags()
+
 
   const { data: cart = [], isLoading: cartLoading } = useQuery({
     queryKey: ['cart', 'items'],
