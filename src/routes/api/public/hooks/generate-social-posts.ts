@@ -43,16 +43,36 @@ export const Route = createFileRoute('/api/public/hooks/generate-social-posts')(
           })
           if (!r.ok) {
             const body = await r.text()
-            console.error('[social-posts] gateway error', r.status, body)
-            return new Response(JSON.stringify({ ok: false, error: body }), { status: 502 })
+            const { classifyAiFailure } = await import('@/lib/ai/error-classify')
+            const { recordAiCall } = await import('@/lib/ai/observability.server')
+            const klass = classifyAiFailure(r.status, body)
+            void recordAiCall({
+              feature: 'social-posts-cron',
+              model: 'google/gemini-3-flash-preview',
+              backend: 'gateway',
+              ok: false,
+              errorClass: klass,
+            })
+            console.error('[social-posts] gateway error', klass, r.status)
+            return new Response(JSON.stringify({ ok: false, error: klass }), { status: 502 })
           }
           const data = (await r.json()) as { choices?: Array<{ message?: { content?: string } }> }
           const text = data.choices?.[0]?.message?.content ?? '{"posts":[]}'
           const parsed = JSON.parse(text) as { posts?: typeof posts }
           posts = Array.isArray(parsed.posts) ? parsed.posts.slice(0, 3) : []
         } catch (e) {
-          console.error('[social-posts] parse failed', e)
-          return new Response(JSON.stringify({ ok: false, error: (e as Error).message }), { status: 500 })
+          const { classifyThrownAi } = await import('@/lib/ai/error-classify')
+          const { recordAiCall } = await import('@/lib/ai/observability.server')
+          const klass = classifyThrownAi(e)
+          void recordAiCall({
+            feature: 'social-posts-cron',
+            model: 'google/gemini-3-flash-preview',
+            backend: 'gateway',
+            ok: false,
+            errorClass: klass,
+          })
+          console.error('[social-posts] failed', klass)
+          return new Response(JSON.stringify({ ok: false, error: klass }), { status: 500 })
         }
 
         if (posts.length === 0) {

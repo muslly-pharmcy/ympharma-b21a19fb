@@ -43,14 +43,39 @@ export const cosmicSearch = createServerFn({ method: 'POST' })
 
     const userPrompt = `سياق الكاتالوج (قراءة فقط):\n${contextText}\n\nسؤال المستخدم:\n${data.query}`
 
-    const result = await generateText({
-      model,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.3,
-      maxOutputTokens: 500,
+    const { recordAiCall } = await import('./ai/observability.server')
+    const { classifyThrownAi, aiUserMessage, AiError } = await import('./ai/error-classify')
+
+    let result: Awaited<ReturnType<typeof generateText>>
+    try {
+      result = await generateText({
+        model,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.3,
+        maxOutputTokens: 500,
+      })
+    } catch (err) {
+      const klass = classifyThrownAi(err)
+      void recordAiCall({
+        feature: 'cosmic-search',
+        model: 'google/gemini-3-flash-preview',
+        backend: 'gateway',
+        ok: false,
+        latencyMs: Date.now() - t0,
+        errorClass: klass,
+      })
+      throw new AiError(klass, aiUserMessage(klass), 502, crypto.randomUUID())
+    }
+
+    void recordAiCall({
+      feature: 'cosmic-search',
+      model: 'google/gemini-3-flash-preview',
+      backend: 'gateway',
+      ok: true,
+      latencyMs: Date.now() - t0,
     })
 
     return {

@@ -26,66 +26,21 @@ const GATEWAY_RESPONSES_URL = 'https://ai.gateway.lovable.dev/v1/responses'
  */
 export type AiBackend = 'openai' | 'gateway'
 
-export type AiErrorClass =
-  | 'missing_key'
-  | 'unauthorized'
-  | 'forbidden'
-  | 'rate_limited'
-  | 'invalid_request'
-  | 'upstream'
-  | 'network'
-  | 'aborted'
-  | 'no_credit'
-  | 'malformed'
+import {
+  AiError,
+  classifyAiFailure,
+  isRetryableAiError,
+  shouldFailoverAiError,
+  type AiErrorClass,
+} from './error-classify'
 
+export { AiError }
+export type { AiErrorClass }
 
-export class AiError extends Error {
-  readonly klass: AiErrorClass
-  readonly status: number
-  readonly correlationId: string
-  constructor(klass: AiErrorClass, message: string, status: number, correlationId: string) {
-    super(message)
-    this.name = 'AiError'
-    this.klass = klass
-    this.status = status
-    this.correlationId = correlationId
-  }
-  /** Arabic-first, user-safe message. Never contains provider internals. */
-  get userMessage(): string {
-    switch (this.klass) {
-      case 'rate_limited':
-        return 'الخدمة مزدحمة حالياً. أعد المحاولة بعد لحظات.'
-      case 'missing_key':
-      case 'unauthorized':
-      case 'forbidden':
-      case 'no_credit':
-        return 'خدمة الذكاء غير متاحة مؤقتاً. تم إبلاغ الفريق التقني.'
-      case 'aborted':
-        return 'تم إيقاف الطلب.'
-      default:
-        return 'تعذر إكمال الطلب الآن. حاول مرة أخرى أو تواصل مع الصيدلية.'
-    }
-  }
-}
+const classify = classifyAiFailure
+const isRetryable = isRetryableAiError
+const shouldFailover = shouldFailoverAiError
 
-function classify(status: number, detail = ''): AiErrorClass {
-  if (/insufficient_quota|credit_balance_exhausted|billing_hard_limit/i.test(detail)) return 'no_credit'
-  if (status === 401) return 'unauthorized'
-  if (status === 402) return 'no_credit'
-  if (status === 403) return 'forbidden'
-  if (status === 429) return /quota|credit/i.test(detail) ? 'no_credit' : 'rate_limited'
-  if (status >= 500) return 'upstream'
-  return 'invalid_request'
-}
-
-function isRetryable(klass: AiErrorClass): boolean {
-  return klass === 'rate_limited' || klass === 'upstream' || klass === 'network'
-}
-
-/** A backend that can never succeed as configured — try the other one instead. */
-function shouldFailover(klass: AiErrorClass): boolean {
-  return klass === 'no_credit' || klass === 'unauthorized' || klass === 'forbidden' || klass === 'missing_key'
-}
 
 interface BackendConfig {
   url: string
@@ -148,6 +103,8 @@ export interface AiCallOptions {
   maxRetries?: number
   /** Preferred backend; the other is used automatically as failover. */
   backend?: AiBackend
+  /** Product surface label used by unified AI observability. */
+  feature?: string
 }
 
 export interface AiCallResult {
@@ -233,12 +190,35 @@ export async function callOpenAi(opts: AiCallOptions): Promise<AiCallResult> {
   const order: AiBackend[] =
     opts.backend === 'gateway' ? ['gateway', 'openai'] : ['openai', 'gateway']
 
+  const feature = opts.feature ?? 'unlabelled'
+  const { recordAiCall } = await import('./observability.server')
+
   let lastError: AiError | null = null
   for (const backend of order) {
     try {
-      return await callBackend(backend, opts)
+      const result = await callBackend(backend, opts)
+      void recordAiCall({
+        feature,
+        model: result.model,
+        backend: result.backend,
+        ok: true,
+        latencyMs: result.latencyMs,
+        tokensIn: result.usage.input,
+        tokensOut: result.usage.output,
+        toolCalls: result.functionCalls.length,
+        correlationId: opts.correlationId,
+      })
+      return result
     } catch (e) {
       const err = e as AiError
+      void recordAiCall({
+        feature,
+        model: opts.model,
+        backend,
+        ok: false,
+        errorClass: err.klass,
+        correlationId: opts.correlationId,
+      })
       if (err.klass === 'aborted') throw err
       lastError = err
       if (!shouldFailover(err.klass)) throw err

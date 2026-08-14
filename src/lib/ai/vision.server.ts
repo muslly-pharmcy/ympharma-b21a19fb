@@ -4,6 +4,8 @@
 import { generateText, NoObjectGeneratedError, Output } from 'ai'
 import { z } from 'zod'
 import { createLovableAiGatewayProvider } from './gateway.server'
+import { classifyThrownAi } from './error-classify'
+import { recordAiCall } from './observability.server'
 
 export interface VisionCallInput<TSchema extends z.ZodTypeAny> {
   systemPrompt: string
@@ -13,6 +15,8 @@ export interface VisionCallInput<TSchema extends z.ZodTypeAny> {
   // 'flash' is fine for most receipts/prescriptions; caller may bump if needed.
   model?: string
   maxOutputTokens?: number
+  /** Observability label, e.g. 'vision-rx' or 'vision-invoice'. */
+  feature?: string
 }
 
 export interface VisionCallResult<T> {
@@ -36,6 +40,8 @@ export async function callVision<TSchema extends z.ZodTypeAny>(
   const modelId = input.model ?? 'google/gemini-3-flash-preview'
   const gateway = createLovableAiGatewayProvider(apiKey)
   const model = gateway(modelId)
+  const startedAt = Date.now()
+  const feature = input.feature ?? 'vision'
 
   try {
     const result = await generateText({
@@ -53,6 +59,13 @@ export async function callVision<TSchema extends z.ZodTypeAny>(
         },
       ],
     })
+    void recordAiCall({
+      feature,
+      model: modelId,
+      backend: 'gateway',
+      ok: true,
+      latencyMs: Date.now() - startedAt,
+    })
     return {
       data: result.output as z.infer<TSchema>,
       rawText: result.text,
@@ -60,6 +73,14 @@ export async function callVision<TSchema extends z.ZodTypeAny>(
       model: modelId,
     }
   } catch (err) {
+    void recordAiCall({
+      feature,
+      model: modelId,
+      backend: 'gateway',
+      ok: false,
+      latencyMs: Date.now() - startedAt,
+      errorClass: classifyThrownAi(err),
+    })
     if (NoObjectGeneratedError.isInstance(err)) {
       // Attempt lenient JSON parse from the raw model text.
       const text = err.text ?? ''

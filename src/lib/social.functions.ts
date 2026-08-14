@@ -70,6 +70,7 @@ export const generateSocialPosts = createServerFn({ method: 'POST' })
       const { generateText, Output } = await import('ai')
       const gateway = createLovableAiGatewayProvider(apiKey)
 
+      const startedAt = Date.now()
       const { output } = await generateText({
         model: gateway('google/gemini-3-flash-preview'),
         output: Output.object({ schema: postSchema }),
@@ -88,9 +89,27 @@ export const generateSocialPosts = createServerFn({ method: 'POST' })
         ].join('\n'),
       })
 
+      const { recordAiCall } = await import('./ai/observability.server')
+      void recordAiCall({
+        feature: 'social-posts',
+        model: 'google/gemini-3-flash-preview',
+        backend: 'gateway',
+        ok: true,
+        latencyMs: Date.now() - startedAt,
+      })
       return { ok: true, posts: (output as z.infer<typeof postSchema>).posts }
     } catch (err) {
-      console.error('[generateSocialPosts]', err)
-      return { ok: false, posts: [], error: 'تعذّر توليد المنشورات — حاول مرة أخرى' }
+      const { classifyThrownAi, aiUserMessage } = await import('./ai/error-classify')
+      const klass = classifyThrownAi(err)
+      const { recordAiCall } = await import('./ai/observability.server')
+      void recordAiCall({
+        feature: 'social-posts',
+        model: 'google/gemini-3-flash-preview',
+        backend: 'gateway',
+        ok: false,
+        errorClass: klass,
+      })
+      console.error('[generateSocialPosts]', klass)
+      return { ok: false, posts: [], error: aiUserMessage(klass) }
     }
   })

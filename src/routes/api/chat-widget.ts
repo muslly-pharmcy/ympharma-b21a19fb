@@ -180,6 +180,7 @@ export const Route = createFileRoute('/api/chat-widget')({
 
           async function runWithTools() {
             let last = await callOpenAi({
+              feature: 'patient-chat',
               model: policy.model,
               input,
               instructions: PATIENT_ASSISTANT_V1,
@@ -206,6 +207,7 @@ export const Route = createFileRoute('/api/chat-widget')({
                 })
               }
               last = await callOpenAi({
+                feature: 'patient-chat',
                 model: policy.model,
                 input,
                 instructions: PATIENT_ASSISTANT_V1,

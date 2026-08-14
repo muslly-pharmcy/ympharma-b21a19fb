@@ -88,6 +88,7 @@ import { Route as AuthenticatedCampaignsIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedCatalogIndexRouteImport } from './routes/_authenticated/catalog.index'
 import { Route as AuthenticatedCatalogProductIdRouteImport } from './routes/_authenticated/catalog.$productId'
 import { Route as AuthenticatedControlTowerIndexRouteImport } from './routes/_authenticated/control-tower.index'
+import { Route as AuthenticatedControlTowerAiHealthRouteImport } from './routes/_authenticated/control-tower.ai-health'
 import { Route as AuthenticatedControlTowerAuditRouteImport } from './routes/_authenticated/control-tower.audit'
 import { Route as AuthenticatedControlTowerDeliveryConfigRouteImport } from './routes/_authenticated/control-tower.delivery-config'
 import { Route as AuthenticatedControlTowerFeatureTogglesRouteImport } from './routes/_authenticated/control-tower.feature-toggles'
@@ -546,6 +547,12 @@ const AuthenticatedControlTowerIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedControlTowerRoute,
   } as any)
+const AuthenticatedControlTowerAiHealthRoute =
+  AuthenticatedControlTowerAiHealthRouteImport.update({
+    id: '/ai-health',
+    path: '/ai-health',
+    getParentRoute: () => AuthenticatedControlTowerRoute,
+  } as any)
 const AuthenticatedControlTowerAuditRoute =
   AuthenticatedControlTowerAuditRouteImport.update({
     id: '/audit',
@@ -815,6 +822,7 @@ export interface FileRoutesByFullPath {
   '/admin/titanos-report': typeof AuthenticatedAdminTitanosReportRoute
   '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/catalog/$productId': typeof AuthenticatedCatalogProductIdRoute
+  '/control-tower/ai-health': typeof AuthenticatedControlTowerAiHealthRoute
   '/control-tower/audit': typeof AuthenticatedControlTowerAuditRoute
   '/control-tower/delivery-config': typeof AuthenticatedControlTowerDeliveryConfigRoute
   '/control-tower/feature-toggles': typeof AuthenticatedControlTowerFeatureTogglesRoute
@@ -926,6 +934,7 @@ export interface FileRoutesByTo {
   '/admin/titanos-report': typeof AuthenticatedAdminTitanosReportRoute
   '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/catalog/$productId': typeof AuthenticatedCatalogProductIdRoute
+  '/control-tower/ai-health': typeof AuthenticatedControlTowerAiHealthRoute
   '/control-tower/audit': typeof AuthenticatedControlTowerAuditRoute
   '/control-tower/delivery-config': typeof AuthenticatedControlTowerDeliveryConfigRoute
   '/control-tower/feature-toggles': typeof AuthenticatedControlTowerFeatureTogglesRoute
@@ -1041,6 +1050,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/titanos-report': typeof AuthenticatedAdminTitanosReportRoute
   '/_authenticated/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/_authenticated/catalog/$productId': typeof AuthenticatedCatalogProductIdRoute
+  '/_authenticated/control-tower/ai-health': typeof AuthenticatedControlTowerAiHealthRoute
   '/_authenticated/control-tower/audit': typeof AuthenticatedControlTowerAuditRoute
   '/_authenticated/control-tower/delivery-config': typeof AuthenticatedControlTowerDeliveryConfigRoute
   '/_authenticated/control-tower/feature-toggles': typeof AuthenticatedControlTowerFeatureTogglesRoute
@@ -1156,6 +1166,7 @@ export interface FileRouteTypes {
     | '/admin/titanos-report'
     | '/campaigns/$id'
     | '/catalog/$productId'
+    | '/control-tower/ai-health'
     | '/control-tower/audit'
     | '/control-tower/delivery-config'
     | '/control-tower/feature-toggles'
@@ -1267,6 +1278,7 @@ export interface FileRouteTypes {
     | '/admin/titanos-report'
     | '/campaigns/$id'
     | '/catalog/$productId'
+    | '/control-tower/ai-health'
     | '/control-tower/audit'
     | '/control-tower/delivery-config'
     | '/control-tower/feature-toggles'
@@ -1381,6 +1393,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/titanos-report'
     | '/_authenticated/campaigns/$id'
     | '/_authenticated/catalog/$productId'
+    | '/_authenticated/control-tower/ai-health'
     | '/_authenticated/control-tower/audit'
     | '/_authenticated/control-tower/delivery-config'
     | '/_authenticated/control-tower/feature-toggles'
@@ -2018,6 +2031,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedControlTowerIndexRouteImport
       parentRoute: typeof AuthenticatedControlTowerRoute
     }
+    '/_authenticated/control-tower/ai-health': {
+      id: '/_authenticated/control-tower/ai-health'
+      path: '/ai-health'
+      fullPath: '/control-tower/ai-health'
+      preLoaderRoute: typeof AuthenticatedControlTowerAiHealthRouteImport
+      parentRoute: typeof AuthenticatedControlTowerRoute
+    }
     '/_authenticated/control-tower/audit': {
       id: '/_authenticated/control-tower/audit'
       path: '/audit'
@@ -2267,6 +2287,7 @@ const AuthenticatedCampaignsRouteWithChildren =
   )
 
 interface AuthenticatedControlTowerRouteChildren {
+  AuthenticatedControlTowerAiHealthRoute: typeof AuthenticatedControlTowerAiHealthRoute
   AuthenticatedControlTowerAuditRoute: typeof AuthenticatedControlTowerAuditRoute
   AuthenticatedControlTowerDeliveryConfigRoute: typeof AuthenticatedControlTowerDeliveryConfigRoute
   AuthenticatedControlTowerFeatureTogglesRoute: typeof AuthenticatedControlTowerFeatureTogglesRoute
@@ -2276,6 +2297,8 @@ interface AuthenticatedControlTowerRouteChildren {
 
 const AuthenticatedControlTowerRouteChildren: AuthenticatedControlTowerRouteChildren =
   {
+    AuthenticatedControlTowerAiHealthRoute:
+      AuthenticatedControlTowerAiHealthRoute,
     AuthenticatedControlTowerAuditRoute: AuthenticatedControlTowerAuditRoute,
     AuthenticatedControlTowerDeliveryConfigRoute:
       AuthenticatedControlTowerDeliveryConfigRoute,
