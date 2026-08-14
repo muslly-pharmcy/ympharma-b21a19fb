@@ -341,6 +341,12 @@ function CheckoutPage() {
               </span>
             </div>
 
+            {!deliveryEnabled && (
+              <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                خدمة التوصيل المنزلي متوقفة مؤقتًا. يمكنك التواصل مع الصيدلية مباشرة لاستلام طلبك.
+              </p>
+            )}
+
             <button
               onClick={() => placeMut.mutate()}
               disabled={!canSubmit}
