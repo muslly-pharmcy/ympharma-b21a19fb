@@ -171,6 +171,38 @@ function ToolsHub() {
           </RevealItem>
         ))}
       </Stagger>
+
+      <section className="mt-10">
+        <h2 className="mb-3 text-lg font-bold text-gray-900">متى تستخدم هذه الأدوات؟</h2>
+        <p className="text-sm leading-8 text-gray-600">
+          استخدم حاسبة الجرعات قبل إعطاء شراب خافض للحرارة لطفلك، وفاحص التداخلات قبل إضافة
+          دواء جديد إلى أدويتك المزمنة، ومرشد الأعراض عندما تتردد بين الرعاية المنزلية وزيارة
+          الطبيب. مخطط الجدول يفيد مرضى الأمراض المزمنة الذين يتناولون أكثر من دواء يومياً،
+          وحاسبة كتلة الجسم تساعد في متابعة الوزن والترطيب. النتائج إرشادية، ويمكنك دائماً
+          مراجعة{' '}
+          <Link to="/guides" className="font-semibold text-primary">
+            الأدلة الدوائية
+          </Link>{' '}
+          أو التواصل مع صيدلي عبر{' '}
+          <Link to="/request" className="font-semibold text-primary">
+            نموذج الطلب
+          </Link>
+          .
+        </p>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-3 text-lg font-bold text-gray-900">أسئلة شائعة</h2>
+        <div className="space-y-3">
+          {TOOL_FAQS.map((f) => (
+            <div key={f.q} className="glass-card p-4">
+              <h3 className="text-sm font-bold text-gray-900">{f.q}</h3>
+              <p className="mt-1 text-sm leading-7 text-gray-600">{f.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
     </div>
   )
 }
