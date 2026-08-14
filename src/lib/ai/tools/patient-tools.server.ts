@@ -106,24 +106,32 @@ async function searchMedicines(raw: unknown): Promise<unknown> {
     const like = `%${term}%`
     const { data, error } = await supabase
       .from('catalog_products')
-      .select('store_code, name_ar, generic_name, sbdma_official_price, dosage_form, strength')
+      .select(
+        'store_code, name_ar, name_en, generic_name, brand, sbdma_official_price, dosage_form, strength, requires_prescription',
+      )
       .eq('is_public', true)
       .eq('status', 'approved')
-      .or(`name_ar.ilike.${like},generic_name.ilike.${like},active_ingredients.ilike.${like}`)
+      // active_ingredients is jsonb — ilike is invalid on it, so it is not searched here.
+      .or(
+        `name_ar.ilike.${like},name_en.ilike.${like},generic_name.ilike.${like},brand.ilike.${like}`,
+      )
       .limit(limit)
     if (error) return { items: [], note: 'تعذر الوصول للمخزون الآن' }
     const rows = (data ?? []) as Array<Record<string, unknown>>
     return {
       items: rows.map((r) => ({
         code: r['store_code'],
-        name: r['name_ar'],
+        name: r['name_ar'] || r['name_en'],
         generic: r['generic_name'],
+        brand: r['brand'],
         form: r['dosage_form'],
         strength: r['strength'],
         price_yer: r['sbdma_official_price'],
+        requires_prescription: r['requires_prescription'],
       })),
       source: 'catalog',
     }
+
   } catch {
     return { items: [], note: 'تعذر الوصول للمخزون الآن' }
   }
