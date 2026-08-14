@@ -61,6 +61,7 @@ import { Route as AuthenticatedVisionLabRouteImport } from './routes/_authentica
 import { Route as AuthenticatedWarehousesRouteImport } from './routes/_authenticated/warehouses'
 import { Route as ApiChatWidgetRouteImport } from './routes/api/chat-widget'
 import { Route as ApiWhatsappWebhookRouteImport } from './routes/api/whatsapp-webhook'
+import { Route as DeliveryAdenRouteImport } from './routes/delivery.aden'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as PlanetPlanetIdRouteImport } from './routes/planet.$planetId'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
@@ -387,6 +388,11 @@ const ApiChatWidgetRoute = ApiChatWidgetRouteImport.update({
 const ApiWhatsappWebhookRoute = ApiWhatsappWebhookRouteImport.update({
   id: '/api/whatsapp-webhook',
   path: '/api/whatsapp-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeliveryAdenRoute = DeliveryAdenRouteImport.update({
+  id: '/delivery/aden',
+  path: '/delivery/aden',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
@@ -731,6 +737,7 @@ export interface FileRoutesByFullPath {
   '/warehouses': typeof AuthenticatedWarehousesRoute
   '/api/chat-widget': typeof ApiChatWidgetRoute
   '/api/whatsapp-webhook': typeof ApiWhatsappWebhookRoute
+  '/delivery/aden': typeof DeliveryAdenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/planet/$planetId': typeof PlanetPlanetIdRoute
   '/product/$handle': typeof ProductHandleRoute
@@ -834,6 +841,7 @@ export interface FileRoutesByTo {
   '/warehouses': typeof AuthenticatedWarehousesRoute
   '/api/chat-widget': typeof ApiChatWidgetRoute
   '/api/whatsapp-webhook': typeof ApiWhatsappWebhookRoute
+  '/delivery/aden': typeof DeliveryAdenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/planet/$planetId': typeof PlanetPlanetIdRoute
   '/product/$handle': typeof ProductHandleRoute
@@ -940,6 +948,7 @@ export interface FileRoutesById {
   '/_authenticated/warehouses': typeof AuthenticatedWarehousesRoute
   '/api/chat-widget': typeof ApiChatWidgetRoute
   '/api/whatsapp-webhook': typeof ApiWhatsappWebhookRoute
+  '/delivery/aden': typeof DeliveryAdenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/planet/$planetId': typeof PlanetPlanetIdRoute
   '/product/$handle': typeof ProductHandleRoute
@@ -1046,6 +1055,7 @@ export interface FileRouteTypes {
     | '/warehouses'
     | '/api/chat-widget'
     | '/api/whatsapp-webhook'
+    | '/delivery/aden'
     | '/email/unsubscribe'
     | '/planet/$planetId'
     | '/product/$handle'
@@ -1149,6 +1159,7 @@ export interface FileRouteTypes {
     | '/warehouses'
     | '/api/chat-widget'
     | '/api/whatsapp-webhook'
+    | '/delivery/aden'
     | '/email/unsubscribe'
     | '/planet/$planetId'
     | '/product/$handle'
@@ -1254,6 +1265,7 @@ export interface FileRouteTypes {
     | '/_authenticated/warehouses'
     | '/api/chat-widget'
     | '/api/whatsapp-webhook'
+    | '/delivery/aden'
     | '/email/unsubscribe'
     | '/planet/$planetId'
     | '/product/$handle'
@@ -1328,6 +1340,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatWidgetRoute: typeof ApiChatWidgetRoute
   ApiWhatsappWebhookRoute: typeof ApiWhatsappWebhookRoute
+  DeliveryAdenRoute: typeof DeliveryAdenRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   PlanetPlanetIdRoute: typeof PlanetPlanetIdRoute
   ProductHandleRoute: typeof ProductHandleRoute
@@ -1712,6 +1725,13 @@ declare module '@tanstack/react-router' {
       path: '/api/whatsapp-webhook'
       fullPath: '/api/whatsapp-webhook'
       preLoaderRoute: typeof ApiWhatsappWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/delivery/aden': {
+      id: '/delivery/aden'
+      path: '/delivery/aden'
+      fullPath: '/delivery/aden'
+      preLoaderRoute: typeof DeliveryAdenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
@@ -2359,6 +2379,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatWidgetRoute: ApiChatWidgetRoute,
   ApiWhatsappWebhookRoute: ApiWhatsappWebhookRoute,
+  DeliveryAdenRoute: DeliveryAdenRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   PlanetPlanetIdRoute: PlanetPlanetIdRoute,
   ProductHandleRoute: ProductHandleRoute,
