@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { Camera, ImagePlus, Loader2, Pill, ShieldAlert, Trash2, UserRound } from 'lucide-react'
 import { FamilyHealthProfile } from '@/components/account/FamilyHealthProfile'
+import { BarcodeScanButton } from '@/shared/components/BarcodeScanButton'
+import { RefillReminderCard } from '@/components/store/RefillReminderCard'
 import { supabase } from '@/integrations/supabase/client'
 import {
   SCHEDULE_PRESETS,
@@ -57,7 +59,10 @@ function PatientProfileRoute() {
 
   return (
     <main dir="rtl" className="mx-auto w-full max-w-4xl px-4 py-8">
-      <h1 className="mb-1 text-2xl font-bold">ملفي الصحي</h1>
+      <div className="mb-1 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <h1 className="truncate text-2xl font-bold">ملفي الصحي</h1>
+        <BarcodeScanButton className="shrink-0" />
+      </div>
       <p className="mb-5 text-sm text-muted-foreground">
         بياناتك مشفّرة وخاصة بك وحدك، ويطّلع عليها الصيدلي فقط عند المراجعة السريرية.
       </p>

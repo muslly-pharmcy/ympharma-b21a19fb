@@ -13,6 +13,9 @@ import { HeroBanner } from '@/components/store/HeroBanner'
 import { CategoryGrid } from '@/components/store/CategoryGrid'
 import { ProductCard, type StoreProduct } from '@/components/store/ProductCard'
 import { Skeleton } from '@/components/skeletons/Skeleton'
+import { GlassHero } from '@/shared/components/home/GlassHero'
+import CategoriesGrid from '@/shared/components/home/CategoriesGrid'
+import TestimonialsSection from '@/shared/components/home/TestimonialsSection'
 
 const gridVariants = {
   hidden: { opacity: 0 },
@@ -60,6 +63,12 @@ export default function Storefront() {
     <div dir="rtl" className="min-h-screen pb-24 md:pb-0">
       <OnboardingModal />
       <PrescriptionUploadModal open={rxOpen} onClose={() => setRxOpen(false)} />
+
+      <section className="px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <GlassHero />
+        </div>
+      </section>
 
       <div ref={heroRef}>
         <HeroBanner
@@ -122,7 +131,19 @@ export default function Storefront() {
         </div>
       </section>
 
+      <section className="px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <CategoriesGrid />
+        </div>
+      </section>
+
       <HealthBundles />
+
+      <section className="px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <TestimonialsSection />
+        </div>
+      </section>
 
       {/* Consultation CTA */}
       <section className="px-4 pb-14 pt-4 sm:px-6 lg:px-8">
