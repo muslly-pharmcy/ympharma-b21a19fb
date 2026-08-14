@@ -1,11 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import type {} from '@tanstack/react-start'
+import { DRUG_GUIDES } from '@/lib/content/drug-guides'
 
 const BASE_URL = 'https://muslly.com'
 
 interface SitemapEntry {
   path: string
-  changefreq?: 'daily' | 'weekly' | 'monthly'
+  changefreq?: 'daily' | 'weekly' | 'monthly' | 'yearly'
   priority?: string
   lastmod?: string
 }
@@ -22,8 +23,25 @@ export const Route = createFileRoute('/sitemap.xml')({
           { path: '/request', changefreq: 'monthly', priority: '0.8' },
           { path: '/search', changefreq: 'weekly', priority: '0.6' },
           { path: '/ai-chat', changefreq: 'monthly', priority: '0.5' },
-          { path: '/auth', changefreq: 'yearly' as never, priority: '0.3' },
+          { path: '/auth', changefreq: 'yearly', priority: '0.3' },
+          // Local SEO landing
+          { path: '/delivery/aden', changefreq: 'monthly', priority: '0.9' },
+          // Interactive medical tools
+          { path: '/tools', changefreq: 'monthly', priority: '0.8' },
+          { path: '/tools/pediatric-dose', changefreq: 'monthly', priority: '0.7' },
+          { path: '/tools/interactions', changefreq: 'monthly', priority: '0.7' },
+          { path: '/tools/symptoms', changefreq: 'monthly', priority: '0.7' },
+          { path: '/tools/schedule', changefreq: 'monthly', priority: '0.7' },
+          { path: '/tools/bmi', changefreq: 'monthly', priority: '0.7' },
+          // Clinical drug guides
+          { path: '/guides', changefreq: 'weekly', priority: '0.8' },
+          ...DRUG_GUIDES.map((g) => ({
+            path: `/guides/${g.slug}`,
+            changefreq: 'monthly' as const,
+            priority: '0.8',
+          })),
         ]
+
 
         // Dynamic: public products
         const entries: SitemapEntry[] = [...staticEntries]
