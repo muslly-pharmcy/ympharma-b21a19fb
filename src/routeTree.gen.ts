@@ -38,6 +38,7 @@ import { Route as AuthenticatedAiRuntimeRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCampaignsRouteImport } from './routes/_authenticated/campaigns'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
+import { Route as AuthenticatedControlTowerRouteImport } from './routes/_authenticated/control-tower'
 import { Route as AuthenticatedCouponsRouteImport } from './routes/_authenticated/coupons'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedDispensesRouteImport } from './routes/_authenticated/dispenses'
@@ -86,6 +87,11 @@ import { Route as AuthenticatedAnalyticsIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedCampaignsIdRouteImport } from './routes/_authenticated/campaigns.$id'
 import { Route as AuthenticatedCatalogIndexRouteImport } from './routes/_authenticated/catalog.index'
 import { Route as AuthenticatedCatalogProductIdRouteImport } from './routes/_authenticated/catalog.$productId'
+import { Route as AuthenticatedControlTowerIndexRouteImport } from './routes/_authenticated/control-tower.index'
+import { Route as AuthenticatedControlTowerAuditRouteImport } from './routes/_authenticated/control-tower.audit'
+import { Route as AuthenticatedControlTowerDeliveryConfigRouteImport } from './routes/_authenticated/control-tower.delivery-config'
+import { Route as AuthenticatedControlTowerFeatureTogglesRouteImport } from './routes/_authenticated/control-tower.feature-toggles'
+import { Route as AuthenticatedControlTowerSettingsRouteImport } from './routes/_authenticated/control-tower.settings'
 import { Route as AuthenticatedCustomersCustomerIdRouteImport } from './routes/_authenticated/customers.$customerId'
 import { Route as AuthenticatedDispensesDispenseIdRouteImport } from './routes/_authenticated/dispenses.$dispenseId'
 import { Route as AuthenticatedDoctorsDoctorIdRouteImport } from './routes/_authenticated/doctors.$doctorId'
@@ -269,6 +275,12 @@ const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedControlTowerRoute =
+  AuthenticatedControlTowerRouteImport.update({
+    id: '/control-tower',
+    path: '/control-tower',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCouponsRoute = AuthenticatedCouponsRouteImport.update({
   id: '/coupons',
   path: '/coupons',
@@ -528,6 +540,36 @@ const AuthenticatedCatalogProductIdRoute =
     path: '/catalog/$productId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedControlTowerIndexRoute =
+  AuthenticatedControlTowerIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedControlTowerRoute,
+  } as any)
+const AuthenticatedControlTowerAuditRoute =
+  AuthenticatedControlTowerAuditRouteImport.update({
+    id: '/audit',
+    path: '/audit',
+    getParentRoute: () => AuthenticatedControlTowerRoute,
+  } as any)
+const AuthenticatedControlTowerDeliveryConfigRoute =
+  AuthenticatedControlTowerDeliveryConfigRouteImport.update({
+    id: '/delivery-config',
+    path: '/delivery-config',
+    getParentRoute: () => AuthenticatedControlTowerRoute,
+  } as any)
+const AuthenticatedControlTowerFeatureTogglesRoute =
+  AuthenticatedControlTowerFeatureTogglesRouteImport.update({
+    id: '/feature-toggles',
+    path: '/feature-toggles',
+    getParentRoute: () => AuthenticatedControlTowerRoute,
+  } as any)
+const AuthenticatedControlTowerSettingsRoute =
+  AuthenticatedControlTowerSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedControlTowerRoute,
+  } as any)
 const AuthenticatedCustomersCustomerIdRoute =
   AuthenticatedCustomersCustomerIdRouteImport.update({
     id: '/$customerId',
@@ -726,6 +768,7 @@ export interface FileRoutesByFullPath {
   '/campaigns': typeof AuthenticatedCampaignsRouteWithChildren
   '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/control-tower': typeof AuthenticatedControlTowerRouteWithChildren
   '/coupons': typeof AuthenticatedCouponsRoute
   '/customers': typeof AuthenticatedCustomersRouteWithChildren
   '/dispenses': typeof AuthenticatedDispensesRouteWithChildren
@@ -772,6 +815,10 @@ export interface FileRoutesByFullPath {
   '/admin/titanos-report': typeof AuthenticatedAdminTitanosReportRoute
   '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/catalog/$productId': typeof AuthenticatedCatalogProductIdRoute
+  '/control-tower/audit': typeof AuthenticatedControlTowerAuditRoute
+  '/control-tower/delivery-config': typeof AuthenticatedControlTowerDeliveryConfigRoute
+  '/control-tower/feature-toggles': typeof AuthenticatedControlTowerFeatureTogglesRoute
+  '/control-tower/settings': typeof AuthenticatedControlTowerSettingsRoute
   '/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/dispenses/$dispenseId': typeof AuthenticatedDispensesDispenseIdRoute
   '/doctors/$doctorId': typeof AuthenticatedDoctorsDoctorIdRoute
@@ -790,6 +837,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/analytics/': typeof AuthenticatedAnalyticsIndexRoute
   '/catalog/': typeof AuthenticatedCatalogIndexRoute
+  '/control-tower/': typeof AuthenticatedControlTowerIndexRoute
   '/insurance/': typeof AuthenticatedInsuranceIndexRoute
   '/promotions/': typeof AuthenticatedPromotionsIndexRoute
   '/insurance/claims/$claimId': typeof AuthenticatedInsuranceClaimsClaimIdRoute
@@ -878,6 +926,10 @@ export interface FileRoutesByTo {
   '/admin/titanos-report': typeof AuthenticatedAdminTitanosReportRoute
   '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/catalog/$productId': typeof AuthenticatedCatalogProductIdRoute
+  '/control-tower/audit': typeof AuthenticatedControlTowerAuditRoute
+  '/control-tower/delivery-config': typeof AuthenticatedControlTowerDeliveryConfigRoute
+  '/control-tower/feature-toggles': typeof AuthenticatedControlTowerFeatureTogglesRoute
+  '/control-tower/settings': typeof AuthenticatedControlTowerSettingsRoute
   '/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/dispenses/$dispenseId': typeof AuthenticatedDispensesDispenseIdRoute
   '/doctors/$doctorId': typeof AuthenticatedDoctorsDoctorIdRoute
@@ -896,6 +948,7 @@ export interface FileRoutesByTo {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/analytics': typeof AuthenticatedAnalyticsIndexRoute
   '/catalog': typeof AuthenticatedCatalogIndexRoute
+  '/control-tower': typeof AuthenticatedControlTowerIndexRoute
   '/insurance': typeof AuthenticatedInsuranceIndexRoute
   '/promotions': typeof AuthenticatedPromotionsIndexRoute
   '/insurance/claims/$claimId': typeof AuthenticatedInsuranceClaimsClaimIdRoute
@@ -941,6 +994,7 @@ export interface FileRoutesById {
   '/_authenticated/campaigns': typeof AuthenticatedCampaignsRouteWithChildren
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
+  '/_authenticated/control-tower': typeof AuthenticatedControlTowerRouteWithChildren
   '/_authenticated/coupons': typeof AuthenticatedCouponsRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRouteWithChildren
   '/_authenticated/dispenses': typeof AuthenticatedDispensesRouteWithChildren
@@ -987,6 +1041,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/titanos-report': typeof AuthenticatedAdminTitanosReportRoute
   '/_authenticated/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/_authenticated/catalog/$productId': typeof AuthenticatedCatalogProductIdRoute
+  '/_authenticated/control-tower/audit': typeof AuthenticatedControlTowerAuditRoute
+  '/_authenticated/control-tower/delivery-config': typeof AuthenticatedControlTowerDeliveryConfigRoute
+  '/_authenticated/control-tower/feature-toggles': typeof AuthenticatedControlTowerFeatureTogglesRoute
+  '/_authenticated/control-tower/settings': typeof AuthenticatedControlTowerSettingsRoute
   '/_authenticated/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/_authenticated/dispenses/$dispenseId': typeof AuthenticatedDispensesDispenseIdRoute
   '/_authenticated/doctors/$doctorId': typeof AuthenticatedDoctorsDoctorIdRoute
@@ -1005,6 +1063,7 @@ export interface FileRoutesById {
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/analytics/': typeof AuthenticatedAnalyticsIndexRoute
   '/_authenticated/catalog/': typeof AuthenticatedCatalogIndexRoute
+  '/_authenticated/control-tower/': typeof AuthenticatedControlTowerIndexRoute
   '/_authenticated/insurance/': typeof AuthenticatedInsuranceIndexRoute
   '/_authenticated/promotions/': typeof AuthenticatedPromotionsIndexRoute
   '/_authenticated/insurance/claims_/$claimId': typeof AuthenticatedInsuranceClaimsClaimIdRoute
@@ -1050,6 +1109,7 @@ export interface FileRouteTypes {
     | '/campaigns'
     | '/cart'
     | '/checkout'
+    | '/control-tower'
     | '/coupons'
     | '/customers'
     | '/dispenses'
@@ -1096,6 +1156,10 @@ export interface FileRouteTypes {
     | '/admin/titanos-report'
     | '/campaigns/$id'
     | '/catalog/$productId'
+    | '/control-tower/audit'
+    | '/control-tower/delivery-config'
+    | '/control-tower/feature-toggles'
+    | '/control-tower/settings'
     | '/customers/$customerId'
     | '/dispenses/$dispenseId'
     | '/doctors/$doctorId'
@@ -1114,6 +1178,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/analytics/'
     | '/catalog/'
+    | '/control-tower/'
     | '/insurance/'
     | '/promotions/'
     | '/insurance/claims/$claimId'
@@ -1202,6 +1267,10 @@ export interface FileRouteTypes {
     | '/admin/titanos-report'
     | '/campaigns/$id'
     | '/catalog/$productId'
+    | '/control-tower/audit'
+    | '/control-tower/delivery-config'
+    | '/control-tower/feature-toggles'
+    | '/control-tower/settings'
     | '/customers/$customerId'
     | '/dispenses/$dispenseId'
     | '/doctors/$doctorId'
@@ -1220,6 +1289,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/analytics'
     | '/catalog'
+    | '/control-tower'
     | '/insurance'
     | '/promotions'
     | '/insurance/claims/$claimId'
@@ -1264,6 +1334,7 @@ export interface FileRouteTypes {
     | '/_authenticated/campaigns'
     | '/_authenticated/cart'
     | '/_authenticated/checkout'
+    | '/_authenticated/control-tower'
     | '/_authenticated/coupons'
     | '/_authenticated/customers'
     | '/_authenticated/dispenses'
@@ -1310,6 +1381,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/titanos-report'
     | '/_authenticated/campaigns/$id'
     | '/_authenticated/catalog/$productId'
+    | '/_authenticated/control-tower/audit'
+    | '/_authenticated/control-tower/delivery-config'
+    | '/_authenticated/control-tower/feature-toggles'
+    | '/_authenticated/control-tower/settings'
     | '/_authenticated/customers/$customerId'
     | '/_authenticated/dispenses/$dispenseId'
     | '/_authenticated/doctors/$doctorId'
@@ -1328,6 +1403,7 @@ export interface FileRouteTypes {
     | '/lovable/email/suppression'
     | '/_authenticated/analytics/'
     | '/_authenticated/catalog/'
+    | '/_authenticated/control-tower/'
     | '/_authenticated/insurance/'
     | '/_authenticated/promotions/'
     | '/_authenticated/insurance/claims_/$claimId'
@@ -1590,6 +1666,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/control-tower': {
+      id: '/_authenticated/control-tower'
+      path: '/control-tower'
+      fullPath: '/control-tower'
+      preLoaderRoute: typeof AuthenticatedControlTowerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/coupons': {
@@ -1928,6 +2011,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCatalogProductIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/control-tower/': {
+      id: '/_authenticated/control-tower/'
+      path: '/'
+      fullPath: '/control-tower/'
+      preLoaderRoute: typeof AuthenticatedControlTowerIndexRouteImport
+      parentRoute: typeof AuthenticatedControlTowerRoute
+    }
+    '/_authenticated/control-tower/audit': {
+      id: '/_authenticated/control-tower/audit'
+      path: '/audit'
+      fullPath: '/control-tower/audit'
+      preLoaderRoute: typeof AuthenticatedControlTowerAuditRouteImport
+      parentRoute: typeof AuthenticatedControlTowerRoute
+    }
+    '/_authenticated/control-tower/delivery-config': {
+      id: '/_authenticated/control-tower/delivery-config'
+      path: '/delivery-config'
+      fullPath: '/control-tower/delivery-config'
+      preLoaderRoute: typeof AuthenticatedControlTowerDeliveryConfigRouteImport
+      parentRoute: typeof AuthenticatedControlTowerRoute
+    }
+    '/_authenticated/control-tower/feature-toggles': {
+      id: '/_authenticated/control-tower/feature-toggles'
+      path: '/feature-toggles'
+      fullPath: '/control-tower/feature-toggles'
+      preLoaderRoute: typeof AuthenticatedControlTowerFeatureTogglesRouteImport
+      parentRoute: typeof AuthenticatedControlTowerRoute
+    }
+    '/_authenticated/control-tower/settings': {
+      id: '/_authenticated/control-tower/settings'
+      path: '/settings'
+      fullPath: '/control-tower/settings'
+      preLoaderRoute: typeof AuthenticatedControlTowerSettingsRouteImport
+      parentRoute: typeof AuthenticatedControlTowerRoute
+    }
     '/_authenticated/customers/$customerId': {
       id: '/_authenticated/customers/$customerId'
       path: '/$customerId'
@@ -2148,6 +2266,31 @@ const AuthenticatedCampaignsRouteWithChildren =
     AuthenticatedCampaignsRouteChildren,
   )
 
+interface AuthenticatedControlTowerRouteChildren {
+  AuthenticatedControlTowerAuditRoute: typeof AuthenticatedControlTowerAuditRoute
+  AuthenticatedControlTowerDeliveryConfigRoute: typeof AuthenticatedControlTowerDeliveryConfigRoute
+  AuthenticatedControlTowerFeatureTogglesRoute: typeof AuthenticatedControlTowerFeatureTogglesRoute
+  AuthenticatedControlTowerSettingsRoute: typeof AuthenticatedControlTowerSettingsRoute
+  AuthenticatedControlTowerIndexRoute: typeof AuthenticatedControlTowerIndexRoute
+}
+
+const AuthenticatedControlTowerRouteChildren: AuthenticatedControlTowerRouteChildren =
+  {
+    AuthenticatedControlTowerAuditRoute: AuthenticatedControlTowerAuditRoute,
+    AuthenticatedControlTowerDeliveryConfigRoute:
+      AuthenticatedControlTowerDeliveryConfigRoute,
+    AuthenticatedControlTowerFeatureTogglesRoute:
+      AuthenticatedControlTowerFeatureTogglesRoute,
+    AuthenticatedControlTowerSettingsRoute:
+      AuthenticatedControlTowerSettingsRoute,
+    AuthenticatedControlTowerIndexRoute: AuthenticatedControlTowerIndexRoute,
+  }
+
+const AuthenticatedControlTowerRouteWithChildren =
+  AuthenticatedControlTowerRoute._addFileChildren(
+    AuthenticatedControlTowerRouteChildren,
+  )
+
 interface AuthenticatedCustomersRouteChildren {
   AuthenticatedCustomersCustomerIdRoute: typeof AuthenticatedCustomersCustomerIdRoute
 }
@@ -2276,6 +2419,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCampaignsRoute: typeof AuthenticatedCampaignsRouteWithChildren
   AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
+  AuthenticatedControlTowerRoute: typeof AuthenticatedControlTowerRouteWithChildren
   AuthenticatedCouponsRoute: typeof AuthenticatedCouponsRoute
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRouteWithChildren
   AuthenticatedDispensesRoute: typeof AuthenticatedDispensesRouteWithChildren
@@ -2328,6 +2472,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCampaignsRoute: AuthenticatedCampaignsRouteWithChildren,
   AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
+  AuthenticatedControlTowerRoute: AuthenticatedControlTowerRouteWithChildren,
   AuthenticatedCouponsRoute: AuthenticatedCouponsRoute,
   AuthenticatedCustomersRoute: AuthenticatedCustomersRouteWithChildren,
   AuthenticatedDispensesRoute: AuthenticatedDispensesRouteWithChildren,

@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { PatientMedicationInspector } from '@/components/admin/PatientMedicationInspector'
+import { useFeatureFlags } from '@/hooks/useFeatureFlags'
+
 
 export const Route = createFileRoute('/_authenticated/admin/medication-inspector')({
   head: () => ({
@@ -19,11 +21,8 @@ export const Route = createFileRoute('/_authenticated/admin/medication-inspector
       { name: 'twitter:card', content: 'summary' },
     ],
   }),
-  component: () => (
-    <main dir="rtl" className="mx-auto w-full max-w-3xl px-4 py-8">
-      <PatientMedicationInspector />
-    </main>
-  ),
+  component: InspectorPage,
+
   errorComponent: ({ error }) => (
     <div className="p-8 text-center text-red-600" dir="rtl">
       {error.message}
@@ -31,3 +30,24 @@ export const Route = createFileRoute('/_authenticated/admin/medication-inspector
   ),
   notFoundComponent: () => <div className="p-8 text-center">الصفحة غير موجودة</div>,
 })
+
+function InspectorPage() {
+  const { isFlagEnabled } = useFeatureFlags()
+
+  if (!isFlagEnabled('enable_clinical_inspector')) {
+    return (
+      <main dir="rtl" className="mx-auto w-full max-w-3xl px-4 py-8">
+        <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          لوحة الفحص السريري متوقفة حاليًا من الإدارة المركزية. يمكن لمدير النظام إعادة تفعيلها من
+          تحكم الميزات.
+        </p>
+      </main>
+    )
+  }
+
+  return (
+    <main dir="rtl" className="mx-auto w-full max-w-3xl px-4 py-8">
+      <PatientMedicationInspector />
+    </main>
+  )
+}

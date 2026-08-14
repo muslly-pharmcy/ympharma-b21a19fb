@@ -1,3 +1,4 @@
+import { useFeatureFlags } from '@/hooks/useFeatureFlags'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -37,6 +38,8 @@ export const Route = createFileRoute('/_authenticated/checkout')({
 function CheckoutPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
+  const { isFlagEnabled } = useFeatureFlags()
+
 
   const { data: cart = [], isLoading: cartLoading } = useQuery({
     queryKey: ['cart', 'items'],
@@ -156,7 +159,10 @@ function CheckoutPage() {
   const total = subtotal + shipping
   const method = methods.find((m) => m.code === methodCode)
 
+  const deliveryEnabled = isFlagEnabled('enable_delivery_orders')
+
   const canSubmit =
+    deliveryEnabled &&
     !cartLoading &&
     cart.length > 0 &&
     zoneId &&
@@ -165,6 +171,7 @@ function CheckoutPage() {
     phone.trim().length >= 6 &&
     address.trim().length >= 4 &&
     !placeMut.isPending
+
 
   if (!cartLoading && cart.length === 0) {
     return (
@@ -333,6 +340,12 @@ function CheckoutPage() {
                 {total.toLocaleString('ar-EG')} ر.ي
               </span>
             </div>
+
+            {!deliveryEnabled && (
+              <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                خدمة التوصيل المنزلي متوقفة مؤقتًا. يمكنك التواصل مع الصيدلية مباشرة لاستلام طلبك.
+              </p>
+            )}
 
             <button
               onClick={() => placeMut.mutate()}

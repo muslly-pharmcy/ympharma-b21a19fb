@@ -3353,6 +3353,36 @@ export type Database = {
         }
         Relationships: []
       }
+      control_tower_audit_log: {
+        Row: {
+          action: string
+          admin_id: string | null
+          created_at: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          target_key: string | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          target_key?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          target_key?: string | null
+        }
+        Relationships: []
+      }
       crm_campaign_events: {
         Row: {
           campaign_id: string
@@ -15524,6 +15554,20 @@ export type Database = {
       prescription_file_count: {
         Args: { _prescription_id: string }
         Returns: number
+      }
+      public_feature_flags: {
+        Args: never
+        Returns: {
+          key: string
+          value: Json
+        }[]
+      }
+      public_pharmacy_status: {
+        Args: never
+        Returns: {
+          key: string
+          value: Json
+        }[]
       }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
