@@ -98,7 +98,8 @@ export const deleteChronicMedication = createServerFn({ method: 'POST' })
 
 /** Find-or-create the hc_patients row that represents the signed-in user. */
 async function ensureSelfPatientId(
-  supabase: ReturnType<typeof requireSupabaseAuth> extends never ? never : any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
   userId: string,
 ): Promise<string> {
   const existing = await supabase
