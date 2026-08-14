@@ -409,6 +409,8 @@ function MedicationsTab() {
           </ul>
         </div>
       )}
+
+      <RefillReminderCard />
     </section>
   )
 }

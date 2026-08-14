@@ -204,6 +204,7 @@ function ToolsHub() {
         </div>
       </section>
 
+      <ToolsIntroSection />
     </div>
   )
 }
