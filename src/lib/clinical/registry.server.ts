@@ -18,9 +18,13 @@ export function registerProvider(p: DrugKnowledgeProvider) {
 }
 
 export function getProvider(id?: string | null): DrugKnowledgeProvider {
+  // Unset → curated local knowledge base.
   if (!id) return defaultProvider
-  return registry.get(id) ?? defaultProvider
+  // Explicitly requested but unknown → the null provider. Never silently
+  // substitute a different clinical data source for the one that was asked for.
+  return registry.get(id) ?? nullProvider
 }
+
 
 export function listProviders(): Array<{ id: string; displayName: string }> {
   return Array.from(registry.values()).map((p) => ({ id: p.id, displayName: p.displayName }))
