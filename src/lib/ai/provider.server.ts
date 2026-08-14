@@ -161,6 +161,8 @@ export interface AiCallResult {
 interface StreamAccumulator {
   text: string
   completed?: Record<string, unknown>
+  /** Stream-level failure: the HTTP status is 200 but the run failed mid-stream. */
+  streamError?: { code: string; message: string }
 }
 
 async function consumeSse(res: Response, signal?: AbortSignal): Promise<StreamAccumulator> {
@@ -184,11 +186,22 @@ async function consumeSse(res: Response, signal?: AbortSignal): Promise<StreamAc
           const payload = line.slice(5).trim()
           if (!payload || payload === '[DONE]') continue
           try {
-            const evt = JSON.parse(payload) as { type?: string; delta?: string; response?: Record<string, unknown> }
+            const evt = JSON.parse(payload) as {
+              type?: string
+              delta?: string
+              response?: Record<string, unknown>
+              error?: { code?: string; type?: string; message?: string }
+            }
             if (evt.type === 'response.output_text.delta' && typeof evt.delta === 'string') {
               acc.text += evt.delta
             } else if (evt.type === 'response.completed' && evt.response) {
               acc.completed = evt.response
+            } else if (evt.type === 'error' || evt.type === 'response.failed') {
+              const err = evt.error ?? (evt.response?.['error'] as Record<string, string> | undefined)
+              acc.streamError = {
+                code: String(err?.['code'] ?? err?.['type'] ?? 'stream_error'),
+                message: String(err?.['message'] ?? 'stream failed'),
+              }
             }
           } catch {
             /* ignore partial/unknown frames */
@@ -208,15 +221,36 @@ async function consumeSse(res: Response, signal?: AbortSignal): Promise<StreamAc
 
 /**
  * Single canonical AI call. Streams on the wire, returns the completed result.
- * Never throws a raw provider error — always an AiError.
+ * Tries the preferred backend, then automatically fails over to the other one
+ * when the first is unusable (no credit / bad key). Never throws a raw provider
+ * error — always an AiError.
  */
 export async function callOpenAi(opts: AiCallOptions): Promise<AiCallResult> {
-  const key = readKey(opts.correlationId)
+  const order: AiBackend[] =
+    opts.backend === 'gateway' ? ['gateway', 'openai'] : ['openai', 'gateway']
+
+  let lastError: AiError | null = null
+  for (const backend of order) {
+    try {
+      return await callBackend(backend, opts)
+    } catch (e) {
+      const err = e as AiError
+      if (err.klass === 'aborted') throw err
+      lastError = err
+      if (!shouldFailover(err.klass)) throw err
+      // Fall through to the next backend — same request shape, different provider.
+    }
+  }
+  throw lastError ?? new AiError('upstream', 'AI call failed', 502, opts.correlationId)
+}
+
+async function callBackend(backend: AiBackend, opts: AiCallOptions): Promise<AiCallResult> {
+  const cfg = resolveBackend(backend, opts.model, opts.correlationId)
   const maxRetries = opts.maxRetries ?? 2
   const started = Date.now()
 
   const body: Record<string, unknown> = {
-    model: opts.model,
+    model: cfg.model,
     input: opts.input,
     stream: true,
     store: false,
@@ -244,12 +278,9 @@ export async function callOpenAi(opts: AiCallOptions): Promise<AiCallResult> {
     if (opts.signal?.aborted) throw new AiError('aborted', 'aborted by caller', 499, opts.correlationId)
     let res: Response
     try {
-      res = await fetch(OPENAI_RESPONSES_URL, {
+      res = await fetch(cfg.url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${key}`,
-        },
+        headers: cfg.headers,
         body: JSON.stringify(body),
         signal: opts.signal,
       })
@@ -266,7 +297,6 @@ export async function callOpenAi(opts: AiCallOptions): Promise<AiCallResult> {
     }
 
     if (!res.ok) {
-      const klass = classify(res.status)
       // Body may contain the request echo — read it but never surface it verbatim.
       let detail = ''
       try {
@@ -274,7 +304,8 @@ export async function callOpenAi(opts: AiCallOptions): Promise<AiCallResult> {
       } catch {
         /* ignore */
       }
-      lastError = new AiError(klass, `openai ${res.status}: ${detail}`, res.status, opts.correlationId)
+      const klass = classify(res.status, detail)
+      lastError = new AiError(klass, `${backend} ${res.status}`, res.status, opts.correlationId)
       if (isRetryable(klass) && attempt < maxRetries) {
         await sleep(backoffMs(attempt))
         continue
@@ -283,6 +314,21 @@ export async function callOpenAi(opts: AiCallOptions): Promise<AiCallResult> {
     }
 
     const acc = await consumeSse(res, opts.signal)
+    if (acc.streamError && !acc.text) {
+      const klass = classify(200, `${acc.streamError.code} ${acc.streamError.message}`)
+      lastError = new AiError(
+        klass === 'invalid_request' ? 'upstream' : klass,
+        `${backend} stream: ${acc.streamError.code}`,
+        502,
+        opts.correlationId,
+      )
+      if (isRetryable(lastError.klass) && attempt < maxRetries) {
+        await sleep(backoffMs(attempt))
+        continue
+      }
+      throw lastError
+    }
+
     const completed = acc.completed ?? {}
     const output = Array.isArray(completed['output']) ? (completed['output'] as AiInputItem[]) : []
     const usageRaw = (completed['usage'] ?? {}) as Record<string, number>
@@ -301,7 +347,8 @@ export async function callOpenAi(opts: AiCallOptions): Promise<AiCallResult> {
       text,
       output,
       functionCalls,
-      model: String(completed['model'] ?? opts.model),
+      backend,
+      model: String(completed['model'] ?? cfg.model),
       latencyMs: Date.now() - started,
       usage: {
         input: usageRaw['input_tokens'] ?? 0,
@@ -313,6 +360,7 @@ export async function callOpenAi(opts: AiCallOptions): Promise<AiCallResult> {
 
   throw lastError ?? new AiError('upstream', 'AI call failed', 502, opts.correlationId)
 }
+
 
 function backoffMs(attempt: number): number {
   return Math.min(4000, 400 * 2 ** attempt) + Math.floor(Math.random() * 250)
