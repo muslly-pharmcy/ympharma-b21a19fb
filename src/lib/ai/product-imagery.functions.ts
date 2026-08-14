@@ -28,6 +28,9 @@ function buildPrompt(p: {
 }
 
 async function generatePng(prompt: string, key: string): Promise<Uint8Array | null> {
+  const startedAt = Date.now()
+  const { recordAiCall } = await import('./observability.server')
+  const { classifyAiFailure } = await import('./error-classify')
   const res = await fetch('https://ai.gateway.lovable.dev/v1/images/generations', {
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
@@ -38,12 +41,39 @@ async function generatePng(prompt: string, key: string): Promise<Uint8Array | nu
     }),
   })
   if (!res.ok) {
-    console.error('[nano-banana]', res.status, await res.text())
+    const detail = await res.text()
+    const klass = classifyAiFailure(res.status, detail)
+    void recordAiCall({
+      feature: 'product-imagery',
+      model: IMAGE_MODEL,
+      backend: 'gateway',
+      ok: false,
+      latencyMs: Date.now() - startedAt,
+      errorClass: klass,
+    })
+    console.error('[nano-banana]', klass, res.status)
     return null
   }
   const json = (await res.json()) as { data?: { b64_json?: string }[] }
   const b64 = json.data?.[0]?.b64_json
-  if (!b64) return null
+  if (!b64) {
+    void recordAiCall({
+      feature: 'product-imagery',
+      model: IMAGE_MODEL,
+      backend: 'gateway',
+      ok: false,
+      latencyMs: Date.now() - startedAt,
+      errorClass: 'malformed',
+    })
+    return null
+  }
+  void recordAiCall({
+    feature: 'product-imagery',
+    model: IMAGE_MODEL,
+    backend: 'gateway',
+    ok: true,
+    latencyMs: Date.now() - startedAt,
+  })
   const bin = atob(b64)
   const bytes = new Uint8Array(bin.length)
   for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i)

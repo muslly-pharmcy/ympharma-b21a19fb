@@ -73,6 +73,10 @@ export const getProductAiGuide = createServerFn({ method: 'POST' })
       .filter(Boolean)
       .join('\n')
 
+    const startedAt = Date.now()
+    const { recordAiCall } = await import('./observability.server')
+    const { classifyAiFailure, classifyThrownAi } = await import('./error-classify')
+
     try {
       const res = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -92,7 +96,17 @@ export const getProductAiGuide = createServerFn({ method: 'POST' })
         }),
       })
       if (!res.ok) {
-        console.error('[getProductAiGuide]', res.status, await res.text())
+        const detail = await res.text()
+        const klass = classifyAiFailure(res.status, detail)
+        void recordAiCall({
+          feature: 'product-guide',
+          model: 'openai/gpt-5.6-sol',
+          backend: 'gateway',
+          ok: false,
+          latencyMs: Date.now() - startedAt,
+          errorClass: klass,
+        })
+        console.error('[getProductAiGuide]', klass, res.status)
         return null
       }
       const json = (await res.json()) as {
@@ -107,9 +121,25 @@ export const getProductAiGuide = createServerFn({ method: 'POST' })
         .update({ metadata: { ...metadata, ai_guide: guide } as unknown as never })
         .eq('id', product.id)
 
+      void recordAiCall({
+        feature: 'product-guide',
+        model: 'openai/gpt-5.6-sol',
+        backend: 'gateway',
+        ok: true,
+        latencyMs: Date.now() - startedAt,
+      })
       return guide
     } catch (e) {
-      console.error('[getProductAiGuide]', (e as Error).message)
+      const klass = classifyThrownAi(e)
+      void recordAiCall({
+        feature: 'product-guide',
+        model: 'openai/gpt-5.6-sol',
+        backend: 'gateway',
+        ok: false,
+        latencyMs: Date.now() - startedAt,
+        errorClass: klass,
+      })
+      console.error('[getProductAiGuide]', klass)
       return null
     }
   })
