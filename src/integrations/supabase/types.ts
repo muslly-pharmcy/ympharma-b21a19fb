@@ -10440,6 +10440,59 @@ export type Database = {
           },
         ]
       }
+      patient_chronic_medications: {
+        Row: {
+          created_at: string
+          dose: string | null
+          id: string
+          is_active: boolean
+          medicine_name: string
+          notes: string | null
+          profile_id: string | null
+          schedule_preset: string
+          start_date: string | null
+          times_per_day: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dose?: string | null
+          id?: string
+          is_active?: boolean
+          medicine_name: string
+          notes?: string | null
+          profile_id?: string | null
+          schedule_preset?: string
+          start_date?: string | null
+          times_per_day?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dose?: string | null
+          id?: string
+          is_active?: boolean
+          medicine_name?: string
+          notes?: string | null
+          profile_id?: string | null
+          schedule_preset?: string
+          start_date?: string | null
+          times_per_day?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_chronic_medications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "family_health_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_conditions: {
         Row: {
           condition_name: string
