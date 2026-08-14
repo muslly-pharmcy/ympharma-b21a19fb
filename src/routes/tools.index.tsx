@@ -5,9 +5,9 @@ import { Reveal, Stagger, RevealItem } from '@/shared/components/motion/Reveal'
 
 export const Route = createFileRoute('/tools/')({
   head: () => {
-    const title = 'الأدوات الطبية التفاعلية — صيدلية المصلي'
+    const title = 'الأدوات الطبية التفاعلية — 5 أدوات مجانية من صيدلية المصلي'
     const description =
-      'حاسبة جرعات الأطفال، فاحص التداخلات الدوائية، مرشد الأعراض، ومخطط جدول الأدوية — أدوات تفاعلية مجانية من صيدلية المصلي.'
+      'حاسبة جرعات الأطفال، فاحص التداخلات الدوائية، مرشد الأعراض، مخطط جدول الأدوية، وحاسبة كتلة الجسم والترطيب — خمس أدوات عربية مجانية من صيدلية المصلي في عدن.'
     return {
       meta: [
         { title },
@@ -15,13 +15,45 @@ export const Route = createFileRoute('/tools/')({
         { property: 'og:title', content: title },
         { property: 'og:description', content: description },
         { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: 'https://muslly.com/tools' },
         { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
       ],
       links: [{ rel: 'canonical', href: 'https://muslly.com/tools' }],
+      scripts: [
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            name: title,
+            itemListElement: TOOLS.map((t, i) => ({
+              '@type': 'ListItem',
+              position: i + 1,
+              name: t.title,
+              url: `https://muslly.com${t.to}`,
+            })),
+          }),
+        },
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: TOOL_FAQS.map((f) => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a },
+            })),
+          }),
+        },
+      ],
     }
   },
   component: ToolsHub,
 })
+
 
 const TOOLS = [
   {
