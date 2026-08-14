@@ -146,6 +146,8 @@ export interface AiCallOptions {
   signal?: AbortSignal
   correlationId: string
   maxRetries?: number
+  /** Preferred backend; the other is used automatically as failover. */
+  backend?: AiBackend
 }
 
 export interface AiCallResult {
@@ -153,6 +155,8 @@ export interface AiCallResult {
   /** Raw `output[]` items, needed to round-trip tool calls and reasoning. */
   output: AiInputItem[]
   functionCalls: Array<{ callId: string; name: string; args: string }>
+  /** Which backend actually served the call. */
+  backend: AiBackend
   model: string
   latencyMs: number
   usage: { input: number; output: number; total: number }
