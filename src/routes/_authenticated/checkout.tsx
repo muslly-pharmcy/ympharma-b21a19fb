@@ -156,7 +156,10 @@ function CheckoutPage() {
   const total = subtotal + shipping
   const method = methods.find((m) => m.code === methodCode)
 
+  const deliveryEnabled = isFlagEnabled('enable_delivery_orders')
+
   const canSubmit =
+    deliveryEnabled &&
     !cartLoading &&
     cart.length > 0 &&
     zoneId &&
@@ -165,6 +168,7 @@ function CheckoutPage() {
     phone.trim().length >= 6 &&
     address.trim().length >= 4 &&
     !placeMut.isPending
+
 
   if (!cartLoading && cart.length === 0) {
     return (
