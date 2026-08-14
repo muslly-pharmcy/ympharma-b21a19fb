@@ -15,6 +15,16 @@
 // - Bounded retries (429 / 5xx / network only), exponential backoff, no infinite loops.
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
+const GATEWAY_RESPONSES_URL = 'https://ai.gateway.lovable.dev/v1/responses'
+
+/**
+ * Two interchangeable backends for the SAME OpenAI Responses API:
+ * - 'openai'  → the project's own OPENAI_API_KEY (direct billing)
+ * - 'gateway' → the managed AI gateway (same models, prefixed ids)
+ * One architecture, one request shape. The gateway is the automatic failover
+ * when the direct account is unauthorized or out of credit.
+ */
+export type AiBackend = 'openai' | 'gateway'
 
 export type AiErrorClass =
   | 'missing_key'
@@ -25,7 +35,9 @@ export type AiErrorClass =
   | 'upstream'
   | 'network'
   | 'aborted'
+  | 'no_credit'
   | 'malformed'
+
 
 export class AiError extends Error {
   readonly klass: AiErrorClass
