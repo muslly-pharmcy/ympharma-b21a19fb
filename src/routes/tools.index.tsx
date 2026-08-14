@@ -160,7 +160,9 @@ function ToolsHub() {
               <div className="relative">
                 <h2 className="text-base font-bold text-gray-900">{tool.title}</h2>
                 <p className="mt-1 text-xs leading-6 text-gray-600">{tool.desc}</p>
+                <p className="mt-2 text-xs leading-6 text-gray-500">{tool.long}</p>
               </div>
+
               <span className="relative mt-auto inline-flex items-center gap-1 text-xs font-semibold text-primary">
                 ابدأ الآن
                 <ArrowLeft className="h-3.5 w-3.5 transition group-hover:-translate-x-1" aria-hidden />
