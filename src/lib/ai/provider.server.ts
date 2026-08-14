@@ -58,6 +58,7 @@ export class AiError extends Error {
       case 'missing_key':
       case 'unauthorized':
       case 'forbidden':
+      case 'no_credit':
         return 'خدمة الذكاء غير متاحة مؤقتاً. تم إبلاغ الفريق التقني.'
       case 'aborted':
         return 'تم إيقاف الطلب.'
@@ -67,10 +68,12 @@ export class AiError extends Error {
   }
 }
 
-function classify(status: number): AiErrorClass {
+function classify(status: number, detail = ''): AiErrorClass {
+  if (/insufficient_quota|credit_balance_exhausted|billing_hard_limit/i.test(detail)) return 'no_credit'
   if (status === 401) return 'unauthorized'
+  if (status === 402) return 'no_credit'
   if (status === 403) return 'forbidden'
-  if (status === 429) return 'rate_limited'
+  if (status === 429) return /quota|credit/i.test(detail) ? 'no_credit' : 'rate_limited'
   if (status >= 500) return 'upstream'
   return 'invalid_request'
 }
@@ -79,11 +82,45 @@ function isRetryable(klass: AiErrorClass): boolean {
   return klass === 'rate_limited' || klass === 'upstream' || klass === 'network'
 }
 
-function readKey(correlationId: string): string {
-  const key = process.env['OPENAI_API_KEY']
-  if (!key) throw new AiError('missing_key', 'OPENAI_API_KEY is not configured', 500, correlationId)
-  return key
+/** A backend that can never succeed as configured — try the other one instead. */
+function shouldFailover(klass: AiErrorClass): boolean {
+  return klass === 'no_credit' || klass === 'unauthorized' || klass === 'forbidden' || klass === 'missing_key'
 }
+
+interface BackendConfig {
+  url: string
+  headers: Record<string, string>
+  model: string
+}
+
+function resolveBackend(
+  backend: AiBackend,
+  model: string,
+  correlationId: string,
+): BackendConfig {
+  const bare = model.replace(/^openai\//, '')
+  if (backend === 'openai') {
+    const key = process.env['OPENAI_API_KEY']
+    if (!key) throw new AiError('missing_key', 'OPENAI_API_KEY is not configured', 500, correlationId)
+    return {
+      url: OPENAI_RESPONSES_URL,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      model: bare,
+    }
+  }
+  const key = process.env['LOVABLE_API_KEY']
+  if (!key) throw new AiError('missing_key', 'managed gateway key is not configured', 500, correlationId)
+  return {
+    url: GATEWAY_RESPONSES_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      'Lovable-API-Key': key,
+      'X-Lovable-AIG-SDK': 'fetch',
+    },
+    model: `openai/${bare}`,
+  }
+}
+
 
 /** Strict JSON-schema tool definition, Responses-API shape. */
 export interface AiToolDef {
