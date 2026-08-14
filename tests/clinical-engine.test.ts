@@ -15,9 +15,14 @@ describe('Clinical framework', () => {
   })
 
   it('registry returns null provider for unknown id', () => {
+    // Explicitly requested but unknown provider must NOT fall back to another
+    // clinical data source — it degrades to the null provider (zero warnings).
     expect(getProvider('does-not-exist').id).toBe('null')
-    expect(getProvider(undefined).id).toBe(nullProvider.id)
+    expect(getProvider('null').id).toBe(nullProvider.id)
+    // Unset provider keeps the curated local knowledge base as the default.
+    expect(getProvider(undefined).id).toBe('local-db')
   })
+
 
   it('warnings sort by severity when a provider emits them', async () => {
     const stub: DrugKnowledgeProvider = {

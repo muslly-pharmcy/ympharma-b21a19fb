@@ -1,6 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 import { z } from 'zod'
+import { sanitizeFilterTerm, ilikeContains } from '@/lib/security/postgrest-filter'
+
 
 export interface RosterPatient {
   id: string
@@ -60,7 +62,10 @@ export const searchPatientRoster = createServerFn({ method: 'POST' })
       .select('id, user_id, full_name, phone, mrn')
       .order('created_at', { ascending: false })
       .limit(40)
-    if (data.q) query = query.or(`full_name.ilike.%${data.q}%,phone.ilike.%${data.q}%`)
+    // Never interpolate the raw term: PostgREST parses `or()` as an expression.
+    const term = sanitizeFilterTerm(data.q)
+    if (term) query = query.or(`${ilikeContains('full_name', term)},${ilikeContains('phone', term)}`)
+
     const { data: rows, error } = await query
     if (error) throw new Error(error.message)
     return (rows ?? []) as unknown as RosterPatient[]

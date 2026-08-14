@@ -191,7 +191,9 @@ export const useShopifyCartStore = create<CartStore>()(
             const newItems = currentItems.filter(
               (i) => i.variantId !== variantId,
             )
-            newItems.length === 0 ? clearCart() : set({ items: newItems })
+            if (newItems.length === 0) clearCart()
+            else set({ items: newItems })
+
           } else if (result.cartNotFound) {
             clearCart()
           }
