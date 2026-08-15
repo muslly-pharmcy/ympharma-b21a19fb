@@ -93,6 +93,7 @@ import { Route as AuthenticatedControlTowerAuditRouteImport } from './routes/_au
 import { Route as AuthenticatedControlTowerDeliveryConfigRouteImport } from './routes/_authenticated/control-tower.delivery-config'
 import { Route as AuthenticatedControlTowerFeatureTogglesRouteImport } from './routes/_authenticated/control-tower.feature-toggles'
 import { Route as AuthenticatedControlTowerSettingsRouteImport } from './routes/_authenticated/control-tower.settings'
+import { Route as AuthenticatedControlTowerWhatsappRouteImport } from './routes/_authenticated/control-tower.whatsapp'
 import { Route as AuthenticatedCustomersCustomerIdRouteImport } from './routes/_authenticated/customers.$customerId'
 import { Route as AuthenticatedDispensesDispenseIdRouteImport } from './routes/_authenticated/dispenses.$dispenseId'
 import { Route as AuthenticatedDoctorsDoctorIdRouteImport } from './routes/_authenticated/doctors.$doctorId'
@@ -577,6 +578,12 @@ const AuthenticatedControlTowerSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedControlTowerRoute,
   } as any)
+const AuthenticatedControlTowerWhatsappRoute =
+  AuthenticatedControlTowerWhatsappRouteImport.update({
+    id: '/whatsapp',
+    path: '/whatsapp',
+    getParentRoute: () => AuthenticatedControlTowerRoute,
+  } as any)
 const AuthenticatedCustomersCustomerIdRoute =
   AuthenticatedCustomersCustomerIdRouteImport.update({
     id: '/$customerId',
@@ -827,6 +834,7 @@ export interface FileRoutesByFullPath {
   '/control-tower/delivery-config': typeof AuthenticatedControlTowerDeliveryConfigRoute
   '/control-tower/feature-toggles': typeof AuthenticatedControlTowerFeatureTogglesRoute
   '/control-tower/settings': typeof AuthenticatedControlTowerSettingsRoute
+  '/control-tower/whatsapp': typeof AuthenticatedControlTowerWhatsappRoute
   '/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/dispenses/$dispenseId': typeof AuthenticatedDispensesDispenseIdRoute
   '/doctors/$doctorId': typeof AuthenticatedDoctorsDoctorIdRoute
@@ -939,6 +947,7 @@ export interface FileRoutesByTo {
   '/control-tower/delivery-config': typeof AuthenticatedControlTowerDeliveryConfigRoute
   '/control-tower/feature-toggles': typeof AuthenticatedControlTowerFeatureTogglesRoute
   '/control-tower/settings': typeof AuthenticatedControlTowerSettingsRoute
+  '/control-tower/whatsapp': typeof AuthenticatedControlTowerWhatsappRoute
   '/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/dispenses/$dispenseId': typeof AuthenticatedDispensesDispenseIdRoute
   '/doctors/$doctorId': typeof AuthenticatedDoctorsDoctorIdRoute
@@ -1055,6 +1064,7 @@ export interface FileRoutesById {
   '/_authenticated/control-tower/delivery-config': typeof AuthenticatedControlTowerDeliveryConfigRoute
   '/_authenticated/control-tower/feature-toggles': typeof AuthenticatedControlTowerFeatureTogglesRoute
   '/_authenticated/control-tower/settings': typeof AuthenticatedControlTowerSettingsRoute
+  '/_authenticated/control-tower/whatsapp': typeof AuthenticatedControlTowerWhatsappRoute
   '/_authenticated/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/_authenticated/dispenses/$dispenseId': typeof AuthenticatedDispensesDispenseIdRoute
   '/_authenticated/doctors/$doctorId': typeof AuthenticatedDoctorsDoctorIdRoute
@@ -1171,6 +1181,7 @@ export interface FileRouteTypes {
     | '/control-tower/delivery-config'
     | '/control-tower/feature-toggles'
     | '/control-tower/settings'
+    | '/control-tower/whatsapp'
     | '/customers/$customerId'
     | '/dispenses/$dispenseId'
     | '/doctors/$doctorId'
@@ -1283,6 +1294,7 @@ export interface FileRouteTypes {
     | '/control-tower/delivery-config'
     | '/control-tower/feature-toggles'
     | '/control-tower/settings'
+    | '/control-tower/whatsapp'
     | '/customers/$customerId'
     | '/dispenses/$dispenseId'
     | '/doctors/$doctorId'
@@ -1398,6 +1410,7 @@ export interface FileRouteTypes {
     | '/_authenticated/control-tower/delivery-config'
     | '/_authenticated/control-tower/feature-toggles'
     | '/_authenticated/control-tower/settings'
+    | '/_authenticated/control-tower/whatsapp'
     | '/_authenticated/customers/$customerId'
     | '/_authenticated/dispenses/$dispenseId'
     | '/_authenticated/doctors/$doctorId'
@@ -2066,6 +2079,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedControlTowerSettingsRouteImport
       parentRoute: typeof AuthenticatedControlTowerRoute
     }
+    '/_authenticated/control-tower/whatsapp': {
+      id: '/_authenticated/control-tower/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/control-tower/whatsapp'
+      preLoaderRoute: typeof AuthenticatedControlTowerWhatsappRouteImport
+      parentRoute: typeof AuthenticatedControlTowerRoute
+    }
     '/_authenticated/customers/$customerId': {
       id: '/_authenticated/customers/$customerId'
       path: '/$customerId'
@@ -2292,6 +2312,7 @@ interface AuthenticatedControlTowerRouteChildren {
   AuthenticatedControlTowerDeliveryConfigRoute: typeof AuthenticatedControlTowerDeliveryConfigRoute
   AuthenticatedControlTowerFeatureTogglesRoute: typeof AuthenticatedControlTowerFeatureTogglesRoute
   AuthenticatedControlTowerSettingsRoute: typeof AuthenticatedControlTowerSettingsRoute
+  AuthenticatedControlTowerWhatsappRoute: typeof AuthenticatedControlTowerWhatsappRoute
   AuthenticatedControlTowerIndexRoute: typeof AuthenticatedControlTowerIndexRoute
 }
 
@@ -2306,6 +2327,8 @@ const AuthenticatedControlTowerRouteChildren: AuthenticatedControlTowerRouteChil
       AuthenticatedControlTowerFeatureTogglesRoute,
     AuthenticatedControlTowerSettingsRoute:
       AuthenticatedControlTowerSettingsRoute,
+    AuthenticatedControlTowerWhatsappRoute:
+      AuthenticatedControlTowerWhatsappRoute,
     AuthenticatedControlTowerIndexRoute: AuthenticatedControlTowerIndexRoute,
   }
 
