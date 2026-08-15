@@ -184,6 +184,15 @@ function AdenDeliveryPage() {
         </div>
       </Reveal>
 
+      <section className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {SERVICE_FACTS.map((f) => (
+          <div key={f.label} className="glass-card p-4 text-center">
+            <p className="text-sm font-bold text-gray-900">{f.value}</p>
+            <p className="mt-1 text-[11px] text-gray-600">{f.label}</p>
+          </div>
+        ))}
+      </section>
+
       <section className="mt-10">
         <h2 className="mb-4 text-lg font-bold text-gray-900">المديريات التي نغطيها</h2>
         <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-4">
