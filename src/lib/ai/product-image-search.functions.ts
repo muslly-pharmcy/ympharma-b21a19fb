@@ -133,8 +133,13 @@ export const fetchProductImagesFromGoogle = createServerFn({ method: 'POST' })
     await assertAdmin(context.userId)
 
     const key = process.env['GOOGLE_API_KEY']
-    const cx = process.env['GOOGLE_CX_ID']
+    // Accept any of the common CSE id names so renaming the secret never breaks this.
+    const cx =
+      process.env['GOOGLE_SEARCH_ENGINE_ID'] ||
+      process.env['GOOGLE_CSE_ID'] ||
+      process.env['GOOGLE_CX_ID']
     if (!key || !cx) throw new Error('مفاتيح بحث جوجل غير مهيأة')
+
 
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
     const { recordAiCall } = await import('./observability.server')
