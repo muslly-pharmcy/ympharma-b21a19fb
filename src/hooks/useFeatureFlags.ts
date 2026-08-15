@@ -22,6 +22,7 @@ const DEFAULTS: PublicFlags = {
     enable_ai_marketing: true,
     enable_delivery_orders: true,
     enable_clinical_inspector: true,
+    enable_phone_auth: false,
     maintenance_mode: false,
   },
   pharmacyStatus: 'OPEN',
