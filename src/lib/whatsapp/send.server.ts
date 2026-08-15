@@ -12,6 +12,8 @@ import { normalizePhone } from '@/lib/auth/phone'
 
 const GRAPH_VERSION = 'v20.0'
 const TIMEOUT_MS = 12_000
+/** Public identifier (not a secret); env var wins when set. */
+const DEFAULT_PHONE_NUMBER_ID = '1261889173677539'
 
 export interface WhatsAppSendResult {
   ok: boolean
@@ -23,10 +25,11 @@ export interface WhatsAppSendResult {
 
 function config(): { token: string; phoneNumberId: string } | null {
   const token = process.env['WHATSAPP_ACCESS_TOKEN'] ?? ''
-  const phoneNumberId = process.env['WHATSAPP_PHONE_NUMBER_ID'] ?? ''
+  const phoneNumberId = process.env['WHATSAPP_PHONE_NUMBER_ID'] || DEFAULT_PHONE_NUMBER_ID
   if (!token || !phoneNumberId) return null
   return { token, phoneNumberId }
 }
+
 
 /** WhatsApp expects digits only, no leading `+`. */
 export function toWhatsAppNumber(raw: string): string | null {
