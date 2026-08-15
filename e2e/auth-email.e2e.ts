@@ -11,9 +11,9 @@ const NAME = { first: 'محمد', father: 'علي', family: 'المصلي' }
 
 async function gotoSignup(page: import('@playwright/test').Page) {
   await page.goto('/auth', { waitUntil: 'domcontentloaded' })
-  const signupSwitch = page.getByRole('button', { name: 'إنشاء حساب' })
+  const signupSwitch = page.getByRole('button', { name: 'إنشاء حساب جديد' })
   if (await signupSwitch.count()) {
-    await signupSwitch.first().click().catch(() => {})
+    await signupSwitch.first().click()
   }
   await expect(page.getByText('أدخل اسمك الثلاثي')).toBeVisible()
 }
@@ -87,13 +87,13 @@ test.describe('email registration validation', () => {
     await page.getByRole('button', { name: /البريد الإلكتروني/ }).click()
 
     await page.getByLabel('البريد الإلكتروني').fill('not-an-email')
-    await page.getByRole('button', { name: /إنشاء|تسجيل|متابعة/ }).first().click()
+    await page.getByRole('button', { name: 'إنشاء الحساب' }).click()
     await expect(page.getByText('البريد الإلكتروني غير صالح')).toBeVisible()
 
     await page.getByLabel('البريد الإلكتروني').fill(`e2e+${Date.now()}@muslly.com`)
     const password = page.locator('input[type="password"]').first()
     await password.fill('123')
-    await page.getByRole('button', { name: /إنشاء|تسجيل|متابعة/ }).first().click()
+    await page.getByRole('button', { name: 'إنشاء الحساب' }).click()
     await expect(page.getByText('كلمة المرور يجب أن تكون 8 أحرف على الأقل.')).toBeVisible()
   })
 })
