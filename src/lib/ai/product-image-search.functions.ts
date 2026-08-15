@@ -60,8 +60,15 @@ async function searchImage(
   const res = await fetch(`https://www.googleapis.com/customsearch/v1?${params.toString()}`)
   if (!res.ok) {
     const detail = await res.text()
+    if (res.status === 401 || res.status === 403) {
+      return {
+        url: null,
+        error: 'مفتاح جوجل غير صالح أو Custom Search API غير مُفعّل',
+      }
+    }
     return { url: null, error: `google_${res.status}: ${detail.slice(0, 160)}` }
   }
+
   const json = (await res.json()) as { items?: CseItem[] }
   const ranked = (json.items ?? [])
     .map((item) => ({ item, score: scoreItem(item) }))
@@ -126,8 +133,13 @@ export const fetchProductImagesFromGoogle = createServerFn({ method: 'POST' })
     await assertAdmin(context.userId)
 
     const key = process.env['GOOGLE_API_KEY']
-    const cx = process.env['GOOGLE_CX_ID']
+    // Accept any of the common CSE id names so renaming the secret never breaks this.
+    const cx =
+      process.env['GOOGLE_SEARCH_ENGINE_ID'] ||
+      process.env['GOOGLE_CSE_ID'] ||
+      process.env['GOOGLE_CX_ID']
     if (!key || !cx) throw new Error('مفاتيح بحث جوجل غير مهيأة')
+
 
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
     const { recordAiCall } = await import('./observability.server')

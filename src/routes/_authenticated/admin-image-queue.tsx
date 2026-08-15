@@ -42,6 +42,7 @@ function AdminImageQueue() {
     results: ImageSearchResult[]
   } | null>(null)
   const stopRef = useRef(false)
+  const abortRef = useRef<AbortController | null>(null)
 
   const googleProgress = useQuery({
     queryKey: ['admin', 'google-image-progress'],
@@ -50,6 +51,7 @@ function AdminImageQueue() {
 
   async function runGoogleUpdate() {
     stopRef.current = false
+    abortRef.current = new AbortController()
     setRunning(true)
     setDone(0)
     setSummary(null)
@@ -66,7 +68,10 @@ function AdminImageQueue() {
     try {
       for (let i = 0; i < MAX_BATCHES; i += 1) {
         if (stopRef.current) break
-        const r = await googleFn({ data: { batchSize: BATCH_SIZE, force } })
+        const r = await googleFn({
+          data: { batchSize: BATCH_SIZE, force },
+          signal: abortRef.current.signal,
+        })
         updated += r.updated
         skipped += r.skipped
         all.push(...r.results)
@@ -75,15 +80,25 @@ function AdminImageQueue() {
         if (!force && r.remaining === 0) break
       }
       setSummary({ updated, skipped, results: all })
-      toast.success(`اكتمل: تم تحديث ${updated} صورة، وتخطّي ${skipped}`)
+      if (stopRef.current) toast.info(`تم الإيقاف: حُدِّثت ${updated} صورة`)
+      else toast.success(`اكتمل: تم تحديث ${updated} صورة، وتخطّي ${skipped}`)
       void qc.invalidateQueries({ queryKey: ['admin', 'google-image-progress'] })
     } catch (e) {
-      toast.error((e as Error).message)
+      const aborted =
+        stopRef.current || (e as Error)?.name === 'AbortError' || abortRef.current?.signal.aborted
       setSummary({ updated, skipped, results: all })
+      if (aborted) {
+        toast.info(`تم الإيقاف: حُدِّثت ${updated} صورة`)
+        void qc.invalidateQueries({ queryKey: ['admin', 'google-image-progress'] })
+      } else {
+        toast.error((e as Error).message)
+      }
     } finally {
+      abortRef.current = null
       setRunning(false)
     }
   }
+
 
   const gen = useMutation({
     mutationFn: () => genFn({ data: { limit: 3 } }),
@@ -148,7 +163,9 @@ function AdminImageQueue() {
             <button
               onClick={() => {
                 stopRef.current = true
+                abortRef.current?.abort()
               }}
+
               className="inline-flex items-center gap-2 rounded-2xl border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50"
             >
               <StopCircle className="h-4 w-4" /> إيقاف
