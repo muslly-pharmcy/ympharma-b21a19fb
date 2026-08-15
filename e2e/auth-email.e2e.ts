@@ -15,7 +15,19 @@ const card = (page: Page) => page.locator('main').last()
 async function gotoSignup(page: Page) {
   await page.goto('/auth?mode=signup', { waitUntil: 'domcontentloaded' })
   await expect(page.getByText('أدخل اسمك الثلاثي')).toBeVisible()
+  // The markup is server-rendered, so wait for hydration before typing —
+  // otherwise React never sees the input events.
+  await page.waitForLoadState('networkidle')
+  await expect
+    .poll(async () => {
+      const input = card(page).locator('input').first()
+      await input.fill('س')
+      return input.inputValue()
+    })
+    .toBe('س')
+  await card(page).locator('input').first().fill('')
 }
+
 
 async function fillName(page: Page, parts = [NAME.first, NAME.father, NAME.family]) {
   const inputs = card(page).locator('input')
