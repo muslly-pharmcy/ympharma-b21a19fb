@@ -39,8 +39,10 @@ function AdminImageQueue() {
   const [summary, setSummary] = useState<{
     updated: number
     skipped: number
+    reasons: { quota: number; noImage: number; stopped: number; error: number }
     results: ImageSearchResult[]
   } | null>(null)
+
   const stopRef = useRef(false)
   const abortRef = useRef<AbortController | null>(null)
 
