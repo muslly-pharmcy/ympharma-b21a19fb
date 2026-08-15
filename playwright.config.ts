@@ -1,6 +1,20 @@
+import { existsSync } from 'node:fs'
 import { defineConfig, devices } from '@playwright/test'
 
 const BASE_URL = process.env['E2E_BASE_URL'] ?? 'http://localhost:8080'
+
+/**
+ * Some environments ship a preinstalled Chromium instead of the browser build
+ * Playwright downloads. Reuse it when present so `playwright test` runs without
+ * a separate `playwright install` step.
+ */
+const CHROMIUM_PATHS = [
+  process.env['PLAYWRIGHT_CHROMIUM_PATH'],
+  '/opt/ms-playwright/chromium-1194/chrome-linux/chrome',
+  '/bin/chromium',
+].filter((p): p is string => Boolean(p))
+const executablePath = CHROMIUM_PATHS.find((p) => existsSync(p))
+
 
 /**
  * E2E specs live in `e2e/` and use the `.e2e.ts` suffix so vitest (which owns
