@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Activity, BrainCircuit, ScrollText, Settings2, SlidersHorizontal, Truck } from 'lucide-react'
+import { Activity, BrainCircuit, MessageCircle, ScrollText, Settings2, SlidersHorizontal, Truck } from 'lucide-react'
 import { ControlTowerShell, GlassCard } from '@/components/admin/ControlTowerShell'
 import { useSystemSettings } from '@/hooks/useSystemSettings'
 import {
@@ -45,6 +45,13 @@ const MODULES = [
     title: 'صحة الذكاء الاصطناعي',
     desc: 'أداء وأعطال كل نداءات الذكاء (قراءة فقط).',
   },
+  {
+    to: '/control-tower/whatsapp' as const,
+    icon: MessageCircle,
+    title: 'إشعارات واتساب',
+    desc: 'ربط واتساب وإشعار العملاء تلقائياً عند الطلب.',
+  },
+
   {
     to: '/control-tower/audit' as const,
     icon: ScrollText,

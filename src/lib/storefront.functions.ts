@@ -178,6 +178,22 @@ export const placeOrder = createServerFn({ method: 'POST' })
       /* non-blocking */
     }
 
+    // WhatsApp customer notification (best effort, never blocks the order).
+    try {
+      const { notifyOrderPlaced } = await import('@/lib/whatsapp/send.server')
+      void notifyOrderPlaced(data.phone, {
+        orderId: r.order_id,
+        total: Number(r.total),
+        address: data.address,
+        status: 'pending',
+        customerName: data.customerName,
+        paymentMethod: r.payment_method_code,
+      })
+    } catch {
+      /* non-blocking */
+    }
+
+
     return {
       id: r.order_id,
       total: Number(r.total),
