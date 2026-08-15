@@ -6,6 +6,7 @@ export const FEATURE_FLAG_KEYS = [
   'enable_ai_marketing',
   'enable_delivery_orders',
   'enable_clinical_inspector',
+  'enable_phone_auth',
   'maintenance_mode',
 ] as const
 
