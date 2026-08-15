@@ -117,6 +117,30 @@ export const Route = createFileRoute('/delivery/aden')({
             },
           ],
           hasMap: PHARMACY.mapsUrl,
+          makesOffer: {
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: 'توصيل الأدوية داخل عدن',
+              serviceType: 'Medication delivery',
+              provider: { '@type': 'Pharmacy', name: PHARMACY.nameAr },
+              areaServed: DISTRICTS.map((d) => `${d.name} — عدن`),
+            },
+            description:
+              'توصيل خلال 30–60 دقيقة، استقبال الطلبات حتى 2 فجراً، ورسوم التوصيل حسب تسعيرة منصة توصيل عدن.',
+          },
+        }),
+      },
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: FAQ.map((f) => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: { '@type': 'Answer', text: f.a },
+          })),
         }),
       },
     ],
