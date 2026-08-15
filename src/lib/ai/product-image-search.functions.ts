@@ -1,94 +1,14 @@
 import { createServerFn } from '@tanstack/react-start'
+import { getRequest } from '@tanstack/react-start/server'
 import { z } from 'zod'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import type { SkipReason } from './product-image-search.server'
 
 // ---------------------------------------------------------------------------
 // Google Custom Search (image) → catalog_products.image_url
-// Admin-gated, batched, rate-limit friendly. Never throws per product:
+// Admin-gated, batched, multi-key with rotation. Never throws per product:
 // a product without a usable image is simply reported as `skipped`.
 // ---------------------------------------------------------------------------
-
-const IMG_EXT = /\.(jpe?g|png|webp)(\?|$)/i
-
-/** Reputable pharma / medical directory hosts get a ranking bonus. */
-const PREFERRED_HOSTS = [
-  'dawaback', 'altibbi', 'vidal', 'webteb', 'drugs.com', 'medicines',
-  'pharmacy', 'pharma', 'sehatok', 'edrugstore', 'nahdionline', 'aldawaa',
-  'unitedpharmacies', 'chemist', 'boots', 'wellcare', 'sidalih', 'tebcan',
-]
-
-interface CseItem {
-  link?: string
-  mime?: string
-  image?: { width?: number; height?: number; contextLink?: string }
-}
-
-function scoreItem(item: CseItem): number {
-  const link = item.link ?? ''
-  if (!IMG_EXT.test(link)) return -1
-  if (!/^https:\/\//i.test(link)) return -1
-  const w = item.image?.width ?? 0
-  const h = item.image?.height ?? 0
-  if (w && h && (w < 200 || h < 200)) return -1
-  let score = (w || 300) * (h || 300)
-  const host = (() => {
-    try {
-      return new URL(link).hostname.toLowerCase()
-    } catch {
-      return ''
-    }
-  })()
-  if (PREFERRED_HOSTS.some((p) => host.includes(p))) score *= 1.6
-  return score
-}
-
-async function searchImage(
-  query: string,
-  key: string,
-  cx: string,
-): Promise<{ url: string | null; error?: string }> {
-  const params = new URLSearchParams({
-    key,
-    cx,
-    q: query,
-    searchType: 'image',
-    imgType: 'photo',
-    imgSize: 'large',
-    safe: 'active',
-    num: '5',
-  })
-  const res = await fetch(`https://www.googleapis.com/customsearch/v1?${params.toString()}`)
-  if (!res.ok) {
-    const detail = await res.text()
-    if (res.status === 401 || res.status === 403) {
-      return {
-        url: null,
-        error: 'مفتاح جوجل غير صالح أو Custom Search API غير مُفعّل',
-      }
-    }
-    return { url: null, error: `google_${res.status}: ${detail.slice(0, 160)}` }
-  }
-
-  const json = (await res.json()) as { items?: CseItem[] }
-  const ranked = (json.items ?? [])
-    .map((item) => ({ item, score: scoreItem(item) }))
-    .filter((r) => r.score > 0)
-    .sort((a, b) => b.score - a.score)
-  return { url: ranked[0]?.item.link ?? null }
-}
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
-
-async function assertAdmin(userId: string) {
-  const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-  const { data } = await supabaseAdmin
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .in('role', ['admin', 'owner'])
-    .limit(1)
-  if (!data || data.length === 0) throw new Error('صلاحيات المشرف مطلوبة')
-}
 
 export interface ImageSearchResult {
   productId: string
@@ -96,12 +16,14 @@ export interface ImageSearchResult {
   ok: boolean
   imageUrl?: string
   reason?: string
+  skipReason?: SkipReason
 }
 
 /** How many products still need a Google-sourced image. */
 export const getGoogleImageProgress = createServerFn({ method: 'GET' })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { assertAdmin } = await import('./product-image-search.admin.server')
     await assertAdmin(context.userId)
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
     const [{ count: total }, { count: withImage }] = await Promise.all([
@@ -130,16 +52,25 @@ export const fetchProductImagesFromGoogle = createServerFn({ method: 'POST' })
       .parse(raw ?? {}),
   )
   .handler(async ({ data, context }) => {
+    const { assertAdmin } = await import('./product-image-search.admin.server')
     await assertAdmin(context.userId)
 
-    const key = process.env['GOOGLE_API_KEY']
-    // Accept any of the common CSE id names so renaming the secret never breaks this.
-    const cx =
-      process.env['GOOGLE_SEARCH_ENGINE_ID'] ||
-      process.env['GOOGLE_CSE_ID'] ||
-      process.env['GOOGLE_CX_ID']
-    if (!key || !cx) throw new Error('مفاتيح بحث جوجل غير مهيأة')
+    const { KeyRotator, collectApiKeys, collectSearchEngineIds, sleep } = await import(
+      './product-image-search.server'
+    )
 
+    const env = process.env as Record<string, string | undefined>
+    const keys = collectApiKeys(env)
+    const cxList = collectSearchEngineIds(env)
+    if (keys.length === 0 || cxList.length === 0) throw new Error('مفاتيح بحث جوجل غير مهيأة')
+
+    const signal = (() => {
+      try {
+        return getRequest().signal
+      } catch {
+        return undefined
+      }
+    })()
 
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
     const { recordAiCall } = await import('./observability.server')
@@ -156,21 +87,44 @@ export const fetchProductImagesFromGoogle = createServerFn({ method: 'POST' })
     const { data: products, error } = await query
     if (error) throw new Error(error.message)
 
+    const rotator = new KeyRotator(keys, cxList[0]!)
     const results: ImageSearchResult[] = []
+    const reasons = { quota: 0, noImage: 0, stopped: 0, error: 0 }
+    let aborted = false
 
     for (const p of products ?? []) {
+      if (signal?.aborted || aborted) {
+        aborted = true
+        reasons.stopped += 1
+        results.push({
+          productId: p.id,
+          name: (p.name_ar || p.name_en || '—').trim(),
+          ok: false,
+          reason: 'تم الإيقاف',
+          skipReason: 'stopped',
+        })
+        continue
+      }
+
       const name = (p.name_ar || p.name_en || '').trim()
       if (!name) {
-        results.push({ productId: p.id, name: '—', ok: false, reason: 'no_name' })
+        reasons.error += 1
+        results.push({ productId: p.id, name: '—', ok: false, reason: 'no_name', skipReason: 'error' })
         continue
       }
 
       const startedAt = Date.now()
       try {
-        let found = await searchImage(`${name} دواء علبة`, key, cx)
-        if (!found.url && !found.error) found = await searchImage(`${name} صيدلية`, key, cx)
+        let found = await rotator.search(`${name} دواء علبة`, signal)
+        if (!found.url && !found.keyFailure) found = await rotator.search(`${name} صيدلية`, signal)
 
         if (!found.url) {
+          const skipReason: SkipReason = found.keyFailure
+            ? 'quota'
+            : found.error
+              ? 'error'
+              : 'no_image'
+          reasons[skipReason === 'no_image' ? 'noImage' : skipReason] += 1
           void recordAiCall({
             feature: 'product-image-search',
             model: 'google-cse',
@@ -184,14 +138,37 @@ export const fetchProductImagesFromGoogle = createServerFn({ method: 'POST' })
             name,
             ok: false,
             reason: found.error ?? 'no_image_found',
+            skipReason,
           })
+          // all keys burned → stop the batch gracefully
+          if (found.keyFailure && rotator.exhausted) {
+            aborted = false
+            for (const rest of (products ?? []).slice(results.length)) {
+              reasons.quota += 1
+              results.push({
+                productId: rest.id,
+                name: (rest.name_ar || rest.name_en || '—').trim(),
+                ok: false,
+                reason: 'نفدت حصة مفاتيح جوجل',
+                skipReason: 'quota',
+              })
+            }
+            break
+          }
         } else {
           const { error: upErr } = await supabaseAdmin
             .from('catalog_products')
             .update({ image_url: found.url } as never)
             .eq('id', p.id)
           if (upErr) {
-            results.push({ productId: p.id, name, ok: false, reason: upErr.message })
+            reasons.error += 1
+            results.push({
+              productId: p.id,
+              name,
+              ok: false,
+              reason: upErr.message,
+              skipReason: 'error',
+            })
           } else {
             void recordAiCall({
               feature: 'product-image-search',
@@ -204,11 +181,35 @@ export const fetchProductImagesFromGoogle = createServerFn({ method: 'POST' })
           }
         }
       } catch (e) {
-        results.push({ productId: p.id, name, ok: false, reason: (e as Error).message })
+        if ((e as Error)?.name === 'AbortError') {
+          aborted = true
+          reasons.stopped += 1
+          results.push({
+            productId: p.id,
+            name,
+            ok: false,
+            reason: 'تم الإيقاف',
+            skipReason: 'stopped',
+          })
+          break
+        }
+        reasons.error += 1
+        results.push({
+          productId: p.id,
+          name,
+          ok: false,
+          reason: (e as Error).message,
+          skipReason: 'error',
+        })
       }
 
       // gentle pacing to stay inside Google CSE rate limits
-      await sleep(300)
+      try {
+        await sleep(300, signal)
+      } catch {
+        aborted = true
+        break
+      }
     }
 
     const { count: remaining } = await supabaseAdmin
@@ -221,6 +222,10 @@ export const fetchProductImagesFromGoogle = createServerFn({ method: 'POST' })
       updated: results.filter((r) => r.ok).length,
       skipped: results.filter((r) => !r.ok).length,
       remaining: remaining ?? 0,
+      aborted,
+      quotaExhausted: rotator.exhausted,
+      keysUsed: rotator.keysUsed,
+      reasons,
       results,
     }
   })
