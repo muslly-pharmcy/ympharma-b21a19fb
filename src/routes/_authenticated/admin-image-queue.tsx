@@ -113,14 +113,95 @@ function AdminImageQueue() {
         </div>
       </header>
 
+      <section className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">صور جوجل الحقيقية</h2>
+            <p className="text-sm text-gray-600">
+              {googleProgress.data
+                ? `${googleProgress.data.withImage.toLocaleString('ar-EG')} من ${googleProgress.data.total.toLocaleString('ar-EG')} منتج لديه صورة — ينقص ${googleProgress.data.missing.toLocaleString('ar-EG')}`
+                : 'جارٍ حساب الحالة…'}
+            </p>
+          </div>
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={force}
+              onChange={(e) => setForce(e.target.checked)}
+              disabled={running}
+              className="h-4 w-4 accent-[var(--color-primary,#0f766e)]"
+            />
+            إعادة تحديث الصور الموجودة
+          </label>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => void runGoogleUpdate()}
+            disabled={running}
+            className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm hover:opacity-90 disabled:opacity-50"
+          >
+            {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            تحديث صور المنتجات من جوجل
+          </button>
+          {running && (
+            <button
+              onClick={() => {
+                stopRef.current = true
+              }}
+              className="inline-flex items-center gap-2 rounded-2xl border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50"
+            >
+              <StopCircle className="h-4 w-4" /> إيقاف
+            </button>
+          )}
+        </div>
+
+        {running && (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-gray-800">
+              جارٍ التحديث {done.toLocaleString('ar-EG')}/{Math.max(target, done).toLocaleString('ar-EG')}…
+            </p>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+              <div
+                className="h-full bg-primary transition-all"
+                style={{ width: `${target ? Math.min(100, (done / target) * 100) : 5}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {summary && (
+          <div className="space-y-3 rounded-xl bg-gray-50 p-4">
+            <p className="text-sm font-bold text-gray-900">
+              التقرير النهائي: تم تحديث {summary.updated.toLocaleString('ar-EG')} — تم تخطّي{' '}
+              {summary.skipped.toLocaleString('ar-EG')}
+            </p>
+            {summary.results.filter((r) => !r.ok).length > 0 && (
+              <ul className="max-h-56 space-y-1 overflow-auto text-xs text-gray-600">
+                {summary.results
+                  .filter((r) => !r.ok)
+                  .slice(0, 100)
+                  .map((r) => (
+                    <li key={r.productId} className="flex justify-between gap-3">
+                      <span className="truncate">{r.name}</span>
+                      <span className="shrink-0 text-gray-400">{r.reason}</span>
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </section>
+
       <button
         onClick={() => gen.mutate()}
         disabled={gen.isPending}
-        className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm hover:opacity-90 disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-2xl border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
       >
         {gen.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-        توليد صور احترافية (3 منتجات)
+        توليد صور احترافية بالذكاء الاصطناعي (3 منتجات)
       </button>
+
 
       {q.isLoading ? (
         <div className="flex items-center gap-2 text-gray-500">
