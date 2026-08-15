@@ -10,11 +10,7 @@ import { expect, test } from '@playwright/test'
 const NAME = { first: 'محمد', father: 'علي', family: 'المصلي' }
 
 async function gotoSignup(page: import('@playwright/test').Page) {
-  await page.goto('/auth', { waitUntil: 'domcontentloaded' })
-  const signupSwitch = page.getByRole('button', { name: 'إنشاء حساب جديد' })
-  if (await signupSwitch.count()) {
-    await signupSwitch.first().click()
-  }
+  await page.goto('/auth?mode=signup', { waitUntil: 'domcontentloaded' })
   await expect(page.getByText('أدخل اسمك الثلاثي')).toBeVisible()
 }
 
