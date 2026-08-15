@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Activity, BrainCircuit, ScrollText, Settings2, SlidersHorizontal, Truck } from 'lucide-react'
+import { Activity, BrainCircuit, MessageCircle, ScrollText, Settings2, SlidersHorizontal, Truck } from 'lucide-react'
 import { ControlTowerShell, GlassCard } from '@/components/admin/ControlTowerShell'
 import { useSystemSettings } from '@/hooks/useSystemSettings'
 import {
