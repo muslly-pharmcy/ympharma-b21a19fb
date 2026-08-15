@@ -39,7 +39,7 @@ export const Route = createRootRoute({
       { name: 'theme-color', content: '#005D4F' },
       { name: 'apple-mobile-web-app-capable', content: 'yes' },
       { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-      { title: 'صيدلية المصلي — Al-Musalli Pharmacy | رعاية دوائية ذكية في عدن' },
+      { title: 'صيدلية المصلي — رعاية دوائية ذكية في عدن' },
       {
         name: 'description',
         content:
@@ -65,6 +65,50 @@ export const Route = createRootRoute({
       { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/icon-192.png' },
       { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/icon-512.png' },
       { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+    ],
+    scripts: [
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'Organization',
+              '@id': 'https://muslly.com/#organization',
+              name: 'صيدلية المصلي',
+              alternateName: 'Almosly Pharmacy',
+              url: 'https://muslly.com/',
+              telephone: '+967 782 878 280',
+              email: 'info@muslly.com',
+              address: {
+                '@type': 'PostalAddress',
+                streetAddress: 'كريتر',
+                addressLocality: 'عدن',
+                addressCountry: 'YE',
+              },
+              sameAs: [
+                'https://wa.me/967782878280',
+              ],
+            },
+            {
+              '@type': 'WebSite',
+              '@id': 'https://muslly.com/#website',
+              url: 'https://muslly.com/',
+              name: 'صيدلية المصلي',
+              inLanguage: 'ar',
+              publisher: { '@id': 'https://muslly.com/#organization' },
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: {
+                  '@type': 'EntryPoint',
+                  urlTemplate: 'https://muslly.com/search?q={search_term_string}',
+                },
+                'query-input': 'required name=search_term_string',
+              },
+            },
+          ],
+        }),
+      },
     ],
   }),
 

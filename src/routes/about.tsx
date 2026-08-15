@@ -29,7 +29,9 @@ function AboutPage() {
     <div className="max-w-6xl mx-auto px-4 md:px-8 py-10 space-y-12">
       <section className="text-center space-y-4">
         <img src={PHARMACY.logo} alt={PHARMACY.nameAr} className="w-24 h-24 mx-auto rounded-2xl bg-primary/5 p-3" />
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{PHARMACY.nameAr}</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+          {PHARMACY.nameAr} — رعاية دوائية موثوقة وتوصيل أدوية في عدن
+        </h1>
         <p className="text-gray-500">{PHARMACY.nameEn} — {PHARMACY.tagline}</p>
       </section>
 
