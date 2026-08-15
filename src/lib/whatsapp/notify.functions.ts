@@ -53,7 +53,7 @@ export const getWhatsAppStatus = createServerFn({ method: 'GET' })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase as never, context.userId)
-    const phoneNumberId = process.env['WHATSAPP_PHONE_NUMBER_ID'] ?? ''
+    const phoneNumberId = process.env['WHATSAPP_PHONE_NUMBER_ID'] || '1261889173677539'
     return {
       configured: Boolean(process.env['WHATSAPP_ACCESS_TOKEN'] && phoneNumberId),
       phoneNumberId,
