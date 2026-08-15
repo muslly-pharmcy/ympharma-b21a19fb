@@ -49,6 +49,7 @@ export const FEATURE_FLAG_LABELS_AR: Record<FeatureFlagKey, string> = {
   enable_clinical_inspector: 'لوحة الفحص السريري',
   enable_ai_marketing: 'التسويق بالذكاء الاصطناعي',
   maintenance_mode: 'وضع الصيانة',
+  enable_phone_auth: 'التحقق عبر رقم الهاتف (SMS)',
 }
 
 /**
