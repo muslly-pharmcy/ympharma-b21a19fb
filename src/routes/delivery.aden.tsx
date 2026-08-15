@@ -14,7 +14,33 @@ import { Reveal, Stagger, RevealItem } from '@/shared/components/motion/Reveal'
 const CANONICAL = 'https://muslly.com/delivery/aden'
 const TITLE = 'توصيل الأدوية في عدن — صيدلية المصلي | كريتر والمعلا وخورمكسر'
 const DESCRIPTION =
-  'خدمة توصيل الأدوية في عدن من صيدلية المصلي: كريتر، المعلا، خورمكسر، الشيخ عثمان، المنصورة، دار سعد، البريقة والتواهي. اطلب عبر واتساب أو نموذج الطلب مع مراجعة صيدلانية.'
+  'توصيل الأدوية في عدن من صيدلية المصلي خلال 30–60 دقيقة: كريتر، المعلا، خورمكسر، الشيخ عثمان، المنصورة، دار سعد، البريقة والتواهي. استقبال الطلبات حتى 2 فجراً ورسوم التوصيل عبر منصة توصيل عدن.'
+
+const FAQ = [
+  {
+    q: 'كم تستغرق مدة توصيل الدواء في عدن؟',
+    a: 'عادةً من 30 دقيقة إلى ساعة داخل مديريات عدن، وقد تزيد قليلاً في أوقات الذروة أو للمناطق البعيدة مثل البريقة.',
+  },
+  {
+    q: 'ما هي رسوم التوصيل؟',
+    a: 'التوصيل يتم عبر منصة توصيل عدن، والرسوم تُحتسب حسب تسعيرة المنصة والمسافة إلى عنوانك، ونبلغك بالمبلغ عند تأكيد الطلب قبل الإرسال.',
+  },
+  {
+    q: 'إلى أي ساعة يمكنني الطلب؟',
+    a: 'نستقبل طلبات التوصيل حتى الساعة 2 فجراً، ويُنفَّذ الطلب مباشرة بعد المراجعة الصيدلانية وتأكيد التوفر.',
+  },
+  {
+    q: 'هل يمكن طلب دواء يحتاج وصفة طبية؟',
+    a: 'نعم، أرسل صورة واضحة للوصفة عبر واتساب أو نموذج الطلب، ويراجعها الصيدلي قبل الصرف والتوصيل.',
+  },
+]
+
+const SERVICE_FACTS = [
+  { label: 'مدة التوصيل', value: '30 – 60 دقيقة' },
+  { label: 'آخر استقبال للطلبات', value: '2:00 فجراً' },
+  { label: 'رسوم التوصيل', value: 'حسب تسعيرة منصة توصيل عدن' },
+  { label: 'المراجعة الصيدلانية', value: 'لكل طلب قبل الصرف' },
+]
 
 const DISTRICTS = [
   { name: 'كريتر', note: 'مقر الصيدلية — أسرع تسليم' },
@@ -91,6 +117,30 @@ export const Route = createFileRoute('/delivery/aden')({
             },
           ],
           hasMap: PHARMACY.mapsUrl,
+          makesOffer: {
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: 'توصيل الأدوية داخل عدن',
+              serviceType: 'Medication delivery',
+              provider: { '@type': 'Pharmacy', name: PHARMACY.nameAr },
+              areaServed: DISTRICTS.map((d) => `${d.name} — عدن`),
+            },
+            description:
+              'توصيل خلال 30–60 دقيقة، استقبال الطلبات حتى 2 فجراً، ورسوم التوصيل حسب تسعيرة منصة توصيل عدن.',
+          },
+        }),
+      },
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: FAQ.map((f) => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: { '@type': 'Answer', text: f.a },
+          })),
         }),
       },
     ],
@@ -133,6 +183,15 @@ function AdenDeliveryPage() {
           </Link>
         </div>
       </Reveal>
+
+      <section className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {SERVICE_FACTS.map((f) => (
+          <div key={f.label} className="glass-card p-4 text-center">
+            <p className="text-sm font-bold text-gray-900">{f.value}</p>
+            <p className="mt-1 text-[11px] text-gray-600">{f.label}</p>
+          </div>
+        ))}
+      </section>
 
       <section className="mt-10">
         <h2 className="mb-4 text-lg font-bold text-gray-900">المديريات التي نغطيها</h2>
@@ -206,6 +265,37 @@ function AdenDeliveryPage() {
               </a>
             </li>
           </ul>
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="mb-4 text-lg font-bold text-gray-900">الرسوم وأوقات التوصيل</h2>
+        <div className="glass-card space-y-3 p-5 text-sm leading-7 text-gray-600">
+          <p>
+            يصل الطلب عادةً خلال <strong className="text-gray-900">30 دقيقة إلى ساعة</strong> داخل
+            مديريات عدن، ونستقبل الطلبات حتى <strong className="text-gray-900">الساعة 2 فجراً</strong>.
+          </p>
+          <p>
+            التوصيل يتم عبر <strong className="text-gray-900">منصة توصيل عدن</strong>، ورسوم
+            المشوار تُحتسب حسب تسعيرة المنصة والمسافة إلى عنوانك. نبلغك بالمبلغ النهائي مع سعر
+            الدواء عند تأكيد الطلب قبل الإرسال — بدون رسوم مخفية.
+          </p>
+          <p>
+            الأدوية التي تحتاج وصفة لا تُصرف إلا بعد مراجعة الصيدلي للوصفة، وأدوية التبريد تُنقل
+            في عبوة مبرّدة.
+          </p>
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="mb-4 text-lg font-bold text-gray-900">أسئلة شائعة عن التوصيل في عدن</h2>
+        <div className="space-y-3">
+          {FAQ.map((f) => (
+            <details key={f.q} className="glass-card p-4">
+              <summary className="cursor-pointer text-sm font-bold text-gray-900">{f.q}</summary>
+              <p className="mt-2 text-sm leading-7 text-gray-600">{f.a}</p>
+            </details>
+          ))}
         </div>
       </section>
 
