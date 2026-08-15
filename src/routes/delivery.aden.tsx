@@ -269,6 +269,37 @@ function AdenDeliveryPage() {
       </section>
 
       <section className="mt-10">
+        <h2 className="mb-4 text-lg font-bold text-gray-900">الرسوم وأوقات التوصيل</h2>
+        <div className="glass-card space-y-3 p-5 text-sm leading-7 text-gray-600">
+          <p>
+            يصل الطلب عادةً خلال <strong className="text-gray-900">30 دقيقة إلى ساعة</strong> داخل
+            مديريات عدن، ونستقبل الطلبات حتى <strong className="text-gray-900">الساعة 2 فجراً</strong>.
+          </p>
+          <p>
+            التوصيل يتم عبر <strong className="text-gray-900">منصة توصيل عدن</strong>، ورسوم
+            المشوار تُحتسب حسب تسعيرة المنصة والمسافة إلى عنوانك. نبلغك بالمبلغ النهائي مع سعر
+            الدواء عند تأكيد الطلب قبل الإرسال — بدون رسوم مخفية.
+          </p>
+          <p>
+            الأدوية التي تحتاج وصفة لا تُصرف إلا بعد مراجعة الصيدلي للوصفة، وأدوية التبريد تُنقل
+            في عبوة مبرّدة.
+          </p>
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="mb-4 text-lg font-bold text-gray-900">أسئلة شائعة عن التوصيل في عدن</h2>
+        <div className="space-y-3">
+          {FAQ.map((f) => (
+            <details key={f.q} className="glass-card p-4">
+              <summary className="cursor-pointer text-sm font-bold text-gray-900">{f.q}</summary>
+              <p className="mt-2 text-sm leading-7 text-gray-600">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-10">
         <h2 className="mb-4 text-lg font-bold text-gray-900">قبل ما تطلب — اقرأ الدليل الدوائي</h2>
         <div className="glass-card flex flex-wrap items-center justify-between gap-3 p-5">
           <p className="text-sm leading-7 text-gray-600">
