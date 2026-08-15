@@ -46,6 +46,13 @@ const MODULES = [
     desc: 'أداء وأعطال كل نداءات الذكاء (قراءة فقط).',
   },
   {
+    to: '/control-tower/whatsapp' as const,
+    icon: MessageCircle,
+    title: 'إشعارات واتساب',
+    desc: 'ربط واتساب وإشعار العملاء تلقائياً عند الطلب.',
+  },
+
+  {
     to: '/control-tower/audit' as const,
     icon: ScrollText,
     title: 'سجل التدقيق',
