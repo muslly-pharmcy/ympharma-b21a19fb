@@ -60,8 +60,15 @@ async function searchImage(
   const res = await fetch(`https://www.googleapis.com/customsearch/v1?${params.toString()}`)
   if (!res.ok) {
     const detail = await res.text()
+    if (res.status === 401 || res.status === 403) {
+      return {
+        url: null,
+        error: 'مفتاح جوجل غير صالح أو Custom Search API غير مُفعّل',
+      }
+    }
     return { url: null, error: `google_${res.status}: ${detail.slice(0, 160)}` }
   }
+
   const json = (await res.json()) as { items?: CseItem[] }
   const ranked = (json.items ?? [])
     .map((item) => ({ item, score: scoreItem(item) }))
