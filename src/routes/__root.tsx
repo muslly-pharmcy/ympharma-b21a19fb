@@ -39,7 +39,7 @@ export const Route = createRootRoute({
       { name: 'theme-color', content: '#005D4F' },
       { name: 'apple-mobile-web-app-capable', content: 'yes' },
       { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-      { title: 'صيدلية المصلي — Al-Musalli Pharmacy | رعاية دوائية ذكية في عدن' },
+      { title: 'صيدلية المصلي — رعاية دوائية ذكية في عدن' },
       {
         name: 'description',
         content:
