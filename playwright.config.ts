@@ -34,7 +34,9 @@ export default defineConfig({
     locale: 'ar',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    ...(executablePath ? { launchOptions: { executablePath } } : {}),
   },
+
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
