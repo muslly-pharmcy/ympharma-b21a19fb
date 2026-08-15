@@ -163,7 +163,9 @@ function AdminImageQueue() {
             <button
               onClick={() => {
                 stopRef.current = true
+                abortRef.current?.abort()
               }}
+
               className="inline-flex items-center gap-2 rounded-2xl border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50"
             >
               <StopCircle className="h-4 w-4" /> إيقاف
