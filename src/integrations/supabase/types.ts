@@ -11827,6 +11827,9 @@ export type Database = {
           created_at: string
           display_name: string | null
           email: string | null
+          family_name: string | null
+          father_name: string | null
+          first_name: string | null
           id: string
           metadata: Json
           notification_prefs: Json
@@ -11841,6 +11844,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          family_name?: string | null
+          father_name?: string | null
+          first_name?: string | null
           id: string
           metadata?: Json
           notification_prefs?: Json
@@ -11855,6 +11861,9 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           email?: string | null
+          family_name?: string | null
+          father_name?: string | null
+          first_name?: string | null
           id?: string
           metadata?: Json
           notification_prefs?: Json
