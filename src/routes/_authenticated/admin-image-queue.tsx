@@ -205,6 +205,23 @@ function AdminImageQueue() {
               التقرير النهائي: تم تحديث {summary.updated.toLocaleString('ar-EG')} — تم تخطّي{' '}
               {summary.skipped.toLocaleString('ar-EG')}
             </p>
+            <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-5">
+              {[
+                ['الإجمالي', summary.updated + summary.skipped],
+                ['ناجح', summary.updated],
+                ['حصة منتهية', summary.reasons.quota],
+                ['بلا صورة', summary.reasons.noImage],
+                ['إيقاف يدوي', summary.reasons.stopped],
+              ].map(([label, value]) => (
+                <div key={label as string} className="rounded-lg bg-white p-2 text-center shadow-sm">
+                  <p className="text-gray-500">{label}</p>
+                  <p className="text-base font-bold text-gray-900">
+                    {(value as number).toLocaleString('ar-EG')}
+                  </p>
+                </div>
+              ))}
+            </div>
+
             {summary.results.filter((r) => !r.ok).length > 0 && (
               <ul className="max-h-56 space-y-1 overflow-auto text-xs text-gray-600">
                 {summary.results
