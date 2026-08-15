@@ -2,6 +2,7 @@ import { Link, useRouterState } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Home, Store, ShoppingCart, FileImage, User } from 'lucide-react'
 import { listCart } from '@/lib/cart.functions'
+import { useAuth } from '@/context/AuthContext'
 
 const ITEMS = [
   { to: '/', label: 'الرئيسية', icon: Home },
@@ -18,10 +19,12 @@ const ITEMS = [
 export function BottomNav() {
   const { location } = useRouterState()
   const path = location.pathname
+  const { isAuthenticated } = useAuth()
 
   const { data: cartItems } = useQuery({
     queryKey: ['cart', 'items'],
     queryFn: () => listCart(),
+    enabled: isAuthenticated,
     staleTime: 30_000,
     retry: false,
   })
