@@ -39,8 +39,10 @@ function AdminImageQueue() {
   const [summary, setSummary] = useState<{
     updated: number
     skipped: number
+    reasons: { quota: number; noImage: number; stopped: number; error: number }
     results: ImageSearchResult[]
   } | null>(null)
+
   const stopRef = useRef(false)
   const abortRef = useRef<AbortController | null>(null)
 
@@ -63,6 +65,7 @@ function AdminImageQueue() {
 
     let updated = 0
     let skipped = 0
+    const reasons = { quota: 0, noImage: 0, stopped: 0, error: 0 }
     const all: ImageSearchResult[] = []
 
     try {
@@ -74,19 +77,28 @@ function AdminImageQueue() {
         })
         updated += r.updated
         skipped += r.skipped
+        reasons.quota += r.reasons.quota
+        reasons.noImage += r.reasons.noImage
+        reasons.stopped += r.reasons.stopped
+        reasons.error += r.reasons.error
         all.push(...r.results)
         setDone((d) => d + r.processed)
         if (r.processed === 0) break
+        if (r.quotaExhausted) {
+          toast.warning('نفدت حصة مفاتيح جوجل — تم إيقاف الدفعة')
+          break
+        }
         if (!force && r.remaining === 0) break
       }
-      setSummary({ updated, skipped, results: all })
+      setSummary({ updated, skipped, reasons, results: all })
       if (stopRef.current) toast.info(`تم الإيقاف: حُدِّثت ${updated} صورة`)
       else toast.success(`اكتمل: تم تحديث ${updated} صورة، وتخطّي ${skipped}`)
       void qc.invalidateQueries({ queryKey: ['admin', 'google-image-progress'] })
     } catch (e) {
       const aborted =
         stopRef.current || (e as Error)?.name === 'AbortError' || abortRef.current?.signal.aborted
-      setSummary({ updated, skipped, results: all })
+      setSummary({ updated, skipped, reasons, results: all })
+
       if (aborted) {
         toast.info(`تم الإيقاف: حُدِّثت ${updated} صورة`)
         void qc.invalidateQueries({ queryKey: ['admin', 'google-image-progress'] })
@@ -193,6 +205,23 @@ function AdminImageQueue() {
               التقرير النهائي: تم تحديث {summary.updated.toLocaleString('ar-EG')} — تم تخطّي{' '}
               {summary.skipped.toLocaleString('ar-EG')}
             </p>
+            <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-5">
+              {[
+                ['الإجمالي', summary.updated + summary.skipped],
+                ['ناجح', summary.updated],
+                ['حصة منتهية', summary.reasons.quota],
+                ['بلا صورة', summary.reasons.noImage],
+                ['إيقاف يدوي', summary.reasons.stopped],
+              ].map(([label, value]) => (
+                <div key={label as string} className="rounded-lg bg-white p-2 text-center shadow-sm">
+                  <p className="text-gray-500">{label}</p>
+                  <p className="text-base font-bold text-gray-900">
+                    {(value as number).toLocaleString('ar-EG')}
+                  </p>
+                </div>
+              ))}
+            </div>
+
             {summary.results.filter((r) => !r.ok).length > 0 && (
               <ul className="max-h-56 space-y-1 overflow-auto text-xs text-gray-600">
                 {summary.results
