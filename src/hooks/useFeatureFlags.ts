@@ -47,6 +47,7 @@ export function useFeatureFlags() {
           enable_ai_marketing: asBoolean(map.get('enable_ai_marketing'), true),
           enable_delivery_orders: asBoolean(map.get('enable_delivery_orders'), true),
           enable_clinical_inspector: asBoolean(map.get('enable_clinical_inspector'), true),
+          enable_phone_auth: asBoolean(map.get('enable_phone_auth'), false),
           maintenance_mode: asBoolean(map.get('maintenance_mode'), false),
         },
         pharmacyStatus: asPharmacyStatus(map.get('pharmacy_status')),
