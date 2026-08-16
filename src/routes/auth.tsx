@@ -1,10 +1,9 @@
 import { createFileRoute, useNavigate, useSearch, Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useEffect, useRef, useState } from 'react'
-import { Mail, Smartphone, Loader2, ArrowRight } from 'lucide-react'
+import { Loader2, Camera, Upload, X } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/context/AuthContext'
-import { useFeatureFlags } from '@/hooks/useFeatureFlags'
 import { ensurePatientIdentity } from '@/lib/patient-identity.functions'
 import {
   NAME_LABELS_AR,
@@ -14,7 +13,7 @@ import {
   validateThreePartName,
   type ThreePartName,
 } from '@/lib/auth/patient-name'
-import { DEFAULT_COUNTRY_CODE, looksLikeEmail, normalizePhone } from '@/lib/auth/phone'
+import { DEFAULT_COUNTRY_CODE, looksLikeEmail, normalizePhone, phoneToAuthEmail } from '@/lib/auth/phone'
 import { AUTH_MESSAGES_AR, toArabicAuthError } from '@/lib/auth/errors'
 
 const searchSchema = z.object({
@@ -29,7 +28,7 @@ export const Route = createFileRoute('/auth')({
       { title: 'إنشاء حساب أو تسجيل الدخول — صيدلية المصلي' },
       {
         name: 'description',
-        content: 'أنشئ حسابك في صيدلية المصلي بالاسم الثلاثي وطريقة تحقق واحدة: رقم الهاتف أو البريد الإلكتروني.',
+        content: 'أنشئ حسابك في صيدلية المصلي بالاسم الثلاثي ورقم الهاتف، ودخول فوري بدون رموز تحقق.',
       },
       { name: 'robots', content: 'noindex' },
     ],
@@ -38,7 +37,8 @@ export const Route = createFileRoute('/auth')({
 })
 
 const DEFAULT_REDIRECT = '/patient-profile'
-const OTP_LENGTH = 6
+const MAX_CARD_BYTES = 8 * 1024 * 1024
+const CARD_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'application/pdf']
 
 // Accept only internal, single-slash paths. Reject:
 // - absolute URLs (http:, https:, javascript:, data:, mailto:, tel:, ...)
@@ -63,7 +63,6 @@ function safeRedirect(raw?: string): string {
   return raw
 }
 
-type Step = 'name' | 'method' | 'phone' | 'otp' | 'email'
 type Mode = 'signin' | 'signup'
 
 const EMPTY_NAME: ThreePartName = { firstName: '', fatherName: '', familyName: '' }
@@ -75,41 +74,57 @@ function AuthPage() {
   const search = useSearch({ from: '/auth' })
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
-  const { isFlagEnabled } = useFeatureFlags()
-  const phoneAuthEnabled = isFlagEnabled('enable_phone_auth')
 
   const [mode, setMode] = useState<Mode>(search.mode ?? 'signin')
-  const [step, setStep] = useState<Step>(search.mode === 'signup' ? 'name' : 'email')
 
-  // Pre-auth name lives in React state only — never persisted before authentication.
+  // Pre-auth data lives in React state only — nothing is persisted before authentication.
   const [name, setName] = useState<ThreePartName>(EMPTY_NAME)
   const [nameErrors, setNameErrors] = useState<Array<keyof ThreePartName>>([])
-
   const [phone, setPhone] = useState('')
-  const [otp, setOtp] = useState('')
-  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [identifier, setIdentifier] = useState('')
+  const [card, setCard] = useState<File | null>(null)
 
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const [resendIn, setResendIn] = useState(0)
   const submitting = useRef(false)
+  const fileRef = useRef<HTMLInputElement | null>(null)
+  const cameraRef = useRef<HTMLInputElement | null>(null)
 
   const redirectTo = safeRedirect(search.redirect)
   const fullNamePreview = buildFullName(name)
 
+  // Once a session exists: upload the optional card, map the patient record, go in.
   useEffect(() => {
     if (!isAuthenticated) return
     let cancelled = false
     void (async () => {
+      let insuranceCardPath: string | null = null
       try {
-        await ensurePatientIdentity({ data: name })
+        if (card) {
+          const { data: userData } = await supabase.auth.getUser()
+          const uid = userData.user?.id
+          if (uid) {
+            const ext = card.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg'
+            const path = `${uid}/insurance-${Date.now()}.${ext}`
+            const { error: upErr } = await supabase.storage
+              .from('insurance-cards')
+              .upload(path, card, { upsert: false, contentType: card.type || undefined })
+            if (!upErr) insuranceCardPath = path
+          }
+        }
+      } catch {
+        // The card is optional — never block sign-in on an upload failure.
+      }
+      try {
+        await ensurePatientIdentity({ data: { ...name, phone: phone || null, insuranceCardPath } })
       } catch {
         // Identity completion is retried on the profile page; never block sign-in.
       }
       if (!cancelled) {
         setName(EMPTY_NAME)
+        setCard(null)
         void navigate({ to: redirectTo, replace: true })
       }
     })()
@@ -118,18 +133,6 @@ function AuthPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated])
-
-  useEffect(() => {
-    if (resendIn <= 0) return
-    const t = setTimeout(() => setResendIn((s) => s - 1), 1000)
-    return () => clearTimeout(t)
-  }, [resendIn])
-
-  function reset(next: Step) {
-    setError(null)
-    setInfo(null)
-    setStep(next)
-  }
 
   async function guard<T>(fn: () => Promise<T>) {
     if (submitting.current) return
@@ -147,7 +150,21 @@ function AuthPage() {
     }
   }
 
-  function handleNameSubmit(e: React.FormEvent) {
+  function pickCard(file: File | undefined) {
+    if (!file) return
+    if (file.size > MAX_CARD_BYTES) {
+      setError('حجم الملف كبير جدًا. الحد الأقصى 8 ميغابايت.')
+      return
+    }
+    if (file.type && !CARD_TYPES.includes(file.type)) {
+      setError('صيغة الملف غير مدعومة. استخدم صورة أو ملف PDF.')
+      return
+    }
+    setError(null)
+    setCard(file)
+  }
+
+  function handleSignup(e: React.FormEvent) {
     e.preventDefault()
     const parsed = validateThreePartName(name)
     setNameErrors(parsed.invalid)
@@ -156,65 +173,46 @@ function AuthPage() {
       return
     }
     setName(parsed.value)
-    reset('method')
-  }
 
-  function sendOtp() {
-    if (!phoneAuthEnabled) {
-      setError(AUTH_MESSAGES_AR.phoneDisabled)
-      return
-    }
+    const authEmail = phoneToAuthEmail(phone, DEFAULT_COUNTRY_CODE)
     const e164 = normalizePhone(phone, DEFAULT_COUNTRY_CODE)
-    if (!e164) {
+    if (!authEmail || !e164) {
       setError('رقم الهاتف غير صالح. مثال: 7XXXXXXXX')
       return
     }
+    if (password.length < 8) {
+      setError(AUTH_MESSAGES_AR.weakPassword)
+      return
+    }
+
     void guard(async () => {
-      const { error: err } = await supabase.auth.signInWithOtp({
-        phone: e164,
+      const { error: err } = await supabase.auth.signUp({
+        email: authEmail,
+        password,
         options: {
-          shouldCreateUser: true,
-          data:
-            mode === 'signup'
-              ? {
-                  first_name: name.firstName,
-                  father_name: name.fatherName,
-                  family_name: name.familyName,
-                }
-              : undefined,
+          data: {
+            first_name: parsed.value.firstName,
+            father_name: parsed.value.fatherName,
+            family_name: parsed.value.familyName,
+            phone: e164,
+          },
         },
       })
       if (err) throw err
-      setResendIn(60)
-      setOtp('')
-      reset('otp')
-      setInfo('أرسلنا رمز التحقق إلى رقمك.')
+      setInfo('تم إنشاء حسابك، جارٍ الدخول...')
+      // The session arrives through onAuthStateChange; the effect above finishes setup.
     })
   }
 
-  function verifyOtp(e: React.FormEvent) {
+  function handleSignin(e: React.FormEvent) {
     e.preventDefault()
-    const e164 = normalizePhone(phone, DEFAULT_COUNTRY_CODE)
-    if (!e164) {
-      setError('رقم الهاتف غير صالح. مثال: 7XXXXXXXX')
-      return
-    }
-    void guard(async () => {
-      const { error: err } = await supabase.auth.verifyOtp({
-        phone: e164,
-        token: otp.trim(),
-        type: 'sms',
-      })
-      if (err) throw err
-      setInfo('تم التحقق بنجاح')
-    })
-  }
+    const raw = identifier.trim()
+    const loginEmail = looksLikeEmail(raw)
+      ? z.string().trim().email().safeParse(raw).data ?? null
+      : phoneToAuthEmail(raw, DEFAULT_COUNTRY_CODE)
 
-  function handleEmailSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const parsedEmail = z.string().trim().email().safeParse(email)
-    if (!parsedEmail.success) {
-      setError('البريد الإلكتروني غير صالح')
+    if (!loginEmail) {
+      setError('أدخل رقم هاتف صحيح أو بريدًا إلكترونيًا صحيحًا.')
       return
     }
     if (password.length < 8) {
@@ -222,33 +220,21 @@ function AuthPage() {
       return
     }
     void guard(async () => {
-      if (mode === 'signin') {
-        const { error: err } = await supabase.auth.signInWithPassword({
-          email: parsedEmail.data,
-          password,
-        })
-        if (err) throw err
-      } else {
-        const { error: err } = await supabase.auth.signUp({
-          email: parsedEmail.data,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}${redirectTo}`,
-            data: {
-              first_name: name.firstName,
-              father_name: name.fatherName,
-              family_name: name.familyName,
-            },
-          },
-        })
-        if (err) throw err
-        setInfo('تم إنشاء حسابك. تحقّق من بريدك لتأكيد التسجيل.')
-      }
+      const { error: err } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password,
+      })
+      if (err) throw err
     })
   }
 
   function handleForgot() {
-    const parsedEmail = z.string().trim().email().safeParse(email)
+    const raw = identifier.trim()
+    if (!looksLikeEmail(raw)) {
+      setError('استعادة كلمة المرور متاحة للحسابات المسجلة ببريد إلكتروني. لحسابات الهاتف تواصل مع الصيدلية.')
+      return
+    }
+    const parsedEmail = z.string().trim().email().safeParse(raw)
     if (!parsedEmail.success) {
       setError('أدخل البريد الإلكتروني أولًا')
       return
@@ -266,7 +252,9 @@ function AuthPage() {
   function switchMode(next: Mode) {
     setMode(next)
     setNameErrors([])
-    reset(next === 'signup' ? 'name' : 'email')
+    setError(null)
+    setInfo(null)
+    setPassword('')
   }
 
   return (
@@ -280,8 +268,8 @@ function AuthPage() {
       </header>
 
       <section className="glass-panel rounded-2xl p-5 sm:p-6">
-        {mode === 'signup' && step === 'name' && (
-          <form onSubmit={handleNameSubmit} className="space-y-4" noValidate>
+        {mode === 'signup' ? (
+          <form onSubmit={handleSignup} className="space-y-4" noValidate>
             <p className="text-center text-base font-medium text-foreground">أدخل اسمك الثلاثي</p>
             {(Object.keys(NAME_LABELS_AR) as Array<keyof ThreePartName>).map((key) => (
               <label key={key} className="block">
@@ -295,7 +283,7 @@ function AuthPage() {
                   value={name[key]}
                   onChange={(e) => setName((n) => ({ ...n, [key]: e.target.value }))}
                   aria-invalid={nameErrors.includes(key)}
-                  aria-describedby={nameErrors.includes(key) ? 'name-error' : undefined}
+                  aria-describedby={nameErrors.includes(key) ? 'auth-error' : undefined}
                   className={`${inputClass} ${nameErrors.includes(key) ? 'border-destructive' : ''}`}
                 />
               </label>
@@ -307,52 +295,8 @@ function AuthPage() {
               </p>
             )}
 
-            <SubmitButton busy={busy} label="متابعة" />
-          </form>
-        )}
-
-        {mode === 'signup' && step === 'method' && (
-          <div className="space-y-3">
-            <p className="text-center text-base font-medium text-foreground">اختر طريقة التحقق</p>
-            <button
-              type="button"
-              onClick={() => (phoneAuthEnabled ? reset('phone') : setError(AUTH_MESSAGES_AR.phoneDisabled))}
-              aria-disabled={!phoneAuthEnabled}
-              className={`flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-base font-medium transition ${
-                phoneAuthEnabled
-                  ? 'border-primary/40 text-foreground hover:bg-primary/5'
-                  : 'border-border text-muted-foreground'
-              }`}
-            >
-              <Smartphone className="h-5 w-5" aria-hidden /> رقم الهاتف
-            </button>
-            {!phoneAuthEnabled && (
-              <p className="text-center text-xs text-muted-foreground">
-                {AUTH_MESSAGES_AR.phoneDisabled}
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={() => reset('email')}
-              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border border-primary/40 px-4 py-3 text-base font-medium text-foreground transition hover:bg-primary/5"
-            >
-              <Mail className="h-5 w-5" aria-hidden /> البريد الإلكتروني
-            </button>
-            <BackButton onClick={() => reset('name')} label="تعديل الاسم" />
-          </div>
-        )}
-
-        {step === 'phone' && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              sendOtp()
-            }}
-            className="space-y-4"
-            noValidate
-          >
             <label className="block">
-              <span className="mb-1 block text-sm font-medium text-foreground">رقم الهاتف</span>
+              <span className="mb-1 block text-sm font-medium text-foreground">📱 رقم الهاتف</span>
               <div className="flex items-center gap-2" dir="ltr">
                 <span className="rounded-xl border border-border bg-muted px-3 py-3 text-sm">
                   +{DEFAULT_COUNTRY_CODE}
@@ -363,87 +307,100 @@ function AuthPage() {
                   autoComplete="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="7XXXXXXXX"
+                  placeholder="77XXXXXXX"
                   className={inputClass}
                 />
               </div>
             </label>
-            <SubmitButton busy={busy} label="إرسال رمز التحقق" />
-            <BackButton onClick={() => reset(mode === 'signup' ? 'method' : 'email')} label="رجوع" />
-          </form>
-        )}
-
-        {step === 'otp' && (
-          <form onSubmit={verifyOtp} className="space-y-4" noValidate>
-            <label className="block">
-              <span className="mb-1 block text-sm font-medium text-foreground">أدخل رمز التحقق</span>
-              <input
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                autoFocus
-                maxLength={OTP_LENGTH + 2}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                dir="ltr"
-                className={`${inputClass} text-center text-2xl tracking-[0.5em]`}
-              />
-            </label>
-            <SubmitButton busy={busy} label="تأكيد" />
-            <div className="flex items-center justify-between text-sm">
-              <button
-                type="button"
-                disabled={resendIn > 0 || busy}
-                onClick={sendOtp}
-                className="text-primary disabled:text-muted-foreground"
-              >
-                {resendIn > 0 ? `إعادة إرسال الرمز (${resendIn})` : 'إعادة إرسال الرمز'}
-              </button>
-              <button type="button" onClick={() => reset('phone')} className="text-muted-foreground">
-                تغيير رقم الهاتف
-              </button>
-            </div>
-          </form>
-        )}
-
-        {step === 'email' && (
-          <form onSubmit={handleEmailSubmit} className="space-y-4" noValidate>
-            <label className="block">
-              <span className="mb-1 block text-sm font-medium text-foreground">
-                {mode === 'signin' ? 'رقم الهاتف أو البريد الإلكتروني' : 'البريد الإلكتروني'}
-              </span>
-              <input
-                type={mode === 'signin' ? 'text' : 'email'}
-                autoComplete={mode === 'signin' ? 'username' : 'email'}
-                value={email}
-                onChange={(e) => {
-                  const v = e.target.value
-                  setEmail(v)
-                  if (mode === 'signin' && !looksLikeEmail(v) && /\d{6,}/.test(v) && phoneAuthEnabled) {
-                    setPhone(v)
-                  }
-                }}
-                placeholder={mode === 'signin' ? 'example@email.com' : 'example@email.com'}
-                dir="ltr"
-                className={inputClass}
-              />
-            </label>
-
-            {mode === 'signin' && !looksLikeEmail(email) && /\d{6,}/.test(email) && (
-              <button
-                type="button"
-                onClick={() => (phoneAuthEnabled ? reset('phone') : setError(AUTH_MESSAGES_AR.phoneDisabled))}
-                className="w-full rounded-xl border border-primary/40 px-4 py-3 text-sm font-medium text-foreground"
-              >
-                المتابعة برقم الهاتف
-              </button>
-            )}
 
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-foreground">كلمة المرور</span>
               <input
                 type="password"
-                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                dir="ltr"
+                className={inputClass}
+              />
+              <span className="mt-1 block text-xs text-muted-foreground">8 أحرف على الأقل</span>
+            </label>
+
+            <div className="rounded-xl border border-dashed border-border p-3">
+              <p className="mb-2 text-sm font-medium text-foreground">
+                💳 صورة البطاقة التأمينية <span className="text-muted-foreground">(اختياري)</span>
+              </p>
+              {card ? (
+                <div className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2 text-sm">
+                  <span className="truncate">{card.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setCard(null)}
+                    aria-label="إزالة الملف"
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <X className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => cameraRef.current?.click()}
+                    className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-primary/40 px-3 py-2 text-sm text-foreground"
+                  >
+                    <Camera className="h-4 w-4" aria-hidden /> التقاط
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-primary/40 px-3 py-2 text-sm text-foreground"
+                  >
+                    <Upload className="h-4 w-4" aria-hidden /> رفع صورة
+                  </button>
+                </div>
+              )}
+              <input
+                ref={cameraRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                hidden
+                onChange={(e) => pickCard(e.target.files?.[0])}
+              />
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*,application/pdf"
+                hidden
+                onChange={(e) => pickCard(e.target.files?.[0])}
+              />
+            </div>
+
+            <SubmitButton busy={busy} label="🚀 إنشاء الحساب والدخول" />
+          </form>
+        ) : (
+          <form onSubmit={handleSignin} className="space-y-4" noValidate>
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-foreground">
+                رقم الهاتف أو البريد الإلكتروني
+              </span>
+              <input
+                type="text"
+                autoComplete="username"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="77XXXXXXX"
+                dir="ltr"
+                className={inputClass}
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-foreground">كلمة المرور</span>
+              <input
+                type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 dir="ltr"
@@ -451,30 +408,25 @@ function AuthPage() {
               />
             </label>
 
-            <SubmitButton busy={busy} label={mode === 'signin' ? 'متابعة' : 'إنشاء الحساب'} />
+            <SubmitButton busy={busy} label="تسجيل الدخول" />
 
-            {mode === 'signin' && (
-              <button
-                type="button"
-                onClick={handleForgot}
-                className="w-full text-sm text-muted-foreground hover:underline"
-              >
-                نسيت كلمة المرور؟
-              </button>
-            )}
-            {mode === 'signup' && <BackButton onClick={() => reset('method')} label="رجوع" />}
+            <button
+              type="button"
+              onClick={handleForgot}
+              className="w-full text-sm text-muted-foreground hover:underline"
+            >
+              نسيت كلمة المرور؟
+            </button>
           </form>
         )}
 
         <div aria-live="polite" className="mt-4 space-y-2">
           {error && (
-            <p id="name-error" className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <p id="auth-error" className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
               {error}
             </p>
           )}
-          {info && (
-            <p className="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary">{info}</p>
-          )}
+          {info && <p className="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary">{info}</p>}
         </div>
       </section>
 
@@ -505,19 +457,6 @@ function SubmitButton({ busy, label }: { busy: boolean; label: string }) {
       className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-base font-semibold text-primary-foreground transition disabled:opacity-50"
     >
       {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-      {label}
-    </button>
-  )
-}
-
-function BackButton({ onClick, label }: { onClick: () => void; label: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full items-center justify-center gap-1 text-sm text-muted-foreground hover:underline"
-    >
-      <ArrowRight className="h-4 w-4" aria-hidden />
       {label}
     </button>
   )
