@@ -14,6 +14,10 @@ export interface PatientIdentityInput {
   firstName?: string
   fatherName?: string
   familyName?: string
+  /** E.164 phone captured at registration (no SMS verification is performed). */
+  phone?: string | null
+  /** Storage object path inside the private `insurance-cards` bucket. */
+  insuranceCardPath?: string | null
 }
 
 export interface PatientIdentityResult {
