@@ -53,3 +53,23 @@ export function isValidPhone(raw: string, defaultCountry = DEFAULT_COUNTRY_CODE)
 export function looksLikeEmail(raw: string): boolean {
   return /@/.test(raw)
 }
+
+/**
+ * Internal domain used to derive a deterministic auth identifier from a phone
+ * number. Registration is phone + password with NO SMS/OTP step, and the auth
+ * provider requires an email-shaped identifier, so the phone number itself is
+ * the credential — the address never receives mail.
+ */
+export const PHONE_AUTH_EMAIL_DOMAIN = 'phone.muslly.com'
+
+/** `+967771234567` → `967771234567@phone.muslly.com`. Null for invalid input. */
+export function phoneToAuthEmail(raw: string, defaultCountry = DEFAULT_COUNTRY_CODE): string | null {
+  const e164 = normalizePhone(raw, defaultCountry)
+  if (!e164) return null
+  return `${e164.slice(1)}@${PHONE_AUTH_EMAIL_DOMAIN}`
+}
+
+/** True when an email address is a derived phone identifier, not a real inbox. */
+export function isPhoneAuthEmail(email: string): boolean {
+  return email.trim().toLowerCase().endsWith(`@${PHONE_AUTH_EMAIL_DOMAIN}`)
+}
