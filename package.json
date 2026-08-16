@@ -77,7 +77,7 @@
     "@tanstack/react-router": "^1.168.25",
     "@tanstack/react-start": "^1.167.50",
     "@tanstack/react-virtual": "^3.14.3",
-    "@tanstack/router-plugin": "^1.167.28",
+    "@tanstack/router-plugin": "^1.168.30",
     "@types/three": "^0.184.1",
     "ai": "^6.0.206",
     "class-variance-authority": "^0.7.1",
