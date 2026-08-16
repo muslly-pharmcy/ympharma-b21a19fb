@@ -1,4 +1,4 @@
-project_id = "swyqqlpbjemarzzdxctw"
+project_id = "ybhrmcdlgyccywpmiucz"
 
 # This endpoint uses timestamped HMAC authentication from the on-premise
 # connector. Supabase JWT verification is intentionally disabled here because
