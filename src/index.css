@@ -1,0 +1,349 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #005D4F;
+  --color-primary-600: #024a3f;
+  --color-secondary: #0F766E;
+  --color-gold: #C9A227;
+  --color-gold-600: #a8871e;
+  --color-background: #D9EEEB;
+  --color-surface: #FFFFFF;
+  --color-surface-dark: #1A1A2E;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --color-primary: #005D4F;
+  --color-secondary: #0F766E;
+  --color-gold: #C9A227;
+  --color-background: #D9EEEB;
+  --color-surface: #FFFFFF;
+  --color-surface-dark: #1A1A2E;
+}
+
+* {
+  border-color: #e5e7eb;
+}
+
+body {
+  background-color: #D9EEEB;
+
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Safe area padding utilities for iOS notch / Dynamic Island / Android gestures */
+@utility safe-area-top    { padding-top: env(safe-area-inset-top); }
+@utility safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+@utility safe-area-x {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+::selection {
+  background-color: rgba(0, 93, 79, 0.2);
+  color: #005D4F;
+}
+
+@utility glass-panel {
+  @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-lg;
+}
+
+@utility glass-panel-dark {
+  @apply bg-surface-dark/80 backdrop-blur-xl border border-white/10 shadow-lg;
+}
+
+/* --- Meta/Apple style glassmorphism + bento layout --- */
+
+@utility glass-card {
+  @apply relative overflow-hidden rounded-3xl border border-white/40 bg-white/60 shadow-[0_8px_32px_rgba(0,93,79,0.08)];
+  backdrop-filter: blur(22px) saturate(160%);
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease, border-color 320ms ease;
+  &:hover {
+    @apply border-primary/25;
+    transform: translateY(-3px);
+    box-shadow: 0 18px 48px rgba(0, 93, 79, 0.14);
+  }
+}
+
+@utility glass-toolbar {
+  @apply sticky top-0 z-40 border-b border-white/40 bg-white/65;
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+@utility bento-grid {
+  @apply grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4;
+  grid-auto-rows: minmax(120px, auto);
+}
+
+@utility bento-wide {
+  @apply col-span-2;
+}
+
+@utility bento-tall {
+  @apply row-span-2;
+}
+
+@utility bento-hero {
+  @apply col-span-2 md:col-span-2 md:row-span-2;
+}
+
+@utility press-scale {
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+
+@utility gradient-primary {
+  background: linear-gradient(135deg, #005D4F 0%, #0F766E 50%, #C9A227 100%);
+}
+
+@utility gradient-glow {
+  background: radial-gradient(circle at center, rgba(201, 162, 39, 0.15) 0%, transparent 70%);
+}
+
+@utility text-gradient {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, #005D4F, #0F766E, #C9A227);
+}
+
+@utility planet-card {
+  @apply relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-100 shadow-sm transition-all duration-500 cursor-pointer;
+  &:hover {
+    @apply shadow-xl -translate-y-1 border-primary/20;
+  }
+  &::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+    background: linear-gradient(135deg, rgba(0, 93, 79, 0.05) 0%, rgba(201, 162, 39, 0.05) 100%);
+  }
+  &:hover::before {
+    @apply opacity-100;
+  }
+}
+
+@utility sun-glow {
+  box-shadow:
+    0 0 60px rgba(201, 162, 39, 0.3),
+    0 0 120px rgba(201, 162, 39, 0.2),
+    0 0 180px rgba(201, 162, 39, 0.1);
+}
+
+@utility orbit-ring {
+  @apply absolute rounded-full border border-dashed border-primary/20;
+}
+
+@utility btn-primary {
+  @apply px-6 py-3 bg-primary text-white rounded-xl font-semibold transition-all duration-300;
+  &:hover {
+    background-color: var(--color-primary-600);
+    @apply shadow-lg shadow-primary/25;
+  }
+  &:active {
+    @apply scale-95;
+  }
+}
+
+@utility btn-gold {
+  @apply px-6 py-3 bg-gold text-white rounded-xl font-semibold transition-all duration-300;
+  &:hover {
+    background-color: var(--color-gold-600);
+    @apply shadow-lg shadow-gold/25;
+  }
+  &:active {
+    @apply scale-95;
+  }
+}
+
+@utility input-field {
+  @apply w-full px-4 py-3 bg-white border border-gray-200 rounded-xl transition-all duration-300 text-right;
+  &:focus {
+    @apply outline-hidden ring-2 ring-primary/30 border-primary;
+  }
+}
+
+@utility section-title {
+  @apply text-2xl md:text-3xl font-bold text-gray-900 mb-2;
+}
+
+@utility section-subtitle {
+  @apply text-gray-500 text-sm md:text-base;
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility animate-delay-100 {
+  animation-delay: 100ms;
+}
+
+@utility animate-delay-200 {
+  animation-delay: 200ms;
+}
+
+@utility animate-delay-300 {
+  animation-delay: 300ms;
+}
+
+@utility animate-delay-500 {
+  animation-delay: 500ms;
+}
+
+@utility animate-delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* --- Meta-style hero glass, dock, fluid type (2026 overhaul) --- */
+
+@utility glass-hero {
+  @apply relative overflow-hidden rounded-[2rem] border border-white/50;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(255, 255, 255, 0.34) 45%,
+    rgba(217, 238, 235, 0.42) 100%
+  );
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow:
+    0 24px 70px rgba(0, 93, 79, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+@utility glass-logo {
+  @apply rounded-[1.75rem] border border-white/50;
+  background: radial-gradient(
+    circle at 30% 25%,
+    rgba(255, 255, 255, 0.75),
+    rgba(255, 255, 255, 0.28)
+  );
+  backdrop-filter: blur(18px) saturate(150%);
+  box-shadow:
+    0 12px 34px rgba(0, 93, 79, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+@utility glass-dock {
+  @apply rounded-[1.5rem] border border-white/45;
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 14px 40px rgba(0, 93, 79, 0.16);
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+@utility dock-item {
+  position: relative;
+}
+
+.dock-tip {
+  position: absolute;
+  inset-inline-start: calc(100% + 0.6rem);
+  top: 50%;
+  transform: translateY(-50%) scale(0.9);
+  transform-origin: left center;
+  white-space: nowrap;
+  border-radius: 0.75rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #005D4F;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 22px rgba(0, 93, 79, 0.14);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .dock-tip,
+.group:focus-visible .dock-tip {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+@utility pulse-glow {
+  position: relative;
+  animation: cta-glow 3.2s ease-in-out infinite;
+}
+
+@keyframes cta-glow {
+  0%, 100% {
+    box-shadow: 0 10px 28px rgba(0, 93, 79, 0.25), 0 0 0 0 rgba(0, 93, 79, 0.28);
+  }
+  50% {
+    box-shadow: 0 14px 38px rgba(0, 93, 79, 0.32), 0 0 0 10px rgba(0, 93, 79, 0);
+  }
+}
+
+/* Fluid Arabic type scale */
+@utility text-fluid-hero {
+  font-size: clamp(2rem, 1.4rem + 3.2vw, 3.75rem);
+  line-height: 1.1;
+}
+
+@utility text-fluid-title {
+  font-size: clamp(1.15rem, 0.95rem + 0.9vw, 1.75rem);
+  line-height: 1.3;
+}
+
+@utility text-fluid-body {
+  font-size: clamp(0.9rem, 0.84rem + 0.3vw, 1.05rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-glow { animation: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* --- Zenith storefront motion utilities --- */
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@utility shimmer-sweep {
+  animation: shimmer-sweep 1.6s infinite linear;
+}
+
+@keyframes mesh-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(3%, -3%, 0) scale(1.08); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@utility mesh-drift {
+  animation: mesh-drift 16s ease-in-out infinite;
+}
+
+@keyframes ripple-out {
+  0% { transform: scale(0); opacity: 0.45; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+@utility ripple-out {
+  animation: ripple-out 620ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mesh-drift,
+  .shimmer-sweep,
+  .ripple-out {
+    animation: none !important;
+  }
+}
+
+/* The hosted editor badge obscures mobile navigation and is not part of the pharmacy UI. */
+a[href*="utm_source=lovable-badge"],
+a[href*="utm_source=lovable-badge"] + button,
+body > div:has(> a[href*="utm_source=lovable-badge"]) {
+  display: none !important;
+}

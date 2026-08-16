@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.cart_items_block_rx() FROM PUBLIC, anon, authenticated;

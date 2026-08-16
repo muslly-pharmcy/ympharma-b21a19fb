@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "sourceSystem": "pharmacy-online-header",
+  "entities": [
+    {
+      "entityType": "product",
+      "enabled": false,
+      "sourceKeyColumn": "store_code",
+      "sourceUpdatedAtColumn": "updated_at",
+      "maxRows": 5000,
+      "query": "SELECT ITEM_CODE AS store_code, ITEM_NAME_AR AS name_ar, ITEM_NAME_EN AS name_en, BRAND AS brand, GENERIC_NAME AS generic_name, STRENGTH AS strength, DOSAGE_FORM AS dosage_form, MANUFACTURER AS manufacturer, BARCODE AS barcode, UPDATED_AT AS updated_at FROM YOUR_READ_ONLY_PRODUCT_VIEW"
+    },
+    {
+      "entityType": "barcode",
+      "enabled": false,
+      "sourceKeyColumn": "barcode",
+      "sourceUpdatedAtColumn": "updated_at",
+      "maxRows": 10000,
+      "query": "SELECT ITEM_CODE AS store_code, BARCODE AS barcode, UPDATED_AT AS updated_at FROM YOUR_READ_ONLY_BARCODE_VIEW"
+    },
+    {
+      "entityType": "stock_batch",
+      "enabled": false,
+      "sourceKeyColumn": "source_key",
+      "sourceUpdatedAtColumn": "updated_at",
+      "maxRows": 20000,
+      "query": "SELECT ITEM_CODE || ':' || WAREHOUSE_CODE || ':' || NVL(BATCH_NO, '-') AS source_key, ITEM_CODE AS store_code, WAREHOUSE_CODE AS warehouse_code, BATCH_NO AS batch_no, EXPIRY_DATE AS expiry_date, QTY_ON_HAND AS qty_on_hand, SELLING_PRICE AS selling_price, UPDATED_AT AS updated_at FROM YOUR_READ_ONLY_STOCK_VIEW"
+    }
+  ]
+}

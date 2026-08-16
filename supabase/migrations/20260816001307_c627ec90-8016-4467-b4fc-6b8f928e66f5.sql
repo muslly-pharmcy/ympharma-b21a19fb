@@ -1,0 +1,1 @@
+ALTER TABLE public.hc_patients ADD COLUMN IF NOT EXISTS insurance_card_url TEXT;

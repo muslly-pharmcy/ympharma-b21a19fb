@@ -1,0 +1,21 @@
+{
+  "name": "صيدلية المصلي — Al-Musalli Pharmacy",
+  "short_name": "المصلي",
+  "description": "صيدلية المصلي في عدن — مراجعة الوصفات، طلب توصيل الأدوية، ومساعد معلومات دوائية.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#005D4F",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["medical", "health", "shopping"],
+  "icons": [
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "/icon-512-maskable.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" },
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" }
+  ]
+}

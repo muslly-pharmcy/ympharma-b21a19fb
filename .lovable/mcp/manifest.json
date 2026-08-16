@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "sdk_version": "0.25.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://swyqqlpbjemarzzdxctw.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "muslly-ai-os-mcp",
+      "version": "1.0.0",
+      "title": "MUSLLY AI OS"
+    },
+    "tools": [
+      {
+        "name": "whoami",
+        "title": "Who am I",
+        "description": "Returns the signed-in Muslly user's id, email, and organization memberships.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_catalog",
+        "title": "Search product catalog",
+        "description": "Search the Muslly pharmacy product catalog by name, barcode, or active ingredient. Returns up to 20 matches visible to the signed-in user.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Search term: product name, barcode, or active ingredient."
+            },
+            "limit": {
+              "description": "Maximum results to return (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "required": [
+            "query"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "check_stock",
+        "title": "Check product stock",
+        "description": "Returns current stock quantities across the signed-in user's warehouses for a given product id.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "product_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The catalog_products.id UUID."
+            }
+          },
+          "required": [
+            "product_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "ask_kernel",
+        "title": "Ask the MUSLLY AI Kernel",
+        "description": "Send a question to the MUSLLY Autonomous AI Kernel. Routes intent, grounds clinical questions in the clinical engine, and returns the answer plus its reasoning trace. High-risk actions are queued for human approval instead of executing.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "minLength": 3,
+              "description": "The question to ask the kernel."
+            },
+            "agent_key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Agent to route to; null uses the general pharmacist agent."
+            },
+            "client_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional patient/customer id to load their unified record."
+            }
+          },
+          "required": [
+            "question",
+            "agent_key",
+            "client_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "clinical_check",
+        "title": "Run a clinical safety check",
+        "description": "Run allergy, interaction, dose, contraindication, pregnancy, renal and hepatic checks for a list of drugs against an optional patient record. Advisory only — never a substitute for a licensed pharmacist.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "drugs": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Drug names to evaluate together."
+            },
+            "patient_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional patient id whose allergies and conditions should be considered."
+            }
+          },
+          "required": [
+            "drugs",
+            "patient_id"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /lovable/
+Disallow: /admin-*
+Disallow: /mission-control
+Disallow: /ai-runtime
+Disallow: /vision-lab
+Disallow: /sbdma-import
+Disallow: /reset-password
+
+Sitemap: https://muslly.com/sitemap.xml

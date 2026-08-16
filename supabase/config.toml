@@ -1,0 +1,7 @@
+project_id = "swyqqlpbjemarzzdxctw"
+
+# This endpoint uses timestamped HMAC authentication from the on-premise
+# connector. Supabase JWT verification is intentionally disabled here because
+# no Supabase secret or service-role key is stored on the pharmacy computer.
+[functions.oracle-sync-ingest]
+verify_jwt = false
