@@ -5,9 +5,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   DEFAULT_COUNTRY_CODE,
+  isPhoneAuthEmail,
   isValidPhone,
   looksLikeEmail,
   normalizePhone,
+  phoneToAuthEmail,
   toAsciiDigits,
 } from '@/lib/auth/phone'
 
