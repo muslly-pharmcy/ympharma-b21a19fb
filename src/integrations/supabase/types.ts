@@ -6728,6 +6728,7 @@ export type Database = {
           full_name: string
           gender: string | null
           id: string
+          insurance_card_url: string | null
           is_active: boolean
           merged_into_id: string | null
           metadata: Json
@@ -6747,6 +6748,7 @@ export type Database = {
           full_name: string
           gender?: string | null
           id?: string
+          insurance_card_url?: string | null
           is_active?: boolean
           merged_into_id?: string | null
           metadata?: Json
@@ -6766,6 +6768,7 @@ export type Database = {
           full_name?: string
           gender?: string | null
           id?: string
+          insurance_card_url?: string | null
           is_active?: boolean
           merged_into_id?: string | null
           metadata?: Json
