@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 import { buildFullName, validateThreePartName } from '@/lib/auth/patient-name'
+import { normalizePhone } from '@/lib/auth/phone'
 
 /**
  * Canonical patient identity resolution.
@@ -108,8 +109,9 @@ export const ensurePatientIdentity = createServerFn({ method: 'POST' })
       .insert({
         user_id: userId,
         full_name: fullName,
-        phone: profile?.phone ?? null,
+        phone: phone ?? profile?.phone ?? null,
         email: profile?.email ?? null,
+        insurance_card_url: insuranceCardPath,
       })
       .select('id, full_name')
       .single()
