@@ -55,3 +55,21 @@ describe('looksLikeEmail', () => {
     expect(looksLikeEmail('777123456')).toBe(false)
   })
 })
+
+describe('phoneToAuthEmail', () => {
+  it('derives a deterministic internal identifier from a Yemeni number', () => {
+    expect(phoneToAuthEmail('771234567')).toBe('967771234567@phone.muslly.com')
+    expect(phoneToAuthEmail('0771234567')).toBe('967771234567@phone.muslly.com')
+    expect(phoneToAuthEmail('+967 77 123 4567')).toBe('967771234567@phone.muslly.com')
+  })
+
+  it('returns null for an invalid number', () => {
+    expect(phoneToAuthEmail('12')).toBeNull()
+    expect(phoneToAuthEmail('abc')).toBeNull()
+  })
+
+  it('recognizes derived identifiers', () => {
+    expect(isPhoneAuthEmail('967771234567@phone.muslly.com')).toBe(true)
+    expect(isPhoneAuthEmail('patient@gmail.com')).toBe(false)
+  })
+})
