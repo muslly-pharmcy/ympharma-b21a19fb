@@ -53,6 +53,8 @@ export const ensurePatientIdentity = createServerFn({ method: 'POST' })
       familyName: profile?.family_name ?? '',
     })
 
+    const phone = data.phone ? normalizePhone(data.phone) : null
+
     if (hasNameInput && parsed.ok && !profileFullName) {
       await supabase
         .from('profiles')
@@ -65,20 +67,37 @@ export const ensurePatientIdentity = createServerFn({ method: 'POST' })
         .eq('id', userId)
     }
 
+    if (phone && !profile?.phone) {
+      await supabase.from('profiles').update({ phone }).eq('id', userId)
+    }
+
     const fullName = profileFullName || parsed.fullName || profile?.display_name || null
+
+    // Only accept a storage path inside the caller's own folder.
+    const insuranceCardPath =
+      data.insuranceCardPath && data.insuranceCardPath.startsWith(`${userId}/`)
+        ? data.insuranceCardPath
+        : null
 
     // 2) Patient row — find by user_id, never by name.
     const { data: existing } = await supabase
       .from('hc_patients')
-      .select('id, full_name')
+      .select('id, full_name, phone, insurance_card_url')
       .eq('user_id', userId)
       .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle()
 
     if (existing) {
+      const patch: { phone?: string; insurance_card_url?: string } = {}
+      if (phone && !existing.phone) patch.phone = phone
+      if (insuranceCardPath) patch.insurance_card_url = insuranceCardPath
+      if (Object.keys(patch).length > 0) {
+        await supabase.from('hc_patients').update(patch).eq('id', existing.id)
+      }
       return { ok: true, patientId: existing.id, created: false, fullName: existing.full_name }
     }
+
 
     if (!fullName) {
       return { ok: false, patientId: null, created: false, fullName: null, error: 'invalid_name' }
