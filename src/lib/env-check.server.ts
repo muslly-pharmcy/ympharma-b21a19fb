@@ -4,12 +4,7 @@
  * with a clear message instead of a cryptic client-side throw.
  */
 
-const SERVER_VARS = ['SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY'] as const
-const CLIENT_VARS = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY'] as const
-
-function missing(vars: readonly string[]): string[] {
-  return vars.filter((v) => !process.env[v])
-}
+import { getPublicSupabaseConfig } from '@/integrations/supabase/public-config'
 
 export function validateCloudEnv(): void {
   // Guard: this module may be reached in a client chunk during dev HMR.
@@ -18,22 +13,18 @@ export function validateCloudEnv(): void {
     return
   }
 
-  const serverMissing = missing(SERVER_VARS)
-  const clientMissing = missing(CLIENT_VARS)
+  const { url, publishableKey } = getPublicSupabaseConfig()
 
-  if (serverMissing.length > 0 || clientMissing.length > 0) {
-    const parts: string[] = []
-    if (serverMissing.length > 0) {
-      parts.push(`server env missing: ${serverMissing.join(', ')}`)
-    }
-    if (clientMissing.length > 0) {
-      parts.push(`client env missing: ${clientMissing.join(', ')}`)
-    }
-    const message = `Lovable Cloud configuration incomplete — ${parts.join('; ')}. Ensure Lovable Cloud is enabled and environment variables are loaded.`
+  if (!url || !publishableKey) {
+    const missing = [
+      ...(!url ? ['Supabase URL'] : []),
+      ...(!publishableKey ? ['Supabase publishable key'] : []),
+    ]
+    const message = `Lovable Cloud configuration incomplete — missing ${missing.join(' and ')}. Either the server variables or their VITE_ public equivalents may be used.`
     console.error(`[env-check] ${message}`)
     // Do not throw during dev HMR reloads; the error is logged loudly and
     // the Supabase client will still throw its own message on first use.
   } else {
-    console.log('[env-check] Lovable Cloud env vars present.')
+    console.log('[env-check] Lovable Cloud public Supabase configuration present.')
   }
 }

@@ -2,6 +2,7 @@
 // All functions require admin. No destructive writes on real tables.
 import { createServerFn } from '@tanstack/react-start'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { getPublicSupabaseConfig } from '@/integrations/supabase/public-config'
 
 async function assertAdmin(userId: string) {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
@@ -20,9 +21,10 @@ export const titanosProbeEnv = createServerFn({ method: 'GET' })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.userId)
+    const publicConfig = getPublicSupabaseConfig()
     const env = {
-      SUPABASE_URL: !!process.env.SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY: !!process.env.SUPABASE_PUBLISHABLE_KEY,
+      SUPABASE_URL: !!publicConfig.url,
+      SUPABASE_PUBLISHABLE_KEY: !!publicConfig.publishableKey,
       SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
       LOVABLE_API_KEY: !!process.env.LOVABLE_API_KEY,
     }
@@ -122,8 +124,8 @@ export const titanosCheckRls = createServerFn({ method: 'GET' })
       error: null,
     }
     try {
-      const url = process.env.SUPABASE_URL!
-      const key = process.env.SUPABASE_PUBLISHABLE_KEY!
+      const { url, publishableKey: key } = getPublicSupabaseConfig()
+      if (!url || !key) throw new Error('Supabase public configuration is missing')
       const res = await fetch(`${url}/rest/v1/catalog_products?select=id&limit=1`, {
         method: 'HEAD',
         headers: { apikey: key, Prefer: 'count=exact' },

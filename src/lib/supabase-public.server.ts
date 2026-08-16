@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { getPublicSupabaseConfig } from '@/integrations/supabase/public-config'
 
 // Server-side publishable client for public read-only Data API access.
 // Uses the publishable/anon key; RLS applies as `anon` role.
@@ -8,11 +9,7 @@ let cached: SupabaseClient | null = null
 
 export function getPublicSupabase(): SupabaseClient {
   if (cached) return cached
-  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
-  const key =
-    process.env.SUPABASE_PUBLISHABLE_KEY ??
-    process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.VITE_SUPABASE_ANON_KEY
+  const { url, publishableKey: key } = getPublicSupabaseConfig()
   if (!url || !key) {
     throw new Error('Supabase URL/publishable key are not configured on the server')
   }
