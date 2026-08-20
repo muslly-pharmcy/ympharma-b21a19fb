@@ -2,9 +2,12 @@ import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { ToolContext } from "@lovable.dev/mcp-js";
+import { getPublicSupabaseConfig } from "@/integrations/supabase/public-config";
 
 function supabaseForUser(ctx: ToolContext) {
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+  const { url, publishableKey } = getPublicSupabaseConfig();
+  if (!url || !publishableKey) throw new Error("Supabase public configuration is missing");
+  return createClient(url, publishableKey, {
     global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
     auth: { persistSession: false, autoRefreshToken: false },
   });

@@ -1,0 +1,13 @@
+CREATE INDEX IF NOT EXISTS idx_prescriptions_status_created ON public.prescriptions(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_status_created       ON public.orders(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_order_status_history_order  ON public.order_status_history(order_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_created       ON public.activity_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_actor         ON public.activity_logs(actor_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_error_logs_occurred         ON public.error_logs(occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_email_send_log_msg          ON public.email_send_log(message_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_email_send_log_created      ON public.email_send_log(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_uptime_checks_at            ON public.uptime_checks(checked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_insurance_claims_status     ON public.insurance_claims(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_products_category           ON public.products(category);
+CREATE INDEX IF NOT EXISTS idx_img_proxy_logs_id           ON public.img_proxy_logs(id DESC);
+CREATE INDEX IF NOT EXISTS idx_user_roles_user             ON public.user_roles(user_id);
