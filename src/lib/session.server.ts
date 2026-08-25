@@ -6,6 +6,8 @@
 //   3. look up the user's active org membership + app roles via the service role
 //   4. attach request metadata (IP, UA, correlation ID) for audit
 import { getRequest, getRequestHeader } from '@tanstack/react-start/server'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/integrations/supabase/types'
 
 export interface Actor {
   userId: string
@@ -46,22 +48,18 @@ function extractRequestMeta(): { ip: string | null; userAgent: string | null } {
 }
 
 /**
- * Resolves the calling user to an Actor.
- * Throws UnauthorizedError when the token is missing, invalid, or the user
- * has no active organization membership.
+ * Resolve an actor through a caller-scoped Supabase client.
+ *
+ * This keeps ordinary RLS-protected reads independent of the service-role
+ * credential. organization_members and user_roles both expose the caller's
+ * own rows through RLS, so the database remains the authorization boundary.
  */
-export async function getActor(): Promise<Actor> {
-  const token = readBearer()
-  const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-
-  const { data: userRes, error: userErr } = await supabaseAdmin.auth.getUser(token)
-  if (userErr || !userRes?.user) {
-    throw new UnauthorizedError('Invalid session')
-  }
-  const userId = userRes.user.id
-
-  const [{ data: mem, error: memErr }, { data: roles }] = await Promise.all([
-    supabaseAdmin
+export async function getActorFromSupabase(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+): Promise<Actor> {
+  const [{ data: mem, error: memErr }, { data: roles, error: rolesErr }] = await Promise.all([
+    supabase
       .from('organization_members')
       .select('organization_id, role, branch_scope')
       .eq('user_id', userId)
@@ -69,9 +67,10 @@ export async function getActor(): Promise<Actor> {
       .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle(),
-    supabaseAdmin.from('user_roles').select('role').eq('user_id', userId),
+    supabase.from('user_roles').select('role').eq('user_id', userId),
   ])
   if (memErr) throw new UnauthorizedError(memErr.message)
+  if (rolesErr) throw new UnauthorizedError(rolesErr.message)
   if (!mem) {
     throw new UnauthorizedError('User has no active organization membership')
   }
@@ -88,6 +87,22 @@ export async function getActor(): Promise<Actor> {
     ip: meta.ip,
     userAgent: meta.userAgent,
   }
+}
+
+/**
+ * Resolves the calling user to an Actor.
+ * Throws UnauthorizedError when the token is missing, invalid, or the user
+ * has no active organization membership.
+ */
+export async function getActor(): Promise<Actor> {
+  const token = readBearer()
+  const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+
+  const { data: userRes, error: userErr } = await supabaseAdmin.auth.getUser(token)
+  if (userErr || !userRes?.user) {
+    throw new UnauthorizedError('Invalid session')
+  }
+  return getActorFromSupabase(supabaseAdmin, userRes.user.id)
 }
 
 export function requireOrg(actor: Actor, organizationId: string) {

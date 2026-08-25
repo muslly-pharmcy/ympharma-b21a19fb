@@ -81,30 +81,58 @@ export const listProductImageUrls = createServerFn({ method: 'GET' })
       .maybeSingle()
     if (!p) return []
 
-    const { data: media } = await supabase
+    // The bucket is private. Read approved media with the server-only client
+    // after the public-product check, then return only short-lived URLs.
+    const { isSupabaseAdminConfigured, supabaseAdmin } = await import(
+      '@/integrations/supabase/client.server'
+    )
+    if (!isSupabaseAdminConfigured()) return []
+    const { data: media, error: mediaError } = await supabaseAdmin
       .from('catalog_product_media')
-      .select('storage_bucket, storage_path, kind, alt_text, sort_order, status')
+      .select('storage_bucket, storage_path, kind, metadata, sort_order, status')
       .eq('product_id', data.productId)
       .eq('status', 'approved')
       .order('sort_order', { ascending: true })
+
+    if (mediaError) {
+      console.error('[listProductImageUrls]', {
+        code: mediaError.code,
+        message: mediaError.message,
+      })
+      return []
+    }
 
     const rows = (media ?? []) as Array<{
       storage_bucket: string
       storage_path: string
       kind: string
-      alt_text: string | null
+      metadata: unknown
     }>
     if (rows.length === 0) return []
 
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
     const out: { url: string; alt: string | null; kind: string }[] = []
     for (const m of rows) {
       const bucket = m.storage_bucket || 'product-images'
-      const { data: signed } = await supabaseAdmin.storage
+      const { data: signed, error: signingError } = await supabaseAdmin.storage
         .from(bucket)
         .createSignedUrl(m.storage_path, 60 * 60 * 24) // 24h
+      if (signingError) {
+        console.error('[listProductImageUrls:signing]', {
+          name: signingError.name,
+          message: signingError.message,
+          productId: data.productId,
+        })
+        continue
+      }
       if (signed?.signedUrl) {
-        out.push({ url: signed.signedUrl, alt: m.alt_text, kind: m.kind })
+        const alt =
+          m.metadata &&
+          typeof m.metadata === 'object' &&
+          'alt_text' in m.metadata &&
+          typeof m.metadata.alt_text === 'string'
+            ? m.metadata.alt_text
+            : null
+        out.push({ url: signed.signedUrl, alt, kind: m.kind })
       }
     }
     return out

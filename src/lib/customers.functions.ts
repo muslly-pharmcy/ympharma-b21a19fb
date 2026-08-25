@@ -1,9 +1,11 @@
 import { createServerFn } from '@tanstack/react-start'
 import type { Customer, CustomerAddress, CustomerContact, CustomerTag } from '@/domain/crm/schemas'
+import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 
 const sel = (s: string): string => s
 
 export const listCustomers = createServerFn({ method: 'GET' })
+  .middleware([requireSupabaseAuth])
   .validator((raw: unknown): { search?: string; status?: 'active' | 'archived' | 'all' } => {
     const v = (raw ?? {}) as { search?: string; status?: string }
     const status = v.status === 'archived' || v.status === 'all' ? v.status : 'active'
@@ -12,14 +14,13 @@ export const listCustomers = createServerFn({ method: 'GET' })
       status: status as 'active' | 'archived' | 'all',
     }
   })
-  .handler(async ({ data }): Promise<Customer[]> => {
-    const { getActor, requirePermission } = await import('./session.server')
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const actor = await getActor()
+  .handler(async ({ data, context }): Promise<Customer[]> => {
+    const { getActorFromSupabase, requirePermission } = await import('./session.server')
+    const actor = await getActorFromSupabase(context.supabase, context.userId)
     requirePermission(actor, 'customer.read')
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let q: any = (supabaseAdmin as any)
+    let q: any = (context.supabase as any)
       .from('crm_customers')
       .select(sel('*'))
       .eq('organization_id', actor.organizationId)
@@ -41,24 +42,24 @@ export const listCustomers = createServerFn({ method: 'GET' })
   })
 
 export const getCustomer = createServerFn({ method: 'GET' })
+  .middleware([requireSupabaseAuth])
   .validator((raw: unknown): { id: string } => {
     const v = raw as { id?: string }
     if (!v?.id) throw new Error('id required')
     return { id: v.id }
   })
-  .handler(async ({ data }): Promise<{
+  .handler(async ({ data, context }): Promise<{
     customer: Customer
     addresses: CustomerAddress[]
     contacts: CustomerContact[]
     tags: CustomerTag[]
   } | null> => {
-    const { getActor, requirePermission } = await import('./session.server')
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const actor = await getActor()
+    const { getActorFromSupabase, requirePermission } = await import('./session.server')
+    const actor = await getActorFromSupabase(context.supabase, context.userId)
     requirePermission(actor, 'customer.read')
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb: any = supabaseAdmin as any
+    const sb: any = context.supabase as any
     const { data: c, error } = await sb
       .from('crm_customers')
       .select(sel('*'))

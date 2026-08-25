@@ -3,7 +3,7 @@
  * mapping never reveals whether an account exists.
  */
 import { describe, expect, it } from 'vitest'
-import { AUTH_MESSAGES_AR, toArabicAuthError } from '@/lib/auth/errors'
+import { AUTH_MESSAGES_AR, getSafeAuthDiagnostic, toArabicAuthError } from '@/lib/auth/errors'
 
 describe('toArabicAuthError', () => {
   it('maps rate limiting', () => {
@@ -54,5 +54,23 @@ describe('toArabicAuthError', () => {
   it('never reveals whether an account exists', () => {
     const message = toArabicAuthError(new Error('User already registered'))
     expect(message).toBe(AUTH_MESSAGES_AR.generic)
+  })
+
+  it('maps confirmation and registration configuration failures', () => {
+    expect(toArabicAuthError(new Error('Email not confirmed'))).toBe(
+      AUTH_MESSAGES_AR.accountConfirmation,
+    )
+    expect(toArabicAuthError(new Error('Email address is invalid'))).toBe(
+      AUTH_MESSAGES_AR.registrationConfig,
+    )
+  })
+
+  it('redacts email addresses from development diagnostics', () => {
+    const diagnostic = getSafeAuthDiagnostic(
+      Object.assign(new Error('Failed for person@example.com'), { code: 'auth_failed', status: 400 }),
+    )
+    expect(diagnostic).toMatchObject({ code: 'auth_failed', status: 400 })
+    expect(diagnostic.message).toContain('[redacted-email]')
+    expect(diagnostic.message).not.toContain('person@example.com')
   })
 })

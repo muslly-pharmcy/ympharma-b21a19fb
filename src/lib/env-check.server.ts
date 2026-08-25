@@ -6,14 +6,19 @@
 
 import { getPublicSupabaseConfig } from '@/integrations/supabase/public-config'
 
+let validated = false
+
 export function validateCloudEnv(): void {
   // Guard: this module may be reached in a client chunk during dev HMR.
   // The browser has no process.env, so skip the check there.
   if (typeof window !== 'undefined' || typeof process === 'undefined') {
     return
   }
+  if (validated) return
+  validated = true
 
   const { url, publishableKey } = getPublicSupabaseConfig()
+  const hasServiceRole = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim())
 
   if (!url || !publishableKey) {
     const missing = [
@@ -26,5 +31,11 @@ export function validateCloudEnv(): void {
     // the Supabase client will still throw its own message on first use.
   } else {
     console.log('[env-check] Lovable Cloud public Supabase configuration present.')
+  }
+
+  if (!hasServiceRole) {
+    console.warn(
+      '[env-check] SUPABASE_SERVICE_ROLE_KEY is not configured. Private product-image signing and trusted admin operations are unavailable.',
+    )
   }
 }

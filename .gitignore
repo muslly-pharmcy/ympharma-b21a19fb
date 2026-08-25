@@ -18,6 +18,7 @@ android/local.properties
 # Environment
 .env
 .env.local
+.env.local.backup
 .env.*.local
 
 # Editor

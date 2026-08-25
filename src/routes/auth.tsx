@@ -14,7 +14,7 @@ import {
   type ThreePartName,
 } from '@/lib/auth/patient-name'
 import { DEFAULT_COUNTRY_CODE, looksLikeEmail, normalizePhone, phoneToAuthEmail } from '@/lib/auth/phone'
-import { AUTH_MESSAGES_AR, toArabicAuthError } from '@/lib/auth/errors'
+import { AUTH_MESSAGES_AR, getSafeAuthDiagnostic, toArabicAuthError } from '@/lib/auth/errors'
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
@@ -135,7 +135,7 @@ function AuthPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated])
 
-  async function guard<T>(fn: () => Promise<T>) {
+  async function guard<T>(operation: 'signup' | 'signin' | 'password-reset', fn: () => Promise<T>) {
     if (submitting.current) return
     submitting.current = true
     setBusy(true)
@@ -144,6 +144,7 @@ function AuthPage() {
     try {
       await fn()
     } catch (err) {
+      console.error(`[auth:${operation}]`, getSafeAuthDiagnostic(err))
       setError(toArabicAuthError(err))
     } finally {
       submitting.current = false
@@ -186,8 +187,8 @@ function AuthPage() {
       return
     }
 
-    void guard(async () => {
-      const { error: err } = await supabase.auth.signUp({
+    void guard('signup', async () => {
+      const { data: signup, error: err } = await supabase.auth.signUp({
         email: authEmail,
         password,
         options: {
@@ -200,6 +201,10 @@ function AuthPage() {
         },
       })
       if (err) throw err
+      if (!signup.session) {
+        setInfo('تم إنشاء الحساب، لكن الدخول الفوري غير مفعّل. تواصل مع إدارة الصيدلية لتفعيل الحساب.')
+        return
+      }
       setInfo('تم إنشاء حسابك، جارٍ الدخول...')
       // The session arrives through onAuthStateChange; the effect above finishes setup.
     })
@@ -220,7 +225,7 @@ function AuthPage() {
       setError(AUTH_MESSAGES_AR.weakPassword)
       return
     }
-    void guard(async () => {
+    void guard('signin', async () => {
       const { error: err } = await supabase.auth.signInWithPassword({
         email: loginEmail,
         password,
@@ -240,7 +245,7 @@ function AuthPage() {
       setError('أدخل البريد الإلكتروني أولًا')
       return
     }
-    void guard(async () => {
+    void guard('password-reset', async () => {
       const { error: err } = await supabase.auth.resetPasswordForEmail(parsedEmail.data, {
         redirectTo: `${window.location.origin}/reset-password`,
       })

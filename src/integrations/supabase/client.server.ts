@@ -56,6 +56,11 @@ function createSupabaseAdminClient() {
   });
 }
 
+export function isSupabaseAdminConfigured(): boolean {
+  const { url } = getPublicSupabaseConfig();
+  return Boolean(url && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
 let _supabaseAdmin: ReturnType<typeof createSupabaseAdminClient> | undefined;
 
 // Server-side Supabase client with service role - bypasses RLS

@@ -12,6 +12,8 @@ export const AUTH_MESSAGES_AR = {
   network: 'تعذر الاتصال بالخدمة. يرجى التحقق من الاتصال والمحاولة مرة أخرى.',
   timeout: 'استغرقت العملية وقتًا أطول من المتوقع. يرجى المحاولة مرة أخرى.',
   phoneDisabled: 'التحقق عبر رقم الهاتف غير متاح حاليًا. يرجى استخدام البريد الإلكتروني.',
+  accountConfirmation: 'الحساب يحتاج إلى تفعيل قبل تسجيل الدخول. تواصل مع إدارة الصيدلية.',
+  registrationConfig: 'تعذر إنشاء الحساب برقم الهاتف لأن إعداد التسجيل غير مكتمل. تواصل مع إدارة الصيدلية.',
   invalidCredentials: 'بيانات الدخول غير صحيحة.',
   weakPassword: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.',
   generic: 'تعذر إكمال العملية. يرجى المحاولة مرة أخرى.',
@@ -39,6 +41,17 @@ export function toArabicAuthError(error: unknown): string {
   if (raw.includes('invalid login') || raw.includes('invalid credentials')) {
     return AUTH_MESSAGES_AR.invalidCredentials
   }
+  if (raw.includes('email not confirmed') || raw.includes('confirmation required')) {
+    return AUTH_MESSAGES_AR.accountConfirmation
+  }
+  if (
+    raw.includes('email address is invalid') ||
+    raw.includes('invalid email') ||
+    raw.includes('signup is disabled') ||
+    raw.includes('signups not allowed')
+  ) {
+    return AUTH_MESSAGES_AR.registrationConfig
+  }
   if (raw.includes('phone') && (raw.includes('disabled') || raw.includes('not enabled'))) {
     return AUTH_MESSAGES_AR.phoneDisabled
   }
@@ -46,4 +59,30 @@ export function toArabicAuthError(error: unknown): string {
     return AUTH_MESSAGES_AR.phoneDisabled
   }
   return AUTH_MESSAGES_AR.generic
+}
+
+type AuthDiagnostic = {
+  name: string
+  code: string | null
+  status: number | null
+  message: string
+}
+
+function redactAuthMessage(value: string): string {
+  return value
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[redacted-email]')
+    .replace(/bearer\s+\S+/gi, 'Bearer [redacted]')
+    .slice(0, 300)
+}
+
+/** Development-safe diagnostics: no credentials, identifiers, or form data. */
+export function getSafeAuthDiagnostic(error: unknown): AuthDiagnostic {
+  const value = error as { name?: unknown; code?: unknown; status?: unknown; message?: unknown }
+  const message = error instanceof Error ? error.message : String(value?.message ?? error ?? '')
+  return {
+    name: typeof value?.name === 'string' ? value.name : 'AuthError',
+    code: typeof value?.code === 'string' ? value.code : null,
+    status: typeof value?.status === 'number' ? value.status : null,
+    message: redactAuthMessage(message || 'Unknown authentication error'),
+  }
 }

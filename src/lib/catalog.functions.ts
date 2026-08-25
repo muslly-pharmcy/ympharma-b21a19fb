@@ -86,39 +86,52 @@ export const listProducts = createServerFn({ method: 'GET' })
     // Bulk-fetch primary image (or first media) per product and sign URLs.
     if (items.length > 0) {
       try {
-        const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-        const ids = items.map((p) => p.id)
-        const { data: media } = await supabaseAdmin
-          .from('catalog_product_media')
-          .select('product_id, storage_bucket, storage_path, kind, sort_order, status')
-          .in('product_id', ids)
-          .eq('status', 'approved')
-          .order('sort_order', { ascending: true })
-        const byProduct = new Map<string, { bucket: string; path: string }>()
-        for (const m of (media ?? []) as Array<{
-          product_id: string
-          storage_bucket: string | null
-          storage_path: string
-          kind: string
-        }>) {
-          if (!byProduct.has(m.product_id)) {
-            byProduct.set(m.product_id, {
-              bucket: m.storage_bucket || 'product-images',
-              path: m.storage_path,
-            })
-          }
-        }
-        await Promise.all(
-          Array.from(byProduct.entries()).map(async ([pid, ref]) => {
-            const { data: signed } = await supabaseAdmin.storage
-              .from(ref.bucket)
-              .createSignedUrl(ref.path, 60 * 60 * 6)
-            if (signed?.signedUrl) {
-              const p = items.find((x) => x.id === pid)
-              if (p) p.primary_image_url = signed.signedUrl
-            }
-          }),
+        const { isSupabaseAdminConfigured, supabaseAdmin } = await import(
+          '@/integrations/supabase/client.server'
         )
+        if (isSupabaseAdminConfigured()) {
+          const ids = items.map((p) => p.id)
+          const { data: media, error: mediaError } = await supabaseAdmin
+            .from('catalog_product_media')
+            .select('product_id, storage_bucket, storage_path, kind, sort_order, status')
+            .in('product_id', ids)
+            .eq('status', 'approved')
+            .order('sort_order', { ascending: true })
+          if (mediaError) throw mediaError
+          const byProduct = new Map<string, { bucket: string; path: string }>()
+          for (const m of (media ?? []) as Array<{
+            product_id: string
+            storage_bucket: string | null
+            storage_path: string
+            kind: string
+          }>) {
+            if (!byProduct.has(m.product_id)) {
+              byProduct.set(m.product_id, {
+                bucket: m.storage_bucket || 'product-images',
+                path: m.storage_path,
+              })
+            }
+          }
+          await Promise.all(
+            Array.from(byProduct.entries()).map(async ([pid, ref]) => {
+              const { data: signed, error: signingError } = await supabaseAdmin.storage
+                .from(ref.bucket)
+                .createSignedUrl(ref.path, 60 * 60 * 6)
+              if (signingError) {
+                console.error('[listProducts:image-signing]', {
+                  code: signingError.name,
+                  message: signingError.message,
+                  productId: pid,
+                })
+                return
+              }
+              if (signed?.signedUrl) {
+                const p = items.find((x) => x.id === pid)
+                if (p) p.primary_image_url = signed.signedUrl
+              }
+            }),
+          )
+        }
       } catch (e) {
         console.warn('[listProducts] image signing skipped:', (e as Error).message)
       }
