@@ -15,21 +15,22 @@ const card = (page: Page) => page.locator('main').last()
 async function gotoSignup(page: Page) {
   await page.goto('/auth?mode=signup', { waitUntil: 'domcontentloaded' })
   await expect(page.getByText('أدخل اسمك الثلاثي')).toBeVisible()
-  // The markup is server-rendered, so wait for hydration before typing —
-  // otherwise React never sees the input events.
-  await page.waitForLoadState('networkidle')
-  await expect
-    .poll(async () => {
-      const input = card(page).locator('input').first()
-      await input.fill('س')
-      return input.inputValue()
+
+  // Prove that React hydration has attached the mode-switch handler before
+  // typing. Waiting for networkidle is unreliable because the app keeps
+  // background connections open.
+  await expect(async () => {
+    await page.getByRole('button', { name: 'لديّ حساب — تسجيل الدخول' }).click()
+    await expect(card(page).getByRole('button', { name: 'تسجيل الدخول', exact: true })).toBeVisible({
+      timeout: 1_000,
     })
-    .toBe('س')
-  await card(page).locator('input').first().fill('')
+  }).toPass({ timeout: 15_000 })
+  await page.getByRole('button', { name: 'إنشاء حساب جديد' }).click()
+  await expect(page.getByText('أدخل اسمك الثلاثي')).toBeVisible()
 }
 
 async function fillName(page: Page, parts = [NAME.first, NAME.father, NAME.family]) {
-  const inputs = card(page).locator('input:not([type="file"])')
+  const inputs = card(page).locator('input[type="text"]')
   for (const [i, value] of parts.entries()) {
     await inputs.nth(i).fill(value)
   }

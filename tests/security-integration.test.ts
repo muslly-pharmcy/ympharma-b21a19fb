@@ -67,7 +67,7 @@ describe('🔒 Full Security Stack Integration', () => {
       );
       expect(result.response).not.toContain('🚫');
       expect(result.confidence).toBeGreaterThan(0.5);
-    });
+    }, 30_000); // First allowed request dynamically loads the AI kernel.
 
     it('should block prohibited intents via constitution', async () => {
       const result = await runSunGuardian(

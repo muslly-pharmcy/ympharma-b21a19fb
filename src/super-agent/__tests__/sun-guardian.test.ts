@@ -22,7 +22,7 @@ describe('SUN-GUARDIAN Agent', () => {
     );
     expect(result.response).not.toContain('🚫');
     expect(result.confidence).toBeGreaterThan(0.5);
-  });
+  }, 30_000); // First allowed request dynamically loads the AI kernel.
 
   it('should handle error remediation intent', async () => {
     const result = await runSunGuardian(
