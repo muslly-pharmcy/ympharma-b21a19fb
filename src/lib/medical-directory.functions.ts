@@ -108,9 +108,9 @@ export const findSuppliersByCompany = createServerFn({ method: 'GET' })
       .order('name')
       .limit(data.limit ?? 20)
 
-    if (data.query.length > 0) {
-      const like = `%${data.query.replace(/[%_]/g, '')}%`
-      q = q.or(`name.ilike.${like},legal_name.ilike.${like}`)
+    const term = sanitizeFilterTerm(data.query)
+    if (term.length > 0) {
+      q = q.or([ilikeContains('name', term), ilikeContains('legal_name', term)].join(','))
     }
 
     const { data: rows, error } = await q
