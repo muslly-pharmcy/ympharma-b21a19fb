@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { ilikeContains, sanitizeFilterTerm } from '@/lib/security/postgrest-filter'
 
 const sel = (s: string): string => s
 
