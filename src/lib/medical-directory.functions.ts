@@ -69,10 +69,14 @@ export const searchAdenDirectory = createServerFn({ method: 'GET' })
       .order('trust_score', { ascending: false })
       .limit(data.limit ?? 20)
 
-    if (data.query.length > 0) {
-      const like = `%${data.query.replace(/[%_]/g, '')}%`
+    const term = sanitizeFilterTerm(data.query)
+    if (term.length > 0) {
       q = q.or(
-        `full_name_ar.ilike.${like},full_name_en.ilike.${like},normalized_name_ar.ilike.${like}`,
+        [
+          ilikeContains('full_name_ar', term),
+          ilikeContains('full_name_en', term),
+          ilikeContains('normalized_name_ar', term),
+        ].join(','),
       )
     }
 
