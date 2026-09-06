@@ -1,0 +1,40 @@
+name: CI - Typecheck, Lint, Build
+
+on:
+  push:
+    branches: [ main, 'fix/*', 'feat/*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    name: Verify Code Quality & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: TypeScript Type Check
+        run: npx tsc --noEmit
+        continue-on-error: false
+
+      - name: ESLint Security & Quality Check
+        run: npx eslint src/integrations/supabase/client.ts src/lib/errors/classify.ts --max-warnings=0
+        continue-on-error: false
+
+      - name: Build Project (with Dummy Env Vars)
+        env:
+          VITE_SUPABASE_URL: "https://dummy.supabase.co"
+          VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_dummy"
+        run: npm run build.  
+        chore: add CI workflow for typecheck, lint, and build
