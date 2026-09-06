@@ -49,3 +49,6 @@ coverage
 *.lcov
 test-results
 playwright-report
+
+# Prevent bun/npm lock conflicts
+package-lock.json
