@@ -56,9 +56,13 @@ function extractMessage(err: unknown): string {
   if (typeof err === 'string') return err
   if (err && typeof err === 'object') {
     const m = (err as { message?: unknown }).message
-    if (typeof m === 'string') return m
+    if (typeof m === 'string' && m.trim()) return m
+    // check nested cause.message safely
+    const c = (err as any)?.cause
+    if (c && typeof c.message === 'string' && c.message.trim()) return c.message
   }
-  return 'Unknown error'
+  try { return String(err); } 
+  catch { return 'Unknown error'; }
 }
 
 export function classifyError(err: unknown): ClassifiedError {
