@@ -10141,6 +10141,104 @@ export type Database = {
         }
         Relationships: []
       }
+      oracle_sync_runs: {
+        Row: {
+          applied_rows: number
+          batch_id: string
+          completed_at: string | null
+          error: string | null
+          error_rows: number
+          metadata: Json
+          mode: string
+          received_rows: number
+          skipped_rows: number
+          source_system: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          applied_rows?: number
+          batch_id: string
+          completed_at?: string | null
+          error?: string | null
+          error_rows?: number
+          metadata?: Json
+          mode: string
+          received_rows?: number
+          skipped_rows?: number
+          source_system: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          applied_rows?: number
+          batch_id?: string
+          completed_at?: string | null
+          error?: string | null
+          error_rows?: number
+          metadata?: Json
+          mode?: string
+          received_rows?: number
+          skipped_rows?: number
+          source_system?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      oracle_sync_staging: {
+        Row: {
+          applied_at: string | null
+          batch_id: string
+          entity_type: string
+          error: string | null
+          id: string
+          idempotency_key: string
+          payload: Json
+          received_at: string
+          source_key: string
+          source_system: string
+          source_updated_at: string | null
+          status: string
+        }
+        Insert: {
+          applied_at?: string | null
+          batch_id: string
+          entity_type: string
+          error?: string | null
+          id?: string
+          idempotency_key: string
+          payload: Json
+          received_at?: string
+          source_key: string
+          source_system: string
+          source_updated_at?: string | null
+          status?: string
+        }
+        Update: {
+          applied_at?: string | null
+          batch_id?: string
+          entity_type?: string
+          error?: string | null
+          id?: string
+          idempotency_key?: string
+          payload?: Json
+          received_at?: string
+          source_key?: string
+          source_system?: string
+          source_updated_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oracle_sync_staging_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "oracle_sync_runs"
+            referencedColumns: ["batch_id"]
+          },
+        ]
+      }
       order_status_history: {
         Row: {
           changed_by: string | null
@@ -14702,6 +14800,14 @@ export type Database = {
           name: string
           price: number
         }[]
+      }
+      apply_oracle_sync_products: {
+        Args: { p_org: string; p_rows: Json }
+        Returns: number
+      }
+      apply_oracle_sync_stock: {
+        Args: { p_org: string; p_rows: Json; p_warehouse: string }
+        Returns: number
       }
       apply_retention_policies: {
         Args: never
