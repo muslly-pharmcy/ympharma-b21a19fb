@@ -22,6 +22,13 @@
       "when": 1790828863745,
       "tag": "0002_restore_customer_checkout_execute",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790828899255,
+      "tag": "0003_fix_checkout_search_path",
+      "breakpoints": true
     }
   ]
 }
