@@ -4,7 +4,7 @@ param(
   [string]$OracleUser,
   [Security.SecureString]$OraclePassword,
   [string]$MappingPath,
-  [string]$EndpointUrl,
+  [string]$EndpointUrl = 'https://muslly.com/api/public/oracle-sync',
   [Security.SecureString]$SyncSecret,
   [ValidateRange(1, 500)][int]$BatchSize = 200,
   [switch]$Apply,
@@ -129,7 +129,7 @@ if ($enabledEntities.Count -eq 0) {
   throw 'No mapping entities are enabled. Discover the Oracle views, update the mapping, and set enabled=true.'
 }
 if ([string]::IsNullOrWhiteSpace($EndpointUrl) -or $EndpointUrl -notmatch '^https://') {
-  throw 'EndpointUrl must be the HTTPS URL of the oracle-sync-ingest Edge Function.'
+  throw 'EndpointUrl must be the HTTPS URL of the pharmacy sync receiver (https://muslly.com/api/public/oracle-sync).'
 }
 if ([string]::IsNullOrWhiteSpace($OracleUser)) {
   $OracleUser = Read-Host 'Oracle read-only username'
