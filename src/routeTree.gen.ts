@@ -78,6 +78,7 @@ import { Route as ToolsScheduleRouteImport } from './routes/tools.schedule'
 import { Route as ToolsSymptomsRouteImport } from './routes/tools.symptoms'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminKernelEvolutionRouteImport } from './routes/_authenticated/admin.kernel-evolution'
 import { Route as AuthenticatedAdminMedicationInspectorRouteImport } from './routes/_authenticated/admin.medication-inspector'
 import { Route as AuthenticatedAdminPhoenixReportRouteImport } from './routes/_authenticated/admin.phoenix-report'
@@ -103,7 +104,7 @@ import { Route as AuthenticatedInsuranceClaimsRouteImport } from './routes/_auth
 import { Route as AuthenticatedInsuranceCoverageRouteImport } from './routes/_authenticated/insurance.coverage'
 import { Route as AuthenticatedLoyaltyAccountIdRouteImport } from './routes/_authenticated/loyalty.$accountId'
 import { Route as AuthenticatedMarketingSocialAssistantRouteImport } from './routes/_authenticated/marketing.social-assistant'
-import { Route as AuthenticatedOrdersOrderIdRouteImport } from './routes/_authenticated/orders.$orderId'
+import { Route as AuthenticatedOrdersOrderIdRouteImport } from './routes/_authenticated/orders_.$orderId'
 import { Route as AuthenticatedPatientsPatientIdRouteImport } from './routes/_authenticated/patients.$patientId'
 import { Route as AuthenticatedPrescriptionsPrescriptionIdRouteImport } from './routes/_authenticated/prescriptions.$prescriptionId'
 import { Route as AuthenticatedPromotionsIndexRouteImport } from './routes/_authenticated/promotions.index'
@@ -112,6 +113,7 @@ import { Route as AuthenticatedPurchaseOrdersIdRouteImport } from './routes/_aut
 import { Route as AuthenticatedPurchasingScanInvoiceRouteImport } from './routes/_authenticated/purchasing.scan-invoice'
 import { Route as AuthenticatedStoreCodeRouteImport } from './routes/_authenticated/store.$code'
 import { Route as ApiPublicCspReportRouteImport } from './routes/api/public/csp-report'
+import { Route as ApiPublicOracleSyncRouteImport } from './routes/api/public/oracle-sync'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AuthenticatedInsuranceClaimsClaimIdRouteImport } from './routes/_authenticated/insurance.claims_.$claimId'
 import { Route as ApiPublicHooksCrmSyncRetryRouteImport } from './routes/api/public/hooks/crm-sync-retry'
@@ -488,6 +490,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminKernelEvolutionRoute =
   AuthenticatedAdminKernelEvolutionRouteImport.update({
     id: '/admin/kernel-evolution',
@@ -640,9 +647,9 @@ const AuthenticatedMarketingSocialAssistantRoute =
   } as any)
 const AuthenticatedOrdersOrderIdRoute =
   AuthenticatedOrdersOrderIdRouteImport.update({
-    id: '/$orderId',
-    path: '/$orderId',
-    getParentRoute: () => AuthenticatedOrdersRoute,
+    id: '/orders_/$orderId',
+    path: '/orders/$orderId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedPatientsPatientIdRoute =
   AuthenticatedPatientsPatientIdRouteImport.update({
@@ -688,6 +695,11 @@ const AuthenticatedStoreCodeRoute = AuthenticatedStoreCodeRouteImport.update({
 const ApiPublicCspReportRoute = ApiPublicCspReportRouteImport.update({
   id: '/api/public/csp-report',
   path: '/api/public/csp-report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOracleSyncRoute = ApiPublicOracleSyncRouteImport.update({
+  id: '/api/public/oracle-sync',
+  path: '/api/public/oracle-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
@@ -798,7 +810,7 @@ export interface FileRoutesByFullPath {
   '/inventory-chat': typeof AuthenticatedInventoryChatRoute
   '/loyalty': typeof AuthenticatedLoyaltyRouteWithChildren
   '/medical-directory': typeof AuthenticatedMedicalDirectoryRoute
-  '/orders': typeof AuthenticatedOrdersRouteWithChildren
+  '/orders': typeof AuthenticatedOrdersRoute
   '/patient-profile': typeof AuthenticatedPatientProfileRoute
   '/patients': typeof AuthenticatedPatientsRouteWithChildren
   '/prescriptions': typeof AuthenticatedPrescriptionsRouteWithChildren
@@ -857,7 +869,9 @@ export interface FileRoutesByFullPath {
   '/purchasing/scan-invoice': typeof AuthenticatedPurchasingScanInvoiceRoute
   '/store/$code': typeof AuthenticatedStoreCodeRoute
   '/api/public/csp-report': typeof ApiPublicCspReportRoute
+  '/api/public/oracle-sync': typeof ApiPublicOracleSyncRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/analytics/': typeof AuthenticatedAnalyticsIndexRoute
   '/catalog/': typeof AuthenticatedCatalogIndexRoute
   '/control-tower/': typeof AuthenticatedControlTowerIndexRoute
@@ -912,7 +926,7 @@ export interface FileRoutesByTo {
   '/inventory-chat': typeof AuthenticatedInventoryChatRoute
   '/loyalty': typeof AuthenticatedLoyaltyRouteWithChildren
   '/medical-directory': typeof AuthenticatedMedicalDirectoryRoute
-  '/orders': typeof AuthenticatedOrdersRouteWithChildren
+  '/orders': typeof AuthenticatedOrdersRoute
   '/patient-profile': typeof AuthenticatedPatientProfileRoute
   '/patients': typeof AuthenticatedPatientsRouteWithChildren
   '/prescriptions': typeof AuthenticatedPrescriptionsRouteWithChildren
@@ -971,7 +985,9 @@ export interface FileRoutesByTo {
   '/purchasing/scan-invoice': typeof AuthenticatedPurchasingScanInvoiceRoute
   '/store/$code': typeof AuthenticatedStoreCodeRoute
   '/api/public/csp-report': typeof ApiPublicCspReportRoute
+  '/api/public/oracle-sync': typeof ApiPublicOracleSyncRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/analytics': typeof AuthenticatedAnalyticsIndexRoute
   '/catalog': typeof AuthenticatedCatalogIndexRoute
   '/control-tower': typeof AuthenticatedControlTowerIndexRoute
@@ -1030,7 +1046,7 @@ export interface FileRoutesById {
   '/_authenticated/inventory-chat': typeof AuthenticatedInventoryChatRoute
   '/_authenticated/loyalty': typeof AuthenticatedLoyaltyRouteWithChildren
   '/_authenticated/medical-directory': typeof AuthenticatedMedicalDirectoryRoute
-  '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
+  '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/patient-profile': typeof AuthenticatedPatientProfileRoute
   '/_authenticated/patients': typeof AuthenticatedPatientsRouteWithChildren
   '/_authenticated/prescriptions': typeof AuthenticatedPrescriptionsRouteWithChildren
@@ -1081,7 +1097,7 @@ export interface FileRoutesById {
   '/_authenticated/insurance/coverage': typeof AuthenticatedInsuranceCoverageRoute
   '/_authenticated/loyalty/$accountId': typeof AuthenticatedLoyaltyAccountIdRoute
   '/_authenticated/marketing/social-assistant': typeof AuthenticatedMarketingSocialAssistantRoute
-  '/_authenticated/orders/$orderId': typeof AuthenticatedOrdersOrderIdRoute
+  '/_authenticated/orders_/$orderId': typeof AuthenticatedOrdersOrderIdRoute
   '/_authenticated/patients/$patientId': typeof AuthenticatedPatientsPatientIdRoute
   '/_authenticated/prescriptions/$prescriptionId': typeof AuthenticatedPrescriptionsPrescriptionIdRoute
   '/_authenticated/promotions/$id': typeof AuthenticatedPromotionsIdRoute
@@ -1089,7 +1105,9 @@ export interface FileRoutesById {
   '/_authenticated/purchasing/scan-invoice': typeof AuthenticatedPurchasingScanInvoiceRoute
   '/_authenticated/store/$code': typeof AuthenticatedStoreCodeRoute
   '/api/public/csp-report': typeof ApiPublicCspReportRoute
+  '/api/public/oracle-sync': typeof ApiPublicOracleSyncRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/analytics/': typeof AuthenticatedAnalyticsIndexRoute
   '/_authenticated/catalog/': typeof AuthenticatedCatalogIndexRoute
   '/_authenticated/control-tower/': typeof AuthenticatedControlTowerIndexRoute
@@ -1207,7 +1225,9 @@ export interface FileRouteTypes {
     | '/purchasing/scan-invoice'
     | '/store/$code'
     | '/api/public/csp-report'
+    | '/api/public/oracle-sync'
     | '/lovable/email/suppression'
+    | '/admin/'
     | '/analytics/'
     | '/catalog/'
     | '/control-tower/'
@@ -1321,7 +1341,9 @@ export interface FileRouteTypes {
     | '/purchasing/scan-invoice'
     | '/store/$code'
     | '/api/public/csp-report'
+    | '/api/public/oracle-sync'
     | '/lovable/email/suppression'
+    | '/admin'
     | '/analytics'
     | '/catalog'
     | '/control-tower'
@@ -1430,7 +1452,7 @@ export interface FileRouteTypes {
     | '/_authenticated/insurance/coverage'
     | '/_authenticated/loyalty/$accountId'
     | '/_authenticated/marketing/social-assistant'
-    | '/_authenticated/orders/$orderId'
+    | '/_authenticated/orders_/$orderId'
     | '/_authenticated/patients/$patientId'
     | '/_authenticated/prescriptions/$prescriptionId'
     | '/_authenticated/promotions/$id'
@@ -1438,7 +1460,9 @@ export interface FileRouteTypes {
     | '/_authenticated/purchasing/scan-invoice'
     | '/_authenticated/store/$code'
     | '/api/public/csp-report'
+    | '/api/public/oracle-sync'
     | '/lovable/email/suppression'
+    | '/_authenticated/admin/'
     | '/_authenticated/analytics/'
     | '/_authenticated/catalog/'
     | '/_authenticated/control-tower/'
@@ -1489,6 +1513,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicCspReportRoute: typeof ApiPublicCspReportRoute
+  ApiPublicOracleSyncRoute: typeof ApiPublicOracleSyncRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksCrmSyncRetryRoute: typeof ApiPublicHooksCrmSyncRetryRoute
   ApiPublicHooksDailyReportRoute: typeof ApiPublicHooksDailyReportRoute
@@ -1987,6 +2012,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/kernel-evolution': {
       id: '/_authenticated/admin/kernel-evolution'
       path: '/admin/kernel-evolution'
@@ -2162,12 +2194,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketingSocialAssistantRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/orders/$orderId': {
-      id: '/_authenticated/orders/$orderId'
-      path: '/$orderId'
+    '/_authenticated/orders_/$orderId': {
+      id: '/_authenticated/orders_/$orderId'
+      path: '/orders/$orderId'
       fullPath: '/orders/$orderId'
       preLoaderRoute: typeof AuthenticatedOrdersOrderIdRouteImport
-      parentRoute: typeof AuthenticatedOrdersRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/patients/$patientId': {
       id: '/_authenticated/patients/$patientId'
@@ -2223,6 +2255,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/csp-report'
       fullPath: '/api/public/csp-report'
       preLoaderRoute: typeof ApiPublicCspReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oracle-sync': {
+      id: '/api/public/oracle-sync'
+      path: '/api/public/oracle-sync'
+      fullPath: '/api/public/oracle-sync'
+      preLoaderRoute: typeof ApiPublicOracleSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/suppression': {
@@ -2409,17 +2448,6 @@ const AuthenticatedLoyaltyRouteChildren: AuthenticatedLoyaltyRouteChildren = {
 const AuthenticatedLoyaltyRouteWithChildren =
   AuthenticatedLoyaltyRoute._addFileChildren(AuthenticatedLoyaltyRouteChildren)
 
-interface AuthenticatedOrdersRouteChildren {
-  AuthenticatedOrdersOrderIdRoute: typeof AuthenticatedOrdersOrderIdRoute
-}
-
-const AuthenticatedOrdersRouteChildren: AuthenticatedOrdersRouteChildren = {
-  AuthenticatedOrdersOrderIdRoute: AuthenticatedOrdersOrderIdRoute,
-}
-
-const AuthenticatedOrdersRouteWithChildren =
-  AuthenticatedOrdersRoute._addFileChildren(AuthenticatedOrdersRouteChildren)
-
 interface AuthenticatedPatientsRouteChildren {
   AuthenticatedPatientsPatientIdRoute: typeof AuthenticatedPatientsPatientIdRoute
 }
@@ -2494,7 +2522,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInventoryChatRoute: typeof AuthenticatedInventoryChatRoute
   AuthenticatedLoyaltyRoute: typeof AuthenticatedLoyaltyRouteWithChildren
   AuthenticatedMedicalDirectoryRoute: typeof AuthenticatedMedicalDirectoryRoute
-  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRouteWithChildren
+  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedPatientProfileRoute: typeof AuthenticatedPatientProfileRoute
   AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRouteWithChildren
   AuthenticatedPrescriptionsRoute: typeof AuthenticatedPrescriptionsRouteWithChildren
@@ -2517,8 +2545,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInsuranceClaimsRoute: typeof AuthenticatedInsuranceClaimsRoute
   AuthenticatedInsuranceCoverageRoute: typeof AuthenticatedInsuranceCoverageRoute
   AuthenticatedMarketingSocialAssistantRoute: typeof AuthenticatedMarketingSocialAssistantRoute
+  AuthenticatedOrdersOrderIdRoute: typeof AuthenticatedOrdersOrderIdRoute
   AuthenticatedPromotionsIdRoute: typeof AuthenticatedPromotionsIdRoute
   AuthenticatedPurchasingScanInvoiceRoute: typeof AuthenticatedPurchasingScanInvoiceRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAnalyticsIndexRoute: typeof AuthenticatedAnalyticsIndexRoute
   AuthenticatedCatalogIndexRoute: typeof AuthenticatedCatalogIndexRoute
   AuthenticatedInsuranceIndexRoute: typeof AuthenticatedInsuranceIndexRoute
@@ -2547,7 +2577,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInventoryChatRoute: AuthenticatedInventoryChatRoute,
   AuthenticatedLoyaltyRoute: AuthenticatedLoyaltyRouteWithChildren,
   AuthenticatedMedicalDirectoryRoute: AuthenticatedMedicalDirectoryRoute,
-  AuthenticatedOrdersRoute: AuthenticatedOrdersRouteWithChildren,
+  AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedPatientProfileRoute: AuthenticatedPatientProfileRoute,
   AuthenticatedPatientsRoute: AuthenticatedPatientsRouteWithChildren,
   AuthenticatedPrescriptionsRoute: AuthenticatedPrescriptionsRouteWithChildren,
@@ -2574,9 +2604,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInsuranceCoverageRoute: AuthenticatedInsuranceCoverageRoute,
   AuthenticatedMarketingSocialAssistantRoute:
     AuthenticatedMarketingSocialAssistantRoute,
+  AuthenticatedOrdersOrderIdRoute: AuthenticatedOrdersOrderIdRoute,
   AuthenticatedPromotionsIdRoute: AuthenticatedPromotionsIdRoute,
   AuthenticatedPurchasingScanInvoiceRoute:
     AuthenticatedPurchasingScanInvoiceRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAnalyticsIndexRoute: AuthenticatedAnalyticsIndexRoute,
   AuthenticatedCatalogIndexRoute: AuthenticatedCatalogIndexRoute,
   AuthenticatedInsuranceIndexRoute: AuthenticatedInsuranceIndexRoute,
@@ -2641,6 +2673,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicCspReportRoute: ApiPublicCspReportRoute,
+  ApiPublicOracleSyncRoute: ApiPublicOracleSyncRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksCrmSyncRetryRoute: ApiPublicHooksCrmSyncRetryRoute,
   ApiPublicHooksDailyReportRoute: ApiPublicHooksDailyReportRoute,

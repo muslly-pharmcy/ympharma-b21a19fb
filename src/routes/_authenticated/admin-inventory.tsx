@@ -8,6 +8,8 @@ import {
   updateProductPrice,
   setProductStockBalance,
   updateProductImage,
+  createStoreProduct,
+  deleteStoreProduct,
 } from '@/lib/store-admin.functions'
 
 export const Route = createFileRoute('/_authenticated/admin-inventory')({
@@ -55,12 +57,35 @@ function AdminInventoryPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
   })
 
+  const createMut = useMutation({
+    mutationFn: useServerFn(createStoreProduct),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
+  })
+  const deleteMut = useMutation({
+    mutationFn: useServerFn(deleteStoreProduct),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
+  })
+
   return (
     <div dir="rtl" className="p-6 max-w-[1400px] mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">إدارة المخزون والأسعار</h1>
         <div className="text-sm text-muted-foreground">{query.data?.total ?? 0} صنف</div>
       </div>
+
+      <AddProductForm
+        busy={createMut.isPending}
+        onAdd={async (v) => {
+          const { qty, ...rest } = v
+          const created = await createMut.mutateAsync({ data: rest })
+          if (qty > 0) {
+            await stockMut.mutateAsync({ data: { productId: created.id, newBalance: qty, reason: 'admin initial stock' } })
+          }
+        }}
+      />
+      <p className="text-xs text-muted-foreground">
+        الأصناف المرتبطة ببرنامج الصيدلية تُحدَّث كمياتها وأسعارها تلقائياً كل ساعة عبر نفس «الكود».
+      </p>
 
       <div className="flex gap-2 flex-wrap">
         <input
@@ -104,6 +129,10 @@ function AdminInventoryPage() {
                   key={id}
                   row={row}
                   onSavePrice={(price) => priceMut.mutateAsync({ data: { productId: id, price } })}
+                  onDelete={async () => {
+                    if (!confirm(`حذف «${row.name ?? ''}» من المتجر؟`)) return
+                    await deleteMut.mutateAsync({ data: { productId: id } })
+                  }}
                   onSaveStock={(newBalance) => stockMut.mutateAsync({ data: { productId: id, newBalance, reason: 'admin manual' } })}
                   onUploadImage={async (file) => {
                     const path = `${id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
@@ -129,8 +158,10 @@ function ProductRow({
   onSavePrice,
   onSaveStock,
   onUploadImage,
+  onDelete,
 }: {
   row: Row
+  onDelete: () => Promise<void>
   onSavePrice: (price: number) => Promise<unknown>
   onSaveStock: (n: number) => Promise<unknown>
   onUploadImage: (file: File) => Promise<void>
@@ -192,6 +223,12 @@ function ProductRow({
         >
           {busy === 'image' ? 'يرفع…' : 'رفع صورة'}
         </button>
+        <button
+          className="text-xs px-2 py-1 border rounded mr-1 text-destructive hover:bg-destructive/10"
+          onClick={() => { void onDelete().catch((err) => alert((err as Error).message)) }}
+        >
+          حذف
+        </button>
         <input
           ref={fileRef}
           type="file"
@@ -206,5 +243,66 @@ function ProductRow({
         />
       </td>
     </tr>
+  )
+}
+
+type NewProduct = {
+  name_ar: string
+  store_code: string
+  barcode?: string
+  price: number
+  qty: number
+  requires_prescription: boolean
+}
+
+function AddProductForm({ onAdd, busy }: { onAdd: (v: NewProduct) => Promise<void>; busy: boolean }) {
+  const [open, setOpen] = useState(false)
+  const [f, setF] = useState({ name_ar: '', store_code: '', barcode: '', price: '', qty: '', rx: false })
+  const [err, setErr] = useState<string | null>(null)
+  if (!open) {
+    return (
+      <button className="px-4 py-2 rounded bg-primary text-primary-foreground text-sm font-semibold" onClick={() => setOpen(true)}>
+        + إضافة دواء جديد
+      </button>
+    )
+  }
+  const inp = 'border rounded px-3 py-2 bg-background text-sm'
+  return (
+    <form
+      className="border rounded-lg p-4 grid grid-cols-1 sm:grid-cols-3 gap-2 bg-card"
+      onSubmit={async (e) => {
+        e.preventDefault()
+        setErr(null)
+        const price = Number(f.price)
+        const qty = Math.floor(Number(f.qty || 0))
+        if (f.name_ar.trim().length < 2 || !f.store_code.trim() || !Number.isFinite(price) || price < 0 || !Number.isFinite(qty) || qty < 0) {
+          setErr('أكمل الاسم والكود والسعر بشكل صحيح')
+          return
+        }
+        try {
+          await onAdd({ name_ar: f.name_ar.trim(), store_code: f.store_code.trim(), barcode: f.barcode.trim() || undefined, price, qty, requires_prescription: f.rx })
+          setF({ name_ar: '', store_code: '', barcode: '', price: '', qty: '', rx: false })
+          setOpen(false)
+        } catch (e2) {
+          setErr((e2 as Error).message)
+        }
+      }}
+    >
+      <input aria-label="اسم الدواء" className={inp} placeholder="اسم الدواء *" value={f.name_ar} onChange={(e) => setF({ ...f, name_ar: e.target.value })} />
+      <input aria-label="الكود" className={inp} placeholder="الكود (نفس كود برنامج الصيدلية) *" value={f.store_code} onChange={(e) => setF({ ...f, store_code: e.target.value })} />
+      <input aria-label="الباركود" className={inp} placeholder="الباركود" value={f.barcode} onChange={(e) => setF({ ...f, barcode: e.target.value })} />
+      <input aria-label="السعر" className={inp} placeholder="السعر (ر.ي) *" inputMode="decimal" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} />
+      <input aria-label="الكمية" className={inp} placeholder="الكمية" inputMode="numeric" value={f.qty} onChange={(e) => setF({ ...f, qty: e.target.value })} />
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={f.rx} onChange={(e) => setF({ ...f, rx: e.target.checked })} /> يحتاج وصفة طبية
+      </label>
+      {err && <p className="sm:col-span-3 text-sm text-destructive">{err}</p>}
+      <div className="sm:col-span-3 flex gap-2">
+        <button type="submit" disabled={busy} className="px-4 py-2 rounded bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50">
+          {busy ? 'جارٍ الحفظ…' : 'حفظ'}
+        </button>
+        <button type="button" className="px-4 py-2 rounded border text-sm" onClick={() => setOpen(false)}>إلغاء</button>
+      </div>
+    </form>
   )
 }

@@ -233,6 +233,7 @@ export const listStoreProductsAdmin = createServerFn({ method: 'GET' })
       .from('store_products')
       .select('*', { count: 'exact' })
       .eq('organization_id', actor.organizationId)
+      .neq('status', 'archived')
       .order('updated_at', { ascending: false })
       .range(data.offset, data.offset + data.limit - 1)
 
@@ -249,4 +250,77 @@ export const listStoreProductsAdmin = createServerFn({ method: 'GET' })
     const { data: items, error, count } = await q
     if (error) throw new Error(error.message)
     return { items: items ?? [], total: count ?? 0 }
+  })
+
+// ---------- Create product (manual, before/alongside Oracle sync) ----------
+// store_code is the shared key with the pharmacy Oracle system: if the same
+// code arrives from the hourly sync, the sync updates this row instead of duplicating it.
+export const createStoreProduct = createServerFn({ method: 'POST' })
+  .validator((raw: unknown) =>
+    z
+      .object({
+        name_ar: z.string().trim().min(2).max(200),
+        store_code: z.string().trim().min(1).max(60),
+        barcode: z.string().trim().max(60).optional(),
+        price: z.number().nonnegative(),
+        requires_prescription: z.boolean().default(false),
+      })
+      .parse(raw),
+  )
+  .handler(async ({ data }) => {
+    const { getActor, requirePermission } = await import('./session.server')
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+    const { audit } = await import('./audit.server')
+    const actor = await getActor()
+    requirePermission(actor, 'catalog.write')
+
+    const { data: row, error } = await supabaseAdmin
+      .from('catalog_products')
+      .insert({
+        organization_id: actor.organizationId,
+        owner_org_id: actor.organizationId,
+        name_ar: data.name_ar,
+        store_code: data.store_code,
+        barcode: data.barcode || null,
+        sbdma_official_price: data.price,
+        requires_prescription: data.requires_prescription,
+        status: 'approved',
+        is_public: true,
+        created_by: actor.userId,
+      } as never)
+      .select('id')
+      .single()
+    if (error) {
+      if (error.code === '23505') throw new Error('هذا الكود مستخدم لصنف آخر')
+      throw new Error(error.message)
+    }
+    await audit(actor, { action: 'catalog.product.create', resourceType: 'catalog_product', resourceId: row.id, payload: data })
+    return { id: row.id as string }
+  })
+
+// ---------- Delete product (soft: archived + hidden from store, keeps order history) ----------
+export const deleteStoreProduct = createServerFn({ method: 'POST' })
+  .validator((raw: unknown) => z.object({ productId: uuid }).parse(raw))
+  .handler(async ({ data }) => {
+    const { getActor, requirePermission } = await import('./session.server')
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+    const { audit } = await import('./audit.server')
+    const actor = await getActor()
+    requirePermission(actor, 'catalog.write')
+
+    const { data: p, error: pErr } = await supabaseAdmin
+      .from('catalog_products')
+      .select('organization_id')
+      .eq('id', data.productId)
+      .single()
+    if (pErr) throw new Error(pErr.message)
+    if (p.organization_id !== actor.organizationId) throw new Error('Forbidden: cross-org update')
+
+    const { error } = await supabaseAdmin
+      .from('catalog_products')
+      .update({ status: 'archived', is_public: false })
+      .eq('id', data.productId)
+    if (error) throw new Error(error.message)
+    await audit(actor, { action: 'catalog.product.archive', resourceType: 'catalog_product', resourceId: data.productId })
+    return { ok: true }
   })
