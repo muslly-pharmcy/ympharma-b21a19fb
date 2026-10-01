@@ -22,13 +22,13 @@ export const PHARMACY = {
     { day: 'السبت – الخميس', time: '8:00 صباحاً – 11:00 مساءً' },
     { day: 'الجمعة', time: '4:00 عصراً – 11:00 مساءً' },
   ],
-  // Regulatory identity. Left null until the owner supplies the verified
-  // values — the UI hides each row rather than showing invented data.
+  // Regulatory identity. Values stay null until the owner supplies the
+  // verified data — the UI hides each row rather than showing invented data.
   license: {
     number: null as string | null,
     authority: null as string | null,
     expiresOn: null as string | null,
-    responsiblePharmacist: null as string | null,
+    responsiblePharmacist: 'د. محمد علي المصلي' as string | null,
   },
 } as const
 
