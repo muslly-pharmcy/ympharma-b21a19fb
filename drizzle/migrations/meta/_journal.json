@@ -29,6 +29,13 @@
       "when": 1790828899255,
       "tag": "0003_fix_checkout_search_path",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790828951270,
+      "tag": "0004_checkout_use_catalog_price",
+      "breakpoints": true
     }
   ]
 }
