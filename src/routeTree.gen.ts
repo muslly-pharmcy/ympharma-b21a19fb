@@ -78,6 +78,7 @@ import { Route as ToolsScheduleRouteImport } from './routes/tools.schedule'
 import { Route as ToolsSymptomsRouteImport } from './routes/tools.symptoms'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminKernelEvolutionRouteImport } from './routes/_authenticated/admin.kernel-evolution'
 import { Route as AuthenticatedAdminMedicationInspectorRouteImport } from './routes/_authenticated/admin.medication-inspector'
 import { Route as AuthenticatedAdminPhoenixReportRouteImport } from './routes/_authenticated/admin.phoenix-report'
@@ -489,6 +490,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminKernelEvolutionRoute =
   AuthenticatedAdminKernelEvolutionRouteImport.update({
     id: '/admin/kernel-evolution',
@@ -865,6 +871,7 @@ export interface FileRoutesByFullPath {
   '/api/public/csp-report': typeof ApiPublicCspReportRoute
   '/api/public/oracle-sync': typeof ApiPublicOracleSyncRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/analytics/': typeof AuthenticatedAnalyticsIndexRoute
   '/catalog/': typeof AuthenticatedCatalogIndexRoute
   '/control-tower/': typeof AuthenticatedControlTowerIndexRoute
@@ -980,6 +987,7 @@ export interface FileRoutesByTo {
   '/api/public/csp-report': typeof ApiPublicCspReportRoute
   '/api/public/oracle-sync': typeof ApiPublicOracleSyncRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/analytics': typeof AuthenticatedAnalyticsIndexRoute
   '/catalog': typeof AuthenticatedCatalogIndexRoute
   '/control-tower': typeof AuthenticatedControlTowerIndexRoute
@@ -1099,6 +1107,7 @@ export interface FileRoutesById {
   '/api/public/csp-report': typeof ApiPublicCspReportRoute
   '/api/public/oracle-sync': typeof ApiPublicOracleSyncRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/analytics/': typeof AuthenticatedAnalyticsIndexRoute
   '/_authenticated/catalog/': typeof AuthenticatedCatalogIndexRoute
   '/_authenticated/control-tower/': typeof AuthenticatedControlTowerIndexRoute
@@ -1218,6 +1227,7 @@ export interface FileRouteTypes {
     | '/api/public/csp-report'
     | '/api/public/oracle-sync'
     | '/lovable/email/suppression'
+    | '/admin/'
     | '/analytics/'
     | '/catalog/'
     | '/control-tower/'
@@ -1333,6 +1343,7 @@ export interface FileRouteTypes {
     | '/api/public/csp-report'
     | '/api/public/oracle-sync'
     | '/lovable/email/suppression'
+    | '/admin'
     | '/analytics'
     | '/catalog'
     | '/control-tower'
@@ -1451,6 +1462,7 @@ export interface FileRouteTypes {
     | '/api/public/csp-report'
     | '/api/public/oracle-sync'
     | '/lovable/email/suppression'
+    | '/_authenticated/admin/'
     | '/_authenticated/analytics/'
     | '/_authenticated/catalog/'
     | '/_authenticated/control-tower/'
@@ -2000,6 +2012,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/kernel-evolution': {
       id: '/_authenticated/admin/kernel-evolution'
       path: '/admin/kernel-evolution'
@@ -2539,6 +2558,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMarketingSocialAssistantRoute: typeof AuthenticatedMarketingSocialAssistantRoute
   AuthenticatedPromotionsIdRoute: typeof AuthenticatedPromotionsIdRoute
   AuthenticatedPurchasingScanInvoiceRoute: typeof AuthenticatedPurchasingScanInvoiceRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAnalyticsIndexRoute: typeof AuthenticatedAnalyticsIndexRoute
   AuthenticatedCatalogIndexRoute: typeof AuthenticatedCatalogIndexRoute
   AuthenticatedInsuranceIndexRoute: typeof AuthenticatedInsuranceIndexRoute
@@ -2597,6 +2617,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPromotionsIdRoute: AuthenticatedPromotionsIdRoute,
   AuthenticatedPurchasingScanInvoiceRoute:
     AuthenticatedPurchasingScanInvoiceRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAnalyticsIndexRoute: AuthenticatedAnalyticsIndexRoute,
   AuthenticatedCatalogIndexRoute: AuthenticatedCatalogIndexRoute,
   AuthenticatedInsuranceIndexRoute: AuthenticatedInsuranceIndexRoute,
