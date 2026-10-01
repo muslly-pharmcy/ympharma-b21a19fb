@@ -104,7 +104,7 @@ import { Route as AuthenticatedInsuranceClaimsRouteImport } from './routes/_auth
 import { Route as AuthenticatedInsuranceCoverageRouteImport } from './routes/_authenticated/insurance.coverage'
 import { Route as AuthenticatedLoyaltyAccountIdRouteImport } from './routes/_authenticated/loyalty.$accountId'
 import { Route as AuthenticatedMarketingSocialAssistantRouteImport } from './routes/_authenticated/marketing.social-assistant'
-import { Route as AuthenticatedOrdersOrderIdRouteImport } from './routes/_authenticated/orders.$orderId'
+import { Route as AuthenticatedOrdersOrderIdRouteImport } from './routes/_authenticated/orders_.$orderId'
 import { Route as AuthenticatedPatientsPatientIdRouteImport } from './routes/_authenticated/patients.$patientId'
 import { Route as AuthenticatedPrescriptionsPrescriptionIdRouteImport } from './routes/_authenticated/prescriptions.$prescriptionId'
 import { Route as AuthenticatedPromotionsIndexRouteImport } from './routes/_authenticated/promotions.index'
@@ -647,9 +647,9 @@ const AuthenticatedMarketingSocialAssistantRoute =
   } as any)
 const AuthenticatedOrdersOrderIdRoute =
   AuthenticatedOrdersOrderIdRouteImport.update({
-    id: '/$orderId',
-    path: '/$orderId',
-    getParentRoute: () => AuthenticatedOrdersRoute,
+    id: '/orders_/$orderId',
+    path: '/orders/$orderId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedPatientsPatientIdRoute =
   AuthenticatedPatientsPatientIdRouteImport.update({
@@ -810,7 +810,7 @@ export interface FileRoutesByFullPath {
   '/inventory-chat': typeof AuthenticatedInventoryChatRoute
   '/loyalty': typeof AuthenticatedLoyaltyRouteWithChildren
   '/medical-directory': typeof AuthenticatedMedicalDirectoryRoute
-  '/orders': typeof AuthenticatedOrdersRouteWithChildren
+  '/orders': typeof AuthenticatedOrdersRoute
   '/patient-profile': typeof AuthenticatedPatientProfileRoute
   '/patients': typeof AuthenticatedPatientsRouteWithChildren
   '/prescriptions': typeof AuthenticatedPrescriptionsRouteWithChildren
@@ -926,7 +926,7 @@ export interface FileRoutesByTo {
   '/inventory-chat': typeof AuthenticatedInventoryChatRoute
   '/loyalty': typeof AuthenticatedLoyaltyRouteWithChildren
   '/medical-directory': typeof AuthenticatedMedicalDirectoryRoute
-  '/orders': typeof AuthenticatedOrdersRouteWithChildren
+  '/orders': typeof AuthenticatedOrdersRoute
   '/patient-profile': typeof AuthenticatedPatientProfileRoute
   '/patients': typeof AuthenticatedPatientsRouteWithChildren
   '/prescriptions': typeof AuthenticatedPrescriptionsRouteWithChildren
@@ -1046,7 +1046,7 @@ export interface FileRoutesById {
   '/_authenticated/inventory-chat': typeof AuthenticatedInventoryChatRoute
   '/_authenticated/loyalty': typeof AuthenticatedLoyaltyRouteWithChildren
   '/_authenticated/medical-directory': typeof AuthenticatedMedicalDirectoryRoute
-  '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
+  '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/patient-profile': typeof AuthenticatedPatientProfileRoute
   '/_authenticated/patients': typeof AuthenticatedPatientsRouteWithChildren
   '/_authenticated/prescriptions': typeof AuthenticatedPrescriptionsRouteWithChildren
@@ -1097,7 +1097,7 @@ export interface FileRoutesById {
   '/_authenticated/insurance/coverage': typeof AuthenticatedInsuranceCoverageRoute
   '/_authenticated/loyalty/$accountId': typeof AuthenticatedLoyaltyAccountIdRoute
   '/_authenticated/marketing/social-assistant': typeof AuthenticatedMarketingSocialAssistantRoute
-  '/_authenticated/orders/$orderId': typeof AuthenticatedOrdersOrderIdRoute
+  '/_authenticated/orders_/$orderId': typeof AuthenticatedOrdersOrderIdRoute
   '/_authenticated/patients/$patientId': typeof AuthenticatedPatientsPatientIdRoute
   '/_authenticated/prescriptions/$prescriptionId': typeof AuthenticatedPrescriptionsPrescriptionIdRoute
   '/_authenticated/promotions/$id': typeof AuthenticatedPromotionsIdRoute
@@ -1452,7 +1452,7 @@ export interface FileRouteTypes {
     | '/_authenticated/insurance/coverage'
     | '/_authenticated/loyalty/$accountId'
     | '/_authenticated/marketing/social-assistant'
-    | '/_authenticated/orders/$orderId'
+    | '/_authenticated/orders_/$orderId'
     | '/_authenticated/patients/$patientId'
     | '/_authenticated/prescriptions/$prescriptionId'
     | '/_authenticated/promotions/$id'
@@ -2194,12 +2194,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketingSocialAssistantRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/orders/$orderId': {
-      id: '/_authenticated/orders/$orderId'
-      path: '/$orderId'
+    '/_authenticated/orders_/$orderId': {
+      id: '/_authenticated/orders_/$orderId'
+      path: '/orders/$orderId'
       fullPath: '/orders/$orderId'
       preLoaderRoute: typeof AuthenticatedOrdersOrderIdRouteImport
-      parentRoute: typeof AuthenticatedOrdersRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/patients/$patientId': {
       id: '/_authenticated/patients/$patientId'
@@ -2448,17 +2448,6 @@ const AuthenticatedLoyaltyRouteChildren: AuthenticatedLoyaltyRouteChildren = {
 const AuthenticatedLoyaltyRouteWithChildren =
   AuthenticatedLoyaltyRoute._addFileChildren(AuthenticatedLoyaltyRouteChildren)
 
-interface AuthenticatedOrdersRouteChildren {
-  AuthenticatedOrdersOrderIdRoute: typeof AuthenticatedOrdersOrderIdRoute
-}
-
-const AuthenticatedOrdersRouteChildren: AuthenticatedOrdersRouteChildren = {
-  AuthenticatedOrdersOrderIdRoute: AuthenticatedOrdersOrderIdRoute,
-}
-
-const AuthenticatedOrdersRouteWithChildren =
-  AuthenticatedOrdersRoute._addFileChildren(AuthenticatedOrdersRouteChildren)
-
 interface AuthenticatedPatientsRouteChildren {
   AuthenticatedPatientsPatientIdRoute: typeof AuthenticatedPatientsPatientIdRoute
 }
@@ -2533,7 +2522,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInventoryChatRoute: typeof AuthenticatedInventoryChatRoute
   AuthenticatedLoyaltyRoute: typeof AuthenticatedLoyaltyRouteWithChildren
   AuthenticatedMedicalDirectoryRoute: typeof AuthenticatedMedicalDirectoryRoute
-  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRouteWithChildren
+  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedPatientProfileRoute: typeof AuthenticatedPatientProfileRoute
   AuthenticatedPatientsRoute: typeof AuthenticatedPatientsRouteWithChildren
   AuthenticatedPrescriptionsRoute: typeof AuthenticatedPrescriptionsRouteWithChildren
@@ -2556,6 +2545,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInsuranceClaimsRoute: typeof AuthenticatedInsuranceClaimsRoute
   AuthenticatedInsuranceCoverageRoute: typeof AuthenticatedInsuranceCoverageRoute
   AuthenticatedMarketingSocialAssistantRoute: typeof AuthenticatedMarketingSocialAssistantRoute
+  AuthenticatedOrdersOrderIdRoute: typeof AuthenticatedOrdersOrderIdRoute
   AuthenticatedPromotionsIdRoute: typeof AuthenticatedPromotionsIdRoute
   AuthenticatedPurchasingScanInvoiceRoute: typeof AuthenticatedPurchasingScanInvoiceRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -2587,7 +2577,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInventoryChatRoute: AuthenticatedInventoryChatRoute,
   AuthenticatedLoyaltyRoute: AuthenticatedLoyaltyRouteWithChildren,
   AuthenticatedMedicalDirectoryRoute: AuthenticatedMedicalDirectoryRoute,
-  AuthenticatedOrdersRoute: AuthenticatedOrdersRouteWithChildren,
+  AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedPatientProfileRoute: AuthenticatedPatientProfileRoute,
   AuthenticatedPatientsRoute: AuthenticatedPatientsRouteWithChildren,
   AuthenticatedPrescriptionsRoute: AuthenticatedPrescriptionsRouteWithChildren,
@@ -2614,6 +2604,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInsuranceCoverageRoute: AuthenticatedInsuranceCoverageRoute,
   AuthenticatedMarketingSocialAssistantRoute:
     AuthenticatedMarketingSocialAssistantRoute,
+  AuthenticatedOrdersOrderIdRoute: AuthenticatedOrdersOrderIdRoute,
   AuthenticatedPromotionsIdRoute: AuthenticatedPromotionsIdRoute,
   AuthenticatedPurchasingScanInvoiceRoute:
     AuthenticatedPurchasingScanInvoiceRoute,
