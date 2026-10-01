@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { getMyOrder, setOrderReceipt } from '@/lib/storefront.functions'
 import { supabase } from '@/integrations/supabase/client'
 
-export const Route = createFileRoute('/_authenticated/orders/$orderId')({
+export const Route = createFileRoute('/_authenticated/orders_/$orderId')({
   head: () => ({
     meta: [
       { title: 'تفاصيل الطلب — صيدلية المصلي' },
