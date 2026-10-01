@@ -25,8 +25,8 @@ export const PHARMACY = {
   // Regulatory identity. Values stay null until the owner supplies the
   // verified data — the UI hides each row rather than showing invented data.
   license: {
-    number: null as string | null,
-    authority: null as string | null,
+    number: '1255/1288' as string | null,
+    authority: 'وزارة الصحة العامة والسكان' as string | null,
     expiresOn: null as string | null,
     responsiblePharmacist: 'د. محمد علي المصلي' as string | null,
   },
