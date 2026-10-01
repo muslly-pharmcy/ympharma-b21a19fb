@@ -112,6 +112,7 @@ import { Route as AuthenticatedPurchaseOrdersIdRouteImport } from './routes/_aut
 import { Route as AuthenticatedPurchasingScanInvoiceRouteImport } from './routes/_authenticated/purchasing.scan-invoice'
 import { Route as AuthenticatedStoreCodeRouteImport } from './routes/_authenticated/store.$code'
 import { Route as ApiPublicCspReportRouteImport } from './routes/api/public/csp-report'
+import { Route as ApiPublicOracleSyncRouteImport } from './routes/api/public/oracle-sync'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AuthenticatedInsuranceClaimsClaimIdRouteImport } from './routes/_authenticated/insurance.claims_.$claimId'
 import { Route as ApiPublicHooksCrmSyncRetryRouteImport } from './routes/api/public/hooks/crm-sync-retry'
@@ -690,6 +691,11 @@ const ApiPublicCspReportRoute = ApiPublicCspReportRouteImport.update({
   path: '/api/public/csp-report',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicOracleSyncRoute = ApiPublicOracleSyncRouteImport.update({
+  id: '/api/public/oracle-sync',
+  path: '/api/public/oracle-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
@@ -857,6 +863,7 @@ export interface FileRoutesByFullPath {
   '/purchasing/scan-invoice': typeof AuthenticatedPurchasingScanInvoiceRoute
   '/store/$code': typeof AuthenticatedStoreCodeRoute
   '/api/public/csp-report': typeof ApiPublicCspReportRoute
+  '/api/public/oracle-sync': typeof ApiPublicOracleSyncRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/analytics/': typeof AuthenticatedAnalyticsIndexRoute
   '/catalog/': typeof AuthenticatedCatalogIndexRoute
@@ -971,6 +978,7 @@ export interface FileRoutesByTo {
   '/purchasing/scan-invoice': typeof AuthenticatedPurchasingScanInvoiceRoute
   '/store/$code': typeof AuthenticatedStoreCodeRoute
   '/api/public/csp-report': typeof ApiPublicCspReportRoute
+  '/api/public/oracle-sync': typeof ApiPublicOracleSyncRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/analytics': typeof AuthenticatedAnalyticsIndexRoute
   '/catalog': typeof AuthenticatedCatalogIndexRoute
@@ -1089,6 +1097,7 @@ export interface FileRoutesById {
   '/_authenticated/purchasing/scan-invoice': typeof AuthenticatedPurchasingScanInvoiceRoute
   '/_authenticated/store/$code': typeof AuthenticatedStoreCodeRoute
   '/api/public/csp-report': typeof ApiPublicCspReportRoute
+  '/api/public/oracle-sync': typeof ApiPublicOracleSyncRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/analytics/': typeof AuthenticatedAnalyticsIndexRoute
   '/_authenticated/catalog/': typeof AuthenticatedCatalogIndexRoute
@@ -1207,6 +1216,7 @@ export interface FileRouteTypes {
     | '/purchasing/scan-invoice'
     | '/store/$code'
     | '/api/public/csp-report'
+    | '/api/public/oracle-sync'
     | '/lovable/email/suppression'
     | '/analytics/'
     | '/catalog/'
@@ -1321,6 +1331,7 @@ export interface FileRouteTypes {
     | '/purchasing/scan-invoice'
     | '/store/$code'
     | '/api/public/csp-report'
+    | '/api/public/oracle-sync'
     | '/lovable/email/suppression'
     | '/analytics'
     | '/catalog'
@@ -1438,6 +1449,7 @@ export interface FileRouteTypes {
     | '/_authenticated/purchasing/scan-invoice'
     | '/_authenticated/store/$code'
     | '/api/public/csp-report'
+    | '/api/public/oracle-sync'
     | '/lovable/email/suppression'
     | '/_authenticated/analytics/'
     | '/_authenticated/catalog/'
@@ -1489,6 +1501,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicCspReportRoute: typeof ApiPublicCspReportRoute
+  ApiPublicOracleSyncRoute: typeof ApiPublicOracleSyncRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksCrmSyncRetryRoute: typeof ApiPublicHooksCrmSyncRetryRoute
   ApiPublicHooksDailyReportRoute: typeof ApiPublicHooksDailyReportRoute
@@ -2225,6 +2238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCspReportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/oracle-sync': {
+      id: '/api/public/oracle-sync'
+      path: '/api/public/oracle-sync'
+      fullPath: '/api/public/oracle-sync'
+      preLoaderRoute: typeof ApiPublicOracleSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
       path: '/lovable/email/suppression'
@@ -2641,6 +2661,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicCspReportRoute: ApiPublicCspReportRoute,
+  ApiPublicOracleSyncRoute: ApiPublicOracleSyncRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksCrmSyncRetryRoute: ApiPublicHooksCrmSyncRetryRoute,
   ApiPublicHooksDailyReportRoute: ApiPublicHooksDailyReportRoute,
