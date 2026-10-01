@@ -8,6 +8,8 @@ import {
   updateProductPrice,
   setProductStockBalance,
   updateProductImage,
+  createStoreProduct,
+  deleteStoreProduct,
 } from '@/lib/store-admin.functions'
 
 export const Route = createFileRoute('/_authenticated/admin-inventory')({
@@ -55,12 +57,35 @@ function AdminInventoryPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
   })
 
+  const createMut = useMutation({
+    mutationFn: useServerFn(createStoreProduct),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
+  })
+  const deleteMut = useMutation({
+    mutationFn: useServerFn(deleteStoreProduct),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
+  })
+
   return (
     <div dir="rtl" className="p-6 max-w-[1400px] mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">إدارة المخزون والأسعار</h1>
         <div className="text-sm text-muted-foreground">{query.data?.total ?? 0} صنف</div>
       </div>
+
+      <AddProductForm
+        busy={createMut.isPending}
+        onAdd={async (v) => {
+          await createMut.mutateAsync({ data: v })
+          if (v.qty > 0) {
+            const created = createMut.data
+            void created
+          }
+        }}
+      />
+      <p className="text-xs text-muted-foreground">
+        الأصناف المرتبطة ببرنامج الصيدلية تُحدَّث كمياتها وأسعارها تلقائياً كل ساعة عبر نفس «الكود».
+      </p>
 
       <div className="flex gap-2 flex-wrap">
         <input
@@ -104,6 +129,10 @@ function AdminInventoryPage() {
                   key={id}
                   row={row}
                   onSavePrice={(price) => priceMut.mutateAsync({ data: { productId: id, price } })}
+                  onDelete={async () => {
+                    if (!confirm(`حذف «${row.name ?? ''}» من المتجر؟`)) return
+                    await deleteMut.mutateAsync({ data: { productId: id } })
+                  }}
                   onSaveStock={(newBalance) => stockMut.mutateAsync({ data: { productId: id, newBalance, reason: 'admin manual' } })}
                   onUploadImage={async (file) => {
                     const path = `${id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
@@ -129,8 +158,10 @@ function ProductRow({
   onSavePrice,
   onSaveStock,
   onUploadImage,
+  onDelete,
 }: {
   row: Row
+  onDelete: () => Promise<void>
   onSavePrice: (price: number) => Promise<unknown>
   onSaveStock: (n: number) => Promise<unknown>
   onUploadImage: (file: File) => Promise<void>
@@ -191,6 +222,12 @@ function ProductRow({
           disabled={busy === 'image'}
         >
           {busy === 'image' ? 'يرفع…' : 'رفع صورة'}
+        </button>
+        <button
+          className="text-xs px-2 py-1 border rounded mr-1 text-destructive hover:bg-destructive/10"
+          onClick={() => { void onDelete().catch((err) => alert((err as Error).message)) }}
+        >
+          حذف
         </button>
         <input
           ref={fileRef}

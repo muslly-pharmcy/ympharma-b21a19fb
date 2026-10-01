@@ -233,6 +233,7 @@ export const listStoreProductsAdmin = createServerFn({ method: 'GET' })
       .from('store_products')
       .select('*', { count: 'exact' })
       .eq('organization_id', actor.organizationId)
+      .neq('status', 'archived')
       .order('updated_at', { ascending: false })
       .range(data.offset, data.offset + data.limit - 1)
 
