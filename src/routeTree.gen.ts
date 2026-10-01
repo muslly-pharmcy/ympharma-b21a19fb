@@ -18,6 +18,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MissionControlRouteImport } from './routes/mission-control'
 import { Route as OfflineRouteImport } from './routes/offline'
+import { Route as PoliciesRouteImport } from './routes/policies'
 import { Route as RequestRouteImport } from './routes/request'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
@@ -166,6 +167,11 @@ const MissionControlRoute = MissionControlRouteImport.update({
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
   path: '/offline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliciesRoute = PoliciesRouteImport.update({
+  id: '/policies',
+  path: '/policies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RequestRoute = RequestRouteImport.update({
@@ -762,6 +768,7 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/mission-control': typeof MissionControlRoute
   '/offline': typeof OfflineRoute
+  '/policies': typeof PoliciesRoute
   '/request': typeof RequestRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
@@ -877,6 +884,7 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/mission-control': typeof MissionControlRoute
   '/offline': typeof OfflineRoute
+  '/policies': typeof PoliciesRoute
   '/request': typeof RequestRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
@@ -992,6 +1000,7 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/mission-control': typeof MissionControlRoute
   '/offline': typeof OfflineRoute
+  '/policies': typeof PoliciesRoute
   '/request': typeof RequestRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
@@ -1109,6 +1118,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/mission-control'
     | '/offline'
+    | '/policies'
     | '/request'
     | '/reset-password'
     | '/search'
@@ -1224,6 +1234,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/mission-control'
     | '/offline'
+    | '/policies'
     | '/request'
     | '/reset-password'
     | '/search'
@@ -1338,6 +1349,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/mission-control'
     | '/offline'
+    | '/policies'
     | '/request'
     | '/reset-password'
     | '/search'
@@ -1455,6 +1467,7 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   MissionControlRoute: typeof MissionControlRoute
   OfflineRoute: typeof OfflineRoute
+  PoliciesRoute: typeof PoliciesRoute
   RequestRoute: typeof RequestRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
@@ -1552,6 +1565,13 @@ declare module '@tanstack/react-router' {
       path: '/offline'
       fullPath: '/offline'
       preLoaderRoute: typeof OfflineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/policies': {
+      id: '/policies'
+      path: '/policies'
+      fullPath: '/policies'
+      preLoaderRoute: typeof PoliciesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/request': {
@@ -2598,6 +2618,7 @@ const rootRouteChildren: RootRouteChildren = {
   McpRoute: McpRoute,
   MissionControlRoute: MissionControlRoute,
   OfflineRoute: OfflineRoute,
+  PoliciesRoute: PoliciesRoute,
   RequestRoute: RequestRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,

@@ -13,15 +13,28 @@
 import { describe, expect, it } from 'vitest'
 import { execFileSync } from 'node:child_process'
 
-const HAS_DB = Boolean(process.env.PGHOST)
-const d = HAS_DB ? describe : describe.skip
-
 function psql(sql: string): string {
   return execFileSync('psql', ['-A', '-F', '|', '-t', '-X', '-q', '-c', sql], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   }).trim()
 }
+
+// PGHOST alone is not enough: sandboxes export PG* without a usable tenant.
+// Probe a trivial query so unreachable databases skip instead of failing.
+function databaseReachable(): boolean {
+  if (!process.env.PGHOST) return false
+  try {
+    psql('SELECT 1')
+    return true
+  } catch {
+    return false
+  }
+}
+
+const HAS_DB = databaseReachable()
+const d = HAS_DB ? describe : describe.skip
+
 
 d('SECURITY DEFINER grant baseline', () => {
   it('registry table exists and is populated', () => {

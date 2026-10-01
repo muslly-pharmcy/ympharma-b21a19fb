@@ -30,7 +30,9 @@ export function Footer() {
             <li><Link to="/guides" className="hover:text-primary">الأدلة الدوائية</Link></li>
             <li><Link to="/tools" className="hover:text-primary">الأدوات الطبية</Link></li>
             <li><Link to="/delivery/aden" className="hover:text-primary">توصيل الأدوية في عدن</Link></li>
+            <li><Link to="/policies" className="hover:text-primary">السياسات والترخيص</Link></li>
           </ul>
+
 
         </div>
 
