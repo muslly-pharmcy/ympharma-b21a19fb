@@ -9,7 +9,7 @@ never stores a Supabase service-role key.
 - `scripts/oracle-provider-healthcheck.ps1`: provider and login health check.
 - `scripts/oracle-supabase-sync.ps1`: signed batch connector for 32-bit OraOLEDB.
 - `config/oracle-sync.mapping.example.json`: source-view mapping contract.
-- `supabase/functions/oracle-sync-ingest/index.ts`: HMAC-protected receiver.
+- `src/routes/api/public/oracle-sync.ts`: HMAC-protected receiver at https://muslly.com/api/public/oracle-sync.
 - `supabase/migrations/20260816042051_oracle_sync_staging.sql`: locked staging and run logs.
 
 ## Project topology
