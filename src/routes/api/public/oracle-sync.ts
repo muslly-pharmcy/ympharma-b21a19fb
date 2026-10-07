@@ -121,8 +121,10 @@ export const Route = createFileRoute('/api/public/oracle-sync')({
           .filter((s) => s.store_code)
         const rejected = products.length - validProducts.length
 
+        // FROZEN (ERP plan): legacy apply overwrote qty_on_hand and wrote selling_price into
+        // sbdma_official_price. Rows are staged only; live writes go through /api/public/erp/v1/*.
         let applied = 0
-        if (env.mode === 'apply') {
+        if (env.mode === 'apply' && process.env['ORACLE_SYNC_LEGACY_APPLY'] === 'true_unsafe') {
           if (validProducts.length) {
             const { data, error } = await db.rpc('apply_oracle_sync_products', { p_rows: validProducts, p_org: ORG_ID })
             if (error) {
