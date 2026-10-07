@@ -36,6 +36,13 @@
       "when": 1790828951270,
       "tag": "0004_checkout_use_catalog_price",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791417246360,
+      "tag": "0005_erp_integration_foundation",
+      "breakpoints": true
     }
   ]
 }

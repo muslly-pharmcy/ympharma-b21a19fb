@@ -5395,6 +5395,213 @@ export type Database = {
         }
         Relationships: []
       }
+      erp_branch_map: {
+        Row: {
+          created_at: string
+          erp_branch_id: string
+          id: string
+          warehouse_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          erp_branch_id: string
+          id?: string
+          warehouse_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          erp_branch_id?: string
+          id?: string
+          warehouse_id?: string | null
+        }
+        Relationships: []
+      }
+      erp_idempotency: {
+        Row: {
+          content_hash: string
+          created_at: string
+          endpoint: string
+          idempotency_key: string
+          response: Json | null
+          status: string
+        }
+        Insert: {
+          content_hash: string
+          created_at?: string
+          endpoint: string
+          idempotency_key: string
+          response?: Json | null
+          status?: string
+        }
+        Update: {
+          content_hash?: string
+          created_at?: string
+          endpoint?: string
+          idempotency_key?: string
+          response?: Json | null
+          status?: string
+        }
+        Relationships: []
+      }
+      erp_inbound_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          error: string | null
+          id: string
+          idempotency_key: string
+          kind: string
+          payload: Json
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          idempotency_key: string
+          kind: string
+          payload: Json
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          payload?: Json
+          status?: string
+        }
+        Relationships: []
+      }
+      erp_item_map: {
+        Row: {
+          created_at: string
+          erp_item_id: string
+          id: string
+          product_id: string | null
+          unit_code: string
+          units_per_pack: number
+        }
+        Insert: {
+          created_at?: string
+          erp_item_id: string
+          id?: string
+          product_id?: string | null
+          unit_code?: string
+          units_per_pack?: number
+        }
+        Update: {
+          created_at?: string
+          erp_item_id?: string
+          id?: string
+          product_id?: string | null
+          unit_code?: string
+          units_per_pack?: number
+        }
+        Relationships: []
+      }
+      erp_outbound_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          erp_ack_status: string | null
+          id: string
+          order_id: string
+          payload: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          erp_ack_status?: string | null
+          id?: string
+          order_id: string
+          payload: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          erp_ack_status?: string | null
+          id?: string
+          order_id?: string
+          payload?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      erp_stock_snapshots: {
+        Row: {
+          applied_at: string
+          currency: string
+          erp_branch_id: string
+          erp_item_id: string
+          official_reference_price: number | null
+          purchase_cost: number | null
+          qty_available: number
+          selling_price: number | null
+          source_version: number
+          unit_code: string
+        }
+        Insert: {
+          applied_at?: string
+          currency?: string
+          erp_branch_id: string
+          erp_item_id: string
+          official_reference_price?: number | null
+          purchase_cost?: number | null
+          qty_available: number
+          selling_price?: number | null
+          source_version: number
+          unit_code: string
+        }
+        Update: {
+          applied_at?: string
+          currency?: string
+          erp_branch_id?: string
+          erp_item_id?: string
+          official_reference_price?: number | null
+          purchase_cost?: number | null
+          qty_available?: number
+          selling_price?: number | null
+          source_version?: number
+          unit_code?: string
+        }
+        Relationships: []
+      }
+      erp_sync_conflicts: {
+        Row: {
+          created_at: string
+          detail: Json
+          erp_branch_id: string | null
+          erp_item_id: string | null
+          id: string
+          kind: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          erp_branch_id?: string | null
+          erp_item_id?: string | null
+          id?: string
+          kind: string
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          erp_branch_id?: string | null
+          erp_item_id?: string | null
+          id?: string
+          kind?: string
+        }
+        Relationships: []
+      }
       error_logs: {
         Row: {
           country: string | null
@@ -15177,6 +15384,15 @@ export type Database = {
       ensure_user_organization: {
         Args: { p_user_id?: string }
         Returns: string
+      }
+      erp_apply_stock_snapshots: { Args: { p_rows: Json }; Returns: Json }
+      erp_claim_idempotency: {
+        Args: { p_endpoint: string; p_hash: string; p_key: string }
+        Returns: Json
+      }
+      erp_finish_idempotency: {
+        Args: { p_key: string; p_ok: boolean; p_response: Json }
+        Returns: undefined
       }
       exec_dashboard: { Args: never; Returns: Json }
       executive_alerts: { Args: never; Returns: Json }

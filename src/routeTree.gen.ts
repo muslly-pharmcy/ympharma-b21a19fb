@@ -126,6 +126,10 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as ApiPublicErpV1ReconcileRouteImport } from './routes/api/public/erp/v1/reconcile'
+import { Route as ApiPublicErpV1StockRouteImport } from './routes/api/public/erp/v1/stock'
+import { Route as ApiPublicErpV1OrdersAckRouteImport } from './routes/api/public/erp/v1/orders.ack'
+import { Route as ApiPublicErpV1OrdersPendingRouteImport } from './routes/api/public/erp/v1/orders.pending'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -770,6 +774,27 @@ const LovableEmailTransactionalSendRoute =
     path: '/lovable/email/transactional/send',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicErpV1ReconcileRoute = ApiPublicErpV1ReconcileRouteImport.update({
+  id: '/api/public/erp/v1/reconcile',
+  path: '/api/public/erp/v1/reconcile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicErpV1StockRoute = ApiPublicErpV1StockRouteImport.update({
+  id: '/api/public/erp/v1/stock',
+  path: '/api/public/erp/v1/stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicErpV1OrdersAckRoute = ApiPublicErpV1OrdersAckRouteImport.update({
+  id: '/api/public/erp/v1/orders/ack',
+  path: '/api/public/erp/v1/orders/ack',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicErpV1OrdersPendingRoute =
+  ApiPublicErpV1OrdersPendingRouteImport.update({
+    id: '/api/public/erp/v1/orders/pending',
+    path: '/api/public/erp/v1/orders/pending',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -888,6 +913,10 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/public/erp/v1/reconcile': typeof ApiPublicErpV1ReconcileRoute
+  '/api/public/erp/v1/stock': typeof ApiPublicErpV1StockRoute
+  '/api/public/erp/v1/orders/ack': typeof ApiPublicErpV1OrdersAckRoute
+  '/api/public/erp/v1/orders/pending': typeof ApiPublicErpV1OrdersPendingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1004,6 +1033,10 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/public/erp/v1/reconcile': typeof ApiPublicErpV1ReconcileRoute
+  '/api/public/erp/v1/stock': typeof ApiPublicErpV1StockRoute
+  '/api/public/erp/v1/orders/ack': typeof ApiPublicErpV1OrdersAckRoute
+  '/api/public/erp/v1/orders/pending': typeof ApiPublicErpV1OrdersPendingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1124,6 +1157,10 @@ export interface FileRoutesById {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/public/erp/v1/reconcile': typeof ApiPublicErpV1ReconcileRoute
+  '/api/public/erp/v1/stock': typeof ApiPublicErpV1StockRoute
+  '/api/public/erp/v1/orders/ack': typeof ApiPublicErpV1OrdersAckRoute
+  '/api/public/erp/v1/orders/pending': typeof ApiPublicErpV1OrdersPendingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1244,6 +1281,10 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/public/erp/v1/reconcile'
+    | '/api/public/erp/v1/stock'
+    | '/api/public/erp/v1/orders/ack'
+    | '/api/public/erp/v1/orders/pending'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1360,6 +1401,10 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/public/erp/v1/reconcile'
+    | '/api/public/erp/v1/stock'
+    | '/api/public/erp/v1/orders/ack'
+    | '/api/public/erp/v1/orders/pending'
   id:
     | '__root__'
     | '/'
@@ -1479,6 +1524,10 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/public/erp/v1/reconcile'
+    | '/api/public/erp/v1/stock'
+    | '/api/public/erp/v1/orders/ack'
+    | '/api/public/erp/v1/orders/pending'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1525,6 +1574,10 @@ export interface RootRouteChildren {
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  ApiPublicErpV1ReconcileRoute: typeof ApiPublicErpV1ReconcileRoute
+  ApiPublicErpV1StockRoute: typeof ApiPublicErpV1StockRoute
+  ApiPublicErpV1OrdersAckRoute: typeof ApiPublicErpV1OrdersAckRoute
+  ApiPublicErpV1OrdersPendingRoute: typeof ApiPublicErpV1OrdersPendingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2348,6 +2401,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/erp/v1/reconcile': {
+      id: '/api/public/erp/v1/reconcile'
+      path: '/api/public/erp/v1/reconcile'
+      fullPath: '/api/public/erp/v1/reconcile'
+      preLoaderRoute: typeof ApiPublicErpV1ReconcileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/erp/v1/stock': {
+      id: '/api/public/erp/v1/stock'
+      path: '/api/public/erp/v1/stock'
+      fullPath: '/api/public/erp/v1/stock'
+      preLoaderRoute: typeof ApiPublicErpV1StockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/erp/v1/orders/ack': {
+      id: '/api/public/erp/v1/orders/ack'
+      path: '/api/public/erp/v1/orders/ack'
+      fullPath: '/api/public/erp/v1/orders/ack'
+      preLoaderRoute: typeof ApiPublicErpV1OrdersAckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/erp/v1/orders/pending': {
+      id: '/api/public/erp/v1/orders/pending'
+      path: '/api/public/erp/v1/orders/pending'
+      fullPath: '/api/public/erp/v1/orders/pending'
+      preLoaderRoute: typeof ApiPublicErpV1OrdersPendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2686,6 +2767,10 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  ApiPublicErpV1ReconcileRoute: ApiPublicErpV1ReconcileRoute,
+  ApiPublicErpV1StockRoute: ApiPublicErpV1StockRoute,
+  ApiPublicErpV1OrdersAckRoute: ApiPublicErpV1OrdersAckRoute,
+  ApiPublicErpV1OrdersPendingRoute: ApiPublicErpV1OrdersPendingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
