@@ -1,37 +1,213 @@
-# YmPharma ERP ↔ muslly.com — Integration Contract v1 (test stage, live OFF)
+# YmPharma ERP ↔ muslly.com — عقد التكامل v1 (مسودة للمراجعة)
 
-## Topology
-ERP stays on the local network. A Windows agent next to ERP opens **outbound HTTPS only** to
-`https://muslly.com/api/public/erp/v1/*`. The website never calls into the LAN; ERP DB is never exposed.
+> الحالة: **بيئة اختبار، الربط الحي معطّل** (`ERP_SYNC_ENABLED` غير مفعّل → كل المسارات ترد 503).
+> لا توجد أي أسرار في هذا الملف. أي قيمة سرية تظهر كـ `REDACTED`. المفتاح في المثال وهمي للاختبار فقط.
 
-## Source of truth
-ERP owns selling price and available stock. The website stores versioned snapshots in
-`erp_stock_snapshots` and never edits ERP ledgers. Prices are separate: `selling_price`,
-`official_reference_price`, `purchase_cost` (internal), with `currency` (YER/SAR/USD) and `unit_code`.
+## 0. الطوبولوجيا ومصدر الحقيقة
+- ERP يبقى على الشبكة المحلية. وكيل على جهاز بجانب ERP يفتح **اتصالًا صادرًا HTTPS فقط** إلى الموقع. الموقع لا يتصل أبدًا بالشبكة المحلية، ولا تُفتح قاعدة ERP للإنترنت.
+- ERP هو مصدر سعر البيع والكمية المتاحة. الموقع يخزن نسخة مُصدَّرة (لقطات) في جدول `erp_stock_snapshots` ولا يكتب في دفاتر ERP.
+- العنوان الأساسي: `https://muslly.com/api/public/erp/v1` — **غير مفعّل حاليًا**، والنسخة المنشورة لا تحتوي هذه المسارات بعد (لم يتم النشر).
 
-## Auth (every request)
-| Header | Value |
-|---|---|
-| x-erp-timestamp | unix seconds (±300s) |
-| x-erp-signature | hex HMAC-SHA256(ERP_SYNC_HMAC_SECRET, `ts.METHOD.path.sha256hex(body)`) |
-| Idempotency-Key | unique per logical request (POST only, 8–200 chars) |
+## 1. المسارات
 
-## Endpoints
-| Method | Path | Body / Result |
+| الطريقة | المسار الكامل | الغرض |
 |---|---|---|
-| POST | /stock | `{sourceSystem, rows:[{erp_item_id, erp_branch_id, source_version, qty_available, unit_code, selling_price?, official_reference_price?, purchase_cost?, currency}]}` → `{received, applied, stale, invalid}` |
-| GET | /orders/pending?after=ISO | `{orders:[{order_id,payload,status,created_at}], next}` |
-| POST | /orders/ack | `{orderId, status: received|accepted|rejected}` — records ERP decision only |
-| GET | /reconcile | `{rows:[item, branch, version, qty, unit, price, currency]}` |
+| POST | `https://muslly.com/api/public/erp/v1/stock` | استقبال لقطات المخزون والأسعار |
+| GET | `https://muslly.com/api/public/erp/v1/orders/pending?after=<ISO-8601>` | سحب طلبات الموقع بانتظار المراجعة |
+| POST | `https://muslly.com/api/public/erp/v1/orders/ack` | تسجيل قرار ERP على طلب |
+| GET | `https://muslly.com/api/public/erp/v1/reconcile` | مطابقة النسخة المخزنة في الموقع |
 
-## Rules
-- Same key + same body → stored response replayed (`replayed:true`). Same key + different body → **409**.
-- `source_version` must strictly increase per item+branch; older/equal → counted `stale`, logged in `erp_sync_conflicts`.
-- Invalid rows are rejected individually (partial batch allowed, each logged).
-- Unknown units are rejected, never guessed.
-- `ERP_SYNC_ENABLED` ≠ `true` → every endpoint returns 503 without writing.
-- No dispensing, medical approval, or payment is ever auto-confirmed.
+مسار `/catalog` المذكور في الخطة **لم يُنفّذ** (غير محسوم: هل تُرسل بيانات الأصناف الوصفية مع `/stock` أم في مسار مستقل).
 
-## Pending from ERP
-API vs read-only DB access; item/branch/unit IDs and pack factors; a monotonic version or
-last-modified per item+branch; always-on agent PC; approval of a new HMAC secret.
+### 1.1 POST /stock
+طلب:
+```json
+{
+  "sourceSystem": "YMPHARMA-ERP",
+  "rows": [
+    {
+      "erp_item_id": "ITEM-0001",
+      "erp_branch_id": "BR-01",
+      "source_version": 42,
+      "qty_available": 12,
+      "unit_code": "BOX",
+      "selling_price": 2200,
+      "official_reference_price": 2000,
+      "currency": "YER"
+    }
+  ]
+}
+```
+| الحقل | النوع | إلزامي | القيد |
+|---|---|---|---|
+| sourceSystem | string | نعم | 1–120 حرف |
+| rows | array | نعم | 1–500 صف |
+| erp_item_id | string | نعم | 1–120 |
+| erp_branch_id | string | نعم | 1–120 |
+| source_version | integer | نعم | 0 … 9007199254740991 (حد JSON الآمن) |
+| qty_available | number | نعم | ≥ 0 |
+| unit_code | string | نعم | 1–20 |
+| selling_price | number/null | لا | ≥ 0 |
+| official_reference_price | number/null | لا | ≥ 0 |
+| purchase_cost | number/null | لا | **يُقترح عدم إرساله في v1** (انظر §7) |
+| currency | "YER"/"SAR"/"USD" | لا | الافتراضي YER |
+
+رد ناجح (200):
+```json
+{ "received": 1, "applied": 1, "stale": 0, "invalid": 0 }
+```
+إعادة نفس الطلب بنفس المفتاح والمحتوى (200):
+```json
+{ "received": 1, "applied": 1, "stale": 0, "invalid": 0, "replayed": true }
+```
+
+### 1.2 GET /orders/pending
+- `after` اختياري (ISO-8601). يرجع حتى 100 طلب بحالة `pending_erp_review` أحدث من `after`، مرتبة تصاعديًا.
+```json
+{
+  "orders": [
+    { "order_id": "uuid", "payload": { }, "status": "pending_erp_review", "created_at": "2026-10-08T00:00:00Z" }
+  ],
+  "next": "2026-10-08T00:00:00Z"
+}
+```
+`next` = `created_at` لآخر طلب، أو `null`. يُمرَّر كـ `after` في الطلب التالي.
+محتوى `payload` **غير محسوم** (انظر §6).
+
+### 1.3 POST /orders/ack
+```json
+{ "orderId": "2b9c…-uuid", "status": "accepted" }
+```
+`status` ∈ `received` | `accepted` | `rejected`. رد:
+```json
+{ "orderId": "2b9c…-uuid", "erpStatus": "accepted" }
+```
+
+### 1.4 GET /reconcile
+```json
+{ "rows": [ { "erp_item_id": "ITEM-0001", "erp_branch_id": "BR-01", "source_version": 42,
+  "qty_available": 12, "unit_code": "BOX", "selling_price": 2200, "currency": "YER" } ] }
+```
+حتى 5000 صف، ولا يتضمن تكلفة الشراء. التقسيم إلى صفحات **لم يُنفّذ**.
+
+### 1.5 الأخطاء
+كل الأخطاء بصيغة `{ "error": "<code>" }`:
+
+| HTTP | code | المعنى / ماذا يفعل الوكيل |
+|---|---|---|
+| 503 | erp_sync_disabled | الربط مغلق. لا تُعد المحاولة تلقائيًا |
+| 503 | erp_secret_not_configured | المفتاح غير مضبوط على الخادم |
+| 401 | stale_timestamp | الوقت خارج ±300 ثانية. صحّح ساعة الجهاز |
+| 401 | bad_signature | توقيع خاطئ |
+| 413 | payload_too_large | الجسم أكبر من 1,000,000 حرف |
+| 400 | invalid_json | JSON غير صالح |
+| 400 | missing_idempotency_key | المفتاح مفقود أو طوله خارج 8–200 (POST فقط) |
+| 400 | invalid_envelope / invalid_body | لم يطابق المخطط. الدفعة كلها لم تُطبَّق |
+| 409 | idempotency_key_reused_with_different_content | نفس المفتاح بمحتوى مختلف. أنشئ مفتاحًا جديدًا |
+| 409 | request_in_progress | نفس الطلب قيد التنفيذ. يحمل `retryAfterSeconds: 5` |
+| 404 | order_not_queued | الطلب غير موجود في قائمة ERP |
+| 500 | idempotency_store_failed / apply_failed / processing_failed / read_failed / update_failed | فشل داخلي. يُحذف حجز المفتاح، فيمكن إعادة المحاولة بنفس المفتاح ونفس المحتوى |
+
+## 2. التوقيع
+الرؤوس:
+
+| الرأس | القيمة |
+|---|---|
+| `x-erp-timestamp` | ثوانٍ Unix بالتوقيت العالمي، كنص عشري صحيح (مثال `1800000000`) |
+| `x-erp-signature` | 64 حرفًا hex بأحرف صغيرة (الخادم يقبل الكبيرة أيضًا) |
+| `Idempotency-Key` | لطلبات POST فقط، 8–200 حرف، فريد لكل عملية منطقية |
+| `Content-Type` | `application/json; charset=utf-8` |
+
+الخوارزمية:
+```text
+body_hash = lowercase_hex( SHA-256( raw_body_bytes_UTF8 ) )
+message   = timestamp + "." + METHOD + "." + path + "." + body_hash
+signature = lowercase_hex( HMAC-SHA256( key = UTF8(secret), message = UTF8(message) ) )
+```
+- `METHOD` بأحرف كبيرة (`POST` / `GET`).
+- `path` هو المسار فقط بدون نطاق وبدون معاملات الرابط، مثل `/api/public/erp/v1/stock`.
+- **معاملات الرابط (`?after=`) غير موقّعة حاليًا.** هذا قيد معروف: يمكن تغيير `after` دون كشف ذلك. يقرأ الموقع فقط، فلا خطر كتابة. توقيع المعاملات **غير محسوم** ويُقترح إضافته قبل التفعيل.
+- الجسم الفارغ (GET): `body_hash` = SHA-256 لنص فارغ = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+- يُوقَّع **نفس البايتات المرسلة بالضبط**. لا تُعِد تنسيق JSON بعد التوقيع.
+- السر الحقيقي: `ERP_SYNC_HMAC_SECRET = REDACTED` (لم يُنشأ بعد. يُحفظ في إعدادات الأسرار الآمنة فقط).
+
+### 2.1 مثال اختبار (مفتاح وهمي للمثال فقط)
+```text
+secret    = EXAMPLE_ONLY_NOT_A_REAL_SECRET
+timestamp = 1800000000
+method    = POST
+path      = /api/public/erp/v1/stock
+body      = {"sourceSystem":"YMPHARMA-ERP","rows":[{"erp_item_id":"ITEM-0001","erp_branch_id":"BR-01","source_version":42,"qty_available":12,"unit_code":"BOX","selling_price":2200,"official_reference_price":2000,"currency":"YER"}]}
+body_hash = 76fd323cfe8d56b422e2b2eeb1d392f174e796186434c9bbadd938ed22c7eddc
+signature = f9b4cdd3d2bacf22ea19045e2cad551892a11de181daa063e52bf5c339d69b02
+```
+مثال GET بجسم فارغ (نفس المفتاح والوقت، المسار `/api/public/erp/v1/reconcile`):
+```text
+signature = f9ebe88bfc48879d77b210177dcf7d170518f9c438c926be042c619e907796b8
+```
+الوقت في المثال ثابت، لذلك يرفضه الخادم الحقيقي كـ `stale_timestamp`. المثال للتحقق من صحة الحساب فقط.
+
+## 3. المعرّفات والوحدات ورقم الإصدار
+- `erp_item_id` و`erp_branch_id` نصوص يحددها ERP، ويجب أن تكون ثابتة ولا يُعاد استخدامها.
+- جدولا الربط `erp_item_map` (صنف ERP ← منتج الموقع، `unit_code`، `units_per_pack`) و`erp_branch_map` (فرع ERP ← مخزن الموقع) **موجودان لكنهما فارغان**. مسار `/stock` حاليًا **لا يتحقق** من وجود الصنف أو الفرع في جدول الربط، ويخزن اللقطة كما هي. الربط والتحقق **غير محسومين** حتى تصل قائمة المعرّفات من ERP.
+- الكمية تُخزَّن بالوحدة المرسلة في `unit_code` دون تحويل. توجد دالة تحويل مختبرة (`toBaseUnits`): تضرب في `units_per_pack` وترفض أي وحدة غير معروفة. **لكنها غير مستخدمة في المسار بعد**. الوحدة الأساسية للمتجر (علبة أم حبة) **غير محسومة**.
+- `source_version`: عدد صحيح متزايد **لكل زوج (صنف، فرع)**، من 0 حتى 9007199254740991. تُطبَّق اللقطة فقط إذا كان إصدارها **أكبر تمامًا** من آخر إصدار مطبَّق. الإصدار المساوي أو الأقدم يُرفض كـ `stale`. مصدر هذا الرقم في ERP (عدّاد تسلسلي أو وقت تعديل) **غير محسوم**.
+
+## 4. الحجوزات ومنع البيع المزدوج
+**المنفّذ الآن:**
+- تطبيق اللقطة يكتب فقط في `erp_stock_snapshots`. **لا يلمس** دفعات المخزون ولا الحجوزات ولا الحركات في الموقع، فلا يمكن أن يعيد كمية مبيعة إلى دفتر الموقع.
+- اللقطة الأقدم لا تستبدل الأحدث، مع قفل استشاري لكل (صنف، فرع) أثناء التطبيق.
+- الحجز عند الشراء في الموقع (دالة الدفع الحالية) يقفل الدفعة أثناء الخصم.
+
+**غير منفّذ (غير محسوم، مقترح):**
+- الكمية المعروضة للعميل = `qty_available` من آخر لقطة − الحجوزات المحلية المفتوحة التي **لم يعترف بها ERP** في تلك اللقطة.
+- لمنع خصم الحجز مرتين يحتاج ERP أن يُرسل مع كل لقطة أحد أمرين: إما (أ) قائمة معرّفات طلبات الموقع المحتسبة فيها، أو (ب) آخر `order_id`/وقت طلب احتسبه. **أي الخيارين غير محسوم.**
+- انتهاء الحجز والإلغاء والمرتجعات تُسجَّل كحركات عكسية جديدة، ولا تُعدَّل حركات سابقة. **ربطها بـ ERP لم يُنفّذ.**
+- اختبار طلبين متزامنين على آخر قطعة مقابل لقطات ERP **لم يُنفّذ**.
+
+## 5. النجاح الجزئي وإعادة الإرسال
+- إذا فشل مخطط الدفعة (§1.1) تُرفض الدفعة كلها ولا يُطبَّق شيء.
+- إذا صح المخطط، يُقيَّم كل صف وحده: صف صالح بإصدار أحدث يُطبَّق، وصف بإصدار قديم أو مساوٍ يُعدّ `stale`، وصف غير صالح يُعدّ `invalid`. كل صف مرفوض يُسجَّل في `erp_sync_conflicts` (النوع والمعرّفات فقط، دون محتوى).
+- **الرد حاليًا أعداد فقط، وليس نتيجة لكل صف.** الرد التفصيلي (`rows:[{erp_item_id, erp_branch_id, result: applied|stale|invalid, reason}]`) **غير منفّذ ويُقترح إضافته قبل التفعيل.**
+- إعادة الصفوف الفاشلة: أرسلها في دفعة جديدة **بمفتاح Idempotency جديد** وبالإصدار نفسه أو أحدث. حتى لو أُعيد إرسال صفوف نجحت سابقًا، فلن تُطبَّق مرتين لأن إصدارها لم يعد أحدث (تظهر `stale`).
+- انقطاع الرد بعد الحفظ: أعد الطلب **بنفس المفتاح ونفس المحتوى**، فيرجع الرد المحفوظ مع `replayed: true` دون تنفيذ جديد.
+
+## 6. حالات الطلبات
+
+| الحالة | المعنى | المنفّذ |
+|---|---|---|
+| `pending_erp_review` | طلب الموقع ينتظر مراجعة ERP | الجدول والحالة موجودان، لكن **إدخال الطلبات تلقائيًا إلى القائمة لم يُنفّذ** |
+| ack `received` | ERP استلم الطلب في قائمة المراجعة | يُسجَّل في `erp_ack_status` فقط |
+| ack `accepted` | الصيدلي قبل الطلب للتجهيز | يُسجَّل فقط. **لا يعني** صرف الدواء ولا موافقة طبية ولا تحصيل المبلغ |
+| ack `rejected` | ERP رفض الطلب | يُسجَّل فقط. فك الحجز وإشعار العميل **لم يُنفّذ** |
+
+- `orders/ack` لا يمنع حاليًا الانتقال العكسي (مثلًا من `rejected` إلى `accepted`). قواعد الانتقال **غير محسومة**.
+- حالات الصرف والتحصيل والتوصيل لا تُرسل عبر هذا العقد في v1.
+- محتوى `payload` للطلب (الأصناف، الكميات، الفرع، وسيلة الدفع) **غير محسوم**. المبدأ: لا اسم مريض ولا هاتف ولا عنوان إلا بموافقة صريحة على الحد الأدنى.
+
+## 7. تكلفة الشراء
+- **غير مطلوبة** للمزامنة، والحقل اختياري.
+- إن أُرسلت تُخزَّن في `erp_stock_snapshots.purchase_cost`. لا تظهر في المتجر ولا في `/reconcile`. القراءة مقصورة على حسابات الإدارة عبر سياسة الصلاحيات.
+- **الاقتراح:** لا يرسلها ERP في v1 (ترسل `null` أو يُحذف الحقل). نعيد تقييمها لاحقًا لتقارير الهامش فقط.
+
+## 8. الأمان والسجلات
+- `/api/public/*` لا يحتاج تسجيل دخول، والحماية بالتوقيع والوقت والمفتاح الفريد.
+- السجلات لا تحتوي محتوى الطلبات ولا بيانات مرضى ولا أسرار.
+- كل الجداول الجديدة محمية بسياسات الصلاحيات، والكتابة من الخادم فقط.
+
+## 9. ملخص المراجعة
+**تحققتُ منه:**
+- قاعدة المتجر الصحيحة هي swyqqlpbjemarzzdxctw.
+- الموقع المنشور حاليًا يشير إلى قاعدة تجريبية خاطئة (ybhrmcdlgyccywpmiucz). الإصلاح جاهز في الكود لكنه **غير منشور**.
+- المسارات الأربعة ترد 503 لأن الربط معطّل.
+- مسار أوراكل القديم مجمّد عن الكتابة.
+- 10/10 اختبارات توقيع ووحدات ناجحة.
+- اختبار قاعدة البيانات ببيانات اصطناعية ناجح: التكرار، والمفتاح بمحتوى مختلف، والإصدار القديم، والنجاح الجزئي.
+
+**يحتاج معلومات من ERP:**
+1. واجهة API أم قراءة من القاعدة عبر حساب قراءة فقط؟ مع اسم النظام وإصداره.
+2. قائمة معرّفات الأصناف والفروع والوحدات، وعدد الوحدات في العبوة، والوحدة الأساسية للبيع.
+3. مصدر `source_version` لكل (صنف، فرع).
+4. كيف يحتسب ERP طلبات الموقع المحجوزة داخل اللقطة (§4).
+5. جهاز دائم التشغيل للوكيل، واعتماد إنشاء المفتاح لاحقًا.
+6. حقول `payload` المطلوبة للطلب، وقواعد انتقال الحالات.
