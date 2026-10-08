@@ -14,6 +14,7 @@ const STYLE_MAP: Record<string, { icon: React.ComponentType<{ className?: string
   'hygiene': { icon: Cross, bg: 'bg-teal-50', color: 'text-teal-600' },
   'digestive': { icon: Pill, bg: 'bg-green-50', color: 'text-green-600' },
   'first-aid': { icon: Stethoscope, bg: 'bg-orange-50', color: 'text-orange-600' },
+  'womens-care': { icon: Sparkles, bg: 'bg-rose-50', color: 'text-rose-600' },
 }
 
 export default function CategoriesGrid() {
@@ -39,7 +40,7 @@ export default function CategoriesGrid() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {categories.slice(0, 8).map((c) => {
+        {categories.filter((c) => c.slug !== 'general').map((c) => {
           const style = STYLE_MAP[c.slug ?? ''] ?? { icon: Pill, bg: 'bg-primary/10', color: 'text-primary' }
           const Icon = style.icon
           return (

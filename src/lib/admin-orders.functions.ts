@@ -90,5 +90,33 @@ export const updateOrderStatus = createServerFn({ method: 'POST' })
         note: data.note ?? `تحديث الحالة إلى ${data.status}`,
       } as never)
     if (histErr) throw new Error(histErr.message)
-    return { ok: true }
+
+    // Best-effort WhatsApp notice to the customer; never blocks the status change.
+    let notified = false
+    try {
+      const { data: ord } = await context.supabase
+        .from('orders')
+        .select('customer_name, customer_phone')
+        .eq('id', data.orderId)
+        .maybeSingle()
+      const phone = (ord as { customer_phone?: string | null } | null)?.customer_phone
+      const msgs: Record<string, string> = {
+        confirmed: 'تم تأكيد طلبك وجاري تجهيزه.',
+        shipped: 'طلبك خرج للتوصيل الآن.',
+        delivered: 'تم تسليم طلبك. نتمنى لك دوام الصحة.',
+        cancelled: 'تم إلغاء طلبك. للاستفسار تواصل معنا على 782878280.',
+      }
+      if (phone && msgs[data.status]) {
+        const { sendWhatsAppText } = await import('./whatsapp/send.server')
+        const name = (ord as { customer_name?: string | null }).customer_name ?? ''
+        const r = await sendWhatsAppText(
+          phone,
+          `مرحباً ${name}، صيدلية المصلي: طلبك رقم ${data.orderId} — ${msgs[data.status]}`,
+        )
+        notified = r.ok
+      }
+    } catch (e) {
+      console.warn('[updateOrderStatus] whatsapp notify skipped:', (e as Error).message)
+    }
+    return { ok: true, notified }
   })
