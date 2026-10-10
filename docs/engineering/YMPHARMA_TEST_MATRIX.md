@@ -23,13 +23,18 @@
 
 | الفحص | PR #13 — Cloudflare | PR #14 — DLQ authorization |
 |---|---|---|
-| CI typecheck/lint/unit tests | نجاح على commit `186f1b5` قبل آخر تعديل OSV | نجاح على commit `863ffcf` |
+| CI typecheck/lint/unit tests | نجاح على head `0a48c4c5` بعد تعديل OSV | نجاح على commit `863ffcf` |
 | CodeQL | نجاح | نجاح |
-| OSV Scanner | فشل في workflow القديم؛ السجل يظهر `No package sources found` ثم SARIF فارغاً/غير صالح مع `bun.lock` | الإصدار القديم نفسه لا يثبت فحص القفل |
+| OSV Scanner | reusable workflow الرسمي `v2.6.0` أعطى check `osv-scanner` أخضر على head `0a48c4c5`؛ check منفصل `OSV-Scanner/OSV Security Scan` ما زال فاشلاً دون تفسير محسوم | غير محدث في PR #14؛ لا نتيجة جديدة لـOSV على ذلك الفرع |
 | Workers Builds | فشل في check الخارجي؛ بقي إعداد build المدَار يستخدم هدف Node في الفرع الذي فُحص | فشل؛ لا يُعد ذلك نجاحاً للبناء المحلي، ويحتاج مطابقة إعداد Cloudflare المدَار مع هدف Worker |
 | Supabase Preview | متخطٍ/غير مهيأ لهذا PR | لم يثبت تطبيق migration على Preview |
 
-تم تحديث `.github/workflows/osv-scanner.yml` إلى reusable workflow الرسمي `v2.6.0`، الذي يستخدم scanner حديثاً يدعم `bun.lock`. **لا نعد الفحص ناجحاً بعد** حتى يعاد التشغيل على GitHub وتظهر نتيجة SARIF صالحة. هذا تحديث محلي ضمن الفرع قبل دفعه.
+وصل تحديث `.github/workflows/osv-scanner.yml` إلى PR #13؛ workflow الرسمي `v2.6.0` يستخدم scanner يدعم `bun.lock` ونجح check `osv-scanner` على head الحالي. لا تزال نتيجة OSV الإجمالية غير محسومة لأن check منفصلاً باسم `OSV-Scanner/OSV Security Scan` فشل دون تفسير موثق.
+
+
+## اختبار PR #15 — عزل التأمين
+
+على فرع `fix/insurance-tenant-isolation`، نجحت مجموعة Vitest كاملة: 43 ملفاً ناجحاً وملف واحد متخطّى، 287 اختباراً ناجحاً و8 متخطّاة. نجح بناء Node وESLint. كما نجح check `CI/Typecheck, lint and test` وCodeQL على GitHub؛ فشل Workers Builds الخارجي وتخطى Supabase Preview. فشل `tsc --noEmit` محلياً بـ24 تشخيصاً في أربع وحدات MCP غير معدلة (`ask-kernel`, `check-stock`, `clinical-check`, `search-catalog`)؛ لا يظهر تشخيص للملفات المعدلة. لم تُنفذ اختبارات Supabase DB cross-tenant.
 
 ## اختبارات وسيناريوهات لم تُنفذ
 

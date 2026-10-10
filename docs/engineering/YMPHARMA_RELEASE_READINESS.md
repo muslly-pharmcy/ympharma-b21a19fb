@@ -9,8 +9,8 @@
 - الهدف المحلي لـNode يبني بنجاح بعد عزل إعداد Cloudflare.
 - بناء Cloudflare عبر `bun run build:cloudflare` ينجح محلياً، و`bun run validate:cloudflare` ينفذ Wrangler dry-run بنجاح دون نشر.
 - معاينة Workerd المحلية أعادت الصفحة الرئيسية `200` مع RTL عربي والأيقونة `200`.
-- مجموعة Vitest المحلية وTypeScript وESLint نجحت وفق `YMPHARMA_TEST_MATRIX.md`.
-- تغييرات Cloudflare محفوظة في [PR #13](https://github.com/muslly-pharmcy/ympharma-b21a19fb/pull/13). إصلاح DLQ محفوظ في [PR #14](https://github.com/muslly-pharmcy/ympharma-b21a19fb/pull/14).
+- مجموعة Vitest المحلية وبناء Node وESLint نجحت؛ فحص TypeScript على الفرع القائم على `main` فشل في أربع وحدات MCP غير معدلة (24 تشخيصاً)، كما هو موضح في `YMPHARMA_TEST_MATRIX.md`.
+- تغييرات Cloudflare محفوظة في [PR #13](https://github.com/muslly-pharmcy/ympharma-b21a19fb/pull/13)، وإصلاح DLQ في [PR #14](https://github.com/muslly-pharmcy/ympharma-b21a19fb/pull/14)، وإصلاح عزل التأمين في [PR #15](https://github.com/muslly-pharmcy/ympharma-b21a19fb/pull/15). كلها مفتوحة ولم تُدمج؛ GitHub CI/CodeQL نجحا على PR #15، بينما فشل Workers Builds.
 
 ## الحالة الفعلية للنشر
 
@@ -18,21 +18,21 @@
 
 فحص Workers Builds الخارجي فشل في PR #13 وPR #14؛ إعداد build المدَار لم يُحاذَ بعد مع هدف Cloudflare المحلي. في فحص الفرع الذي تم الاطلاع على إعداده، أمر `bun run build` يبني هدف Node ولا يطابق Workers. لا تخلط نجاح dry-run المحلي مع نجاح Build المدَار أو نشر حي.
 
-OSV Scanner 1.9.0 فشل برسالة `No package sources found` لأن القفل `bun.lock` لم يكن متوافقاً مع نسخة الماسح المضمنة؛ ونتج SARIF غير صالح/فارغ. هذا **ليس** تقريراً يثبت وجود أو خلو ثغرات. جرى تحديث workflow محلياً إلى reusable workflow الرسمي `v2.6.0` الذي يستخدم Scanner أحدث داعم لـ`bun.lock`، ولا بد من انتظار فحص CI بعد الدفع قبل إعلان نجاحه.
+OSV Scanner 1.9.0 فشل برسالة `No package sources found` لأن القفل `bun.lock` لم يكن متوافقاً مع نسخة الماسح المضمنة؛ ونتج SARIF غير صالح/فارغ. هذا **ليس** تقريراً يثبت وجود أو خلو ثغرات. reusable workflow الرسمي `v2.6.0` اجتاز check `osv-scanner` على PR #13، لكن check منفصلاً `OSV-Scanner/OSV Security Scan` ما زال فاشلاً. لذلك تبقى نتيجة OSV الإجمالية غير محسومة.
 
 ## موانع الإطلاق
 
-1. **مخاطر سلامة/عزل P0:** مسار تعديل مخزون مباشر قد يكسر الرصيد المحجوز؛ upsert تأمين بعميل service-role لا يقيّد المؤسسة؛ grant checkout غير متوافق مع الدور؛ و`po_receive` يحتاج تحققاً داخلياً أقوى.
+1. **مخاطر سلامة/عزل P0:** مسار تعديل مخزون مباشر قد يكسر الرصيد المحجوز؛ upsert التأمين غير المقيد ما زال على `main` (يوجد اقتراح إصلاح في PR #15)؛ grant checkout غير متوافق مع الدور؛ و`po_receive` يحتاج تحققاً داخلياً أقوى.
 2. **المحاسبة والعمليات:** قراءة `billing_ledger` تطلب أعمدة لا يعرّفها المخطط؛ لا توجد محاسبة مزدوجة أو POS أو دفع/تسوية/مرتجعات متكاملة.
 3. **صلاحيات المؤسسة/الفرع:** حراسة `branch_scope` لا تشمل جميع الوظائف. بعض اختبارات PostgreSQL تتخطى التنفيذ عند غياب `PGHOST`.
-4. **PRs غير مدمجة:** PR #13 و#14 مفتوحان؛ migration DLQ غير مطبقة على Supabase. لا تُدمج قبل نجاح CI ومراجعة SQL والاختبارات المطلوبة.
+4. **PRs غير مدمجة:** PR #13 و#14 و#15 مفتوحة. migration DLQ غير مطبقة على Supabase؛ إصلاح التأمين غير مدمج. لا تُدمج قبل نجاح CI ومراجعة SQL والاختبارات المطلوبة.
 5. **نشر ومراقبة:** لا يوجد مسار نشر Worker موثق مع post-deploy smoke، ولا دليل فعلي على restore/rollback أو وصول تنبيهات التشغيل.
 6. **اختبارات قبول:** لا توجد رحلة قبول شاملة للمتجر/الدفع/المخزون/التأمين/الشراء، أو اختبارات عزل مؤسسي وفروع على قاعدة اختبار.
 
 ## بوابات الخروج المطلوبة
 
 - إغلاق B-01 إلى B-06 من `YMPHARMA_MASTER_BACKLOG.md` باختبارات DB سلبية وإيجابية.
-- نجاح CI على PR #13 و#14، بما فيه OSV SARIF صالح؛ مراجعة سبب فشل Workers Builds وإصلاح إعداد الفرع المدَار دون تحويله إلى نشر إنتاجي.
+- نجاح CI على PR #13–#15؛ التحقق من check OSV الخارجي الفاشل وسبب فشل Workers Builds وإصلاح إعداد فرع الاختبار دون تحويله إلى نشر إنتاجي.
 - تطبيق الترحيلات على قاعدة اختبار/Preview أولاً، والتحقق من migration order وRPC grants وRLS.
 - تشغيل E2E للرحلات التي ستُطلق فقط، وإثبات أن checkout/payment/status/recovery تعكس النتيجة الصحيحة.
 - إعداد خطة استعادة/rollback قابلة للاختبار، ومراقبة وتنبيهات مع دليل وصول.
