@@ -45,8 +45,10 @@ jobs:
         with:
           scan-args: |-
             --recursive
+            --skip-git
             --format sarif
             --output results.sarif
+            ./
 
       - name: Upload SARIF artifact
         if: always()
