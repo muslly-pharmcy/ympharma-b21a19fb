@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "build:cloudflare": "node scripts/cloudflare-target.mjs build",
+    "preview:cloudflare": "node scripts/cloudflare-target.mjs preview",
+    "validate:cloudflare": "node scripts/cloudflare-target.mjs validate",
     "build:android": "vite build --mode capacitor",
     "build:dev": "vite build --mode development",
     "preview": "node --env-file-if-exists=.env --env-file-if-exists=.env.local .output/server/index.mjs",
@@ -114,6 +117,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "1.63.1",
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "2.25.3",
     "@playwright/test": "^1.61.0",
@@ -141,7 +145,8 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^8.1.5",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "wrangler": "4.149.0"
   },
   "overrides": {
     "@modelcontextprotocol/sdk": "1.31.0",

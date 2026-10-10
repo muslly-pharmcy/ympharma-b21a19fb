@@ -1,13 +1,11 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),
-//     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
-//     error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
+// @lovable.dev/vite-tanstack-config provides TanStack Start, React, Tailwind,
+// aliases, error logging, and sandbox defaults. Select exactly one deployment
+// adapter per build: Nitro for Node/Docker, or Cloudflare's official Vite plugin.
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { cloudflare } from "@cloudflare/vite-plugin";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -18,6 +16,7 @@ const isLovableSandbox =
 const isCapacitorBuild = process.argv.some((arg, index, args) =>
   arg === "--mode" ? args[index + 1] === "capacitor" : arg === "capacitor",
 );
+const isCloudflareBuild = process.env.CLOUDFLARE_BUILD === "1";
 
 // Server-only env vars (no VITE_ prefix) needed by server routes such as
 // the auth email webhook (SUPABASE_SERVICE_ROLE_KEY, LOVABLE_API_KEY).
@@ -26,10 +25,12 @@ const serverEnv = loadEnv(process.env.NODE_ENV || "development", process.cwd(), 
 Object.assign(process.env, serverEnv);
 
 export default defineConfig({
-  // Exported/local builds target Node so the Docker image and `npm run preview`
-  // can execute the generated server directly. Lovable overrides this to its
-  // Cloudflare layout inside the sandbox build environment.
-  nitro: isCapacitorBuild
+  // The Cloudflare Vite plugin owns Worker builds. Keep Nitro for the existing
+  // Node/Docker target; never run both deployment adapters in one build.
+  plugins: isCloudflareBuild
+    ? [cloudflare({ viteEnvironment: { name: "ssr" } })]
+    : [],
+  nitro: isCapacitorBuild || isCloudflareBuild
     ? false
     : {
         preset: process.env.NITRO_PRESET || "node-server",
@@ -67,7 +68,9 @@ export default defineConfig({
         // Lovable emits to dist/client; exported Node builds emit to
         // .output/public. Keep the service worker beside the deployed assets.
         outDir:
-          isLovableSandbox || isCapacitorBuild ? "dist/client" : ".output/public",
+          isLovableSandbox || isCapacitorBuild || isCloudflareBuild
+            ? "dist/client"
+            : ".output/public",
         devOptions: { enabled: false },
         manifest: false,
         workbox: {
