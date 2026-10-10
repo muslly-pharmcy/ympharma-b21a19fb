@@ -1,0 +1,24 @@
+[[IgnoredVulns]]
+id = "GHSA-3x9f-74h4-2fqr"
+ignoreUntil = 2026-11-10
+reason = "The project pins the official SheetJS CDN tarball xlsx 0.20.3, verified from its package metadata. NVD says this CVE affects versions through 0.16.9; OSV sees the tarball URL as the version. Revalidate when the lockfile exposes semver."
+
+[[IgnoredVulns]]
+id = "GHSA-8vcr-vxm8-293m"
+ignoreUntil = 2026-11-10
+reason = "The project pins the official SheetJS CDN tarball xlsx 0.20.3, verified from its package metadata. The advisory fixes this CVE at 0.17.0; OSV sees the tarball URL as the version. Revalidate when the lockfile exposes semver."
+
+[[IgnoredVulns]]
+id = "GHSA-g973-978j-2c3p"
+ignoreUntil = 2026-11-10
+reason = "The project pins the official SheetJS CDN tarball xlsx 0.20.3, verified from its package metadata. The advisory fixes this CVE at 0.17.0; OSV sees the tarball URL as the version. Revalidate when the lockfile exposes semver."
+
+[[IgnoredVulns]]
+id = "GHSA-4r6h-8v6p-xvw6"
+ignoreUntil = 2026-11-10
+reason = "The project pins the official SheetJS CDN tarball xlsx 0.20.3, verified from its package metadata. The SheetJS vendor advisory says the affected range ends at 0.19.2 and is fixed in 0.19.3; OSV lacks a fixed event and sees the tarball URL as the version. Revalidate when the lockfile exposes semver."
+
+[[IgnoredVulns]]
+id = "GHSA-5pgg-2g8v-p4x9"
+ignoreUntil = 2026-11-10
+reason = "The project pins the official SheetJS CDN tarball xlsx 0.20.3, verified from its package metadata. The SheetJS vendor advisory says the affected range ends at 0.20.1 and is fixed in 0.20.2; OSV sees the tarball URL as the version. Revalidate when the lockfile exposes semver."
