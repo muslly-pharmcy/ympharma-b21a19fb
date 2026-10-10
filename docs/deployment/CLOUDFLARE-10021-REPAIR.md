@@ -16,6 +16,7 @@
 - الحفاظ على إعداد TanStack Start ومدخل Worker الرسمي `@tanstack/react-start/server-entry`. يحدد plugin مخرجات Worker/الأصول وقت البناء.
 - توجيه أصول PWA في بناء Cloudflare إلى `dist/client` بدلاً من مخرجات Nitro، دون تغيير هدف Node أو Capacitor.
 - تحديث GitHub Actions لتثبيت Bun `1.4.3` والتحقق من TypeScript وESLint والوحدات وبناء Node و`validate:cloudflare`؛ مسار Wrangler في CI يستخدم `--dry-run` فقط.
+- إزالة `npm ci` من OSV workflow؛ الماسح يقرأ ملفات القفل مباشرة، والمشروع يعتمد `bun.lock` ولا يحتاج تثبيتاً منفصلاً بـnpm قبل الفحص.
 
 ## الأدلة المنفذة
 
@@ -45,10 +46,11 @@
 - اختبارات Workerd تثبت بدء Worker وSSR والأصول، لكنها لا تثبت أن كل RPC أو تسجيل دخول يعمل عبر الإنتاج.
 - لم تُسحب سجلات Cloudflare التشغيلية لأن التحقق المطلوب للمرشح تم محلياً؛ لا يوجد هنا إثبات لنشر هذه الشيفرة.
 - الحالة الحية عند التدقيق: يوجد Worker بالاسم `ympharma-b21a19fb` وإصدارات سابقة، لكن قائمة Worker routes في Zone لـ`muslly.com` فارغة، ولا توجد Worker Custom Domains ظاهرة. نطاقا `muslly.com` و`www.muslly.com` لديهما سجلات A متطابقة إلى مضيفين آخرين؛ استجاب الجذر بـ200، بينما أعاد `www` الحالة HTTP 421. لم تُغيّر هذه الإعدادات.
-- يلزم فتح PR ومراجعة CI، ثم يظل النشر وتغيير النطاقات قراراً منفصلاً يحتاج موافقة مالك الإنتاج وفق التوجيه.
+- التغييرات محفوظة في PR #13 للمراجعة؛ يظل النشر وتغيير النطاقات قراراً منفصلاً يحتاج موافقة مالك الإنتاج وفق التوجيه.
 
 ## مصادر Cloudflare/TanStack
 
+- [OSV-Scanner: Supported Artifacts and Manifests](https://google.github.io/osv-scanner/supported-languages-and-lockfiles/) — يذكر `bun.lock` ضمن ملفات القفل المدعومة.
 - [Cloudflare: TanStack Start](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/)
 - [Cloudflare Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/)
 - [TanStack Start hosting](https://tanstack.com/start/latest/docs/framework/react/guide/hosting)
