@@ -7,6 +7,9 @@
     "nodejs_compat",
     "nodejs_als"
   ],
+  "alias": {
+    "tslib": "tslib"
+  },
   "assets": {
     "directory": ".output/public",
     "binding": "ASSETS"
