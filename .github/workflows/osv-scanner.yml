@@ -26,40 +26,11 @@ on:
     - cron: "0 0 * * 1"
 
 permissions:
+  actions: read
   contents: read
   security-events: write
 
 jobs:
   scan:
     name: OSV Security Scan
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # OSV-Scanner reads the checked-in bun.lock directly; npm ci is not the
-      # project's package manager and can fail on its non-canonical npm lock.
-      - name: Run OSV Scanner
-        uses: google/osv-scanner-action/osv-scanner-action@v1.9.0
-        with:
-          scan-args: |-
-            --recursive
-            --skip-git
-            --format sarif
-            --output results.sarif
-            ./
-
-      - name: Upload SARIF artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: osv-results-sarif
-          path: results.sarif
-          if-no-files-found: ignore
-
-      - name: Upload SARIF to GitHub Security tab
-        if: success() && hashFiles('results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.6.0
