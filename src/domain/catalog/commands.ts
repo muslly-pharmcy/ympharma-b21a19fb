@@ -21,6 +21,7 @@ export type CreateProductInput = z.infer<typeof createProductInput>
 
 export const updateProductInput = idem.extend({
   id: uuid,
+  expectedRevision: z.string().regex(/^[0-9]{1,18}$/).optional(),
   patch: createProductInput.omit({ organizationId: true, idempotencyKey: true, correlationId: true }).partial(),
 })
 export type UpdateProductInput = z.infer<typeof updateProductInput>

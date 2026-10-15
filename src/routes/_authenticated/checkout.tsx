@@ -1,3 +1,5 @@
+import {reviewCheckoutMode} from '@/lib/erp/checkout-review.functions'
+import {ConnectedErpManagedCheckout} from '@/components/storefront/ConnectedErpManagedCheckout'
 import { useFeatureFlags } from '@/hooks/useFeatureFlags'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
@@ -36,6 +38,18 @@ export const Route = createFileRoute('/_authenticated/checkout')({
 })
 
 function CheckoutPage() {
+  const {user}=Route.useRouteContext()
+  const getMode=useServerFn(reviewCheckoutMode)
+  const mode=useQuery({queryKey:['checkout-mode',user.id],queryFn:()=>getMode(),staleTime:0,refetchOnWindowFocus:true})
+  if(mode.isPending)return <p role="status">جارٍ تحميل إعدادات الطلب…</p>
+  if(mode.isError)return <p role="alert">تعذر تحميل إعدادات الطلب. أعد المحاولة.</p>
+  if(mode.data?.actor_id!==user.id)return <p role="alert">تغيّرت الجلسة. أعد تحميل الصفحة.</p>
+  if(mode.data?.mode==='erp')return <ConnectedErpManagedCheckout actorId={mode.data.actor_id}/>
+  if(mode.data?.mode!=='legacy')return <p role="status">استقبال الطلبات متوقف مؤقتًا.</p>
+  return <LegacyCheckoutPage/>
+}
+
+function LegacyCheckoutPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const { isFlagEnabled } = useFeatureFlags()

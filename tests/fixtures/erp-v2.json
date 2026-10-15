@@ -1,0 +1,32 @@
+[
+  {
+    "name": "arabic-stock",
+    "secret": "public-fixture-not-a-deployment-key",
+    "ts": "1800000000",
+    "method": "POST",
+    "target": "/api/public/erp/v1/stock",
+    "identity": {
+      "keyId": "fixture-key",
+      "source": "ERP_TEST",
+      "idempotencyKey": "fixture-request-01"
+    },
+    "body": "{\"sourceSystem\":\"ERP_TEST\",\"sourceEpoch\":\"EPOCH_1\",\"label\":\"اختبار\",\"rows\":[]}",
+    "bodyHash": "0e5c581078813d107c083192507ccc589807cbabfc48b42e3efd2b62ac00c296",
+    "signature": "b25661dc4d6868016f0ceaa56cad980dfb6d4b8112773c688e1818d7df1ddbc1"
+  },
+  {
+    "name": "empty-get-query",
+    "secret": "public-fixture-not-a-deployment-key",
+    "ts": "1800000000",
+    "method": "GET",
+    "target": "/api/public/erp/v1/reconcile?cursor=eyJpdGVtIjoiSSIsImJyYW5jaCI6IkIifQ&limit=10",
+    "identity": {
+      "keyId": "fixture-key",
+      "source": "ERP_TEST",
+      "idempotencyKey": ""
+    },
+    "body": "",
+    "bodyHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "signature": "4b4a04c55acce9ed2ab47eefef14545d8ebc390188efc618843154b8356143d9"
+  }
+]

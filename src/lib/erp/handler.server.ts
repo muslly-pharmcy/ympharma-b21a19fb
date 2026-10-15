@@ -1,63 +1,46 @@
-import { z } from 'zod'
-import { sha256Hex, verifyRequest } from './signature'
-
-const json = (status: number, body: unknown) =>
-  new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
-
-/**
- * Shared guard for /api/public/erp/v1/*: kill switch (default OFF), HMAC, idempotency
- * (same key + same hash → replay; same key + different hash → 409). Never logs payloads.
- */
-export async function erpHandle(
-  request: Request,
-  path: string,
-  run: (body: unknown, db: any) => Promise<{ status: number; body: unknown }>,
-) {
-  if (process.env['ERP_SYNC_ENABLED'] !== 'true') return json(503, { error: 'erp_sync_disabled' })
-  const secret = process.env['ERP_SYNC_HMAC_SECRET']
-  if (!secret) return json(503, { error: 'erp_secret_not_configured' })
-
-  const body = request.method === 'GET' ? '' : await request.text()
-  if (body.length > 1_000_000) return json(413, { error: 'payload_too_large' })
-  const v = verifyRequest(
-    secret,
-    { ts: request.headers.get('x-erp-timestamp') ?? '', sig: request.headers.get('x-erp-signature') ?? '' },
-    request.method,
-    path,
-    body,
-  )
-  if (!v.ok) return json(401, { error: v.reason })
-
-  const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-  const db = supabaseAdmin as any
-  const parsed = body ? safeJson(body) : null
-  if (body && parsed === undefined) return json(400, { error: 'invalid_json' })
-
-  if (request.method === 'GET') {
-    const r = await run(parsed, db)
-    return json(r.status, r.body)
+import { canonicalTarget, sha256Hex, verifyRequest, type Identity } from './signature'
+export type ErpContext = Identity & { contentHash: string; target: string }
+export const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } })
+export const ERP_ORDER_FLOW_ENABLED = false as const
+export const ERP_CATALOG_FLOW_ENABLED = false as const
+export async function erpHandle(request: Request, path: string, run: (body: unknown, db: any, context: ErpContext) => Promise<{ status: number; body: unknown }>, dependencies?: { env: Record<string, string | undefined>; db: any; nowSec?: number; localOrders?: boolean }) {
+  const env = dependencies?.env ?? process.env
+  if (env.ERP_SYNC_ENABLED !== 'true' || env.ERP_SYNC_CONTRACT_VERSION !== '2') return json(503, { error: 'erp_sync_disabled' })
+  if (!env.ERP_SYNC_HMAC_SECRET || !env.ERP_SYNC_SOURCE_ID || !env.ERP_SYNC_KEY_ID) return json(503, { error: 'erp_identity_not_configured' })
+  // Provisioning must bind the explicit reviewed deployment database, not a repository default.
+  if (!dependencies) {
+    const { getPublicSupabaseConfig } = await import('@/integrations/supabase/public-config')
+    const actual = getPublicSupabaseConfig().url
+    if (!env.ERP_SYNC_APPROVED_DATABASE_URL || actual !== env.ERP_SYNC_APPROVED_DATABASE_URL) return json(503, { error: 'erp_database_not_approved' })
   }
-
-  const key = request.headers.get('idempotency-key') ?? ''
-  if (!z.string().min(8).max(200).safeParse(key).success) return json(400, { error: 'missing_idempotency_key' })
-  const { data: claim, error } = await db.rpc('erp_claim_idempotency', {
-    p_key: key, p_hash: sha256Hex(body), p_endpoint: path,
-  })
-  if (error) return json(500, { error: 'idempotency_store_failed' })
-  if (claim.state === 'conflict') return json(409, { error: 'idempotency_key_reused_with_different_content' })
-  if (claim.state === 'replay') return json(200, { ...claim.response, replayed: true })
-  if (claim.state === 'in_progress') return json(409, { error: 'request_in_progress', retryAfterSeconds: 5 })
-
+  const url = new URL(request.url), target = url.pathname + url.search
+  try { if (url.pathname !== path || canonicalTarget(target) !== target) return json(400, { error: 'invalid_target' }) } catch { return json(400, { error: 'invalid_target' }) }
+  const identity = { keyId: request.headers.get('x-erp-key-id') ?? '', source: request.headers.get('x-erp-source') ?? '', idempotencyKey: request.headers.get('idempotency-key') ?? '' }
+  if (identity.keyId !== env.ERP_SYNC_KEY_ID || identity.source !== env.ERP_SYNC_SOURCE_ID || request.headers.get('x-erp-protocol') !== '2') return json(401, { error: 'identity_mismatch' })
+  if (request.headers.has('content-encoding')) return json(415, { error: 'encoded_body_not_supported' })
+  let bytes: Uint8Array
   try {
-    const r = await run(parsed, db)
-    await db.rpc('erp_finish_idempotency', { p_key: key, p_response: r.body, p_ok: r.status < 500 })
-    return json(r.status, r.body)
-  } catch {
-    await db.rpc('erp_finish_idempotency', { p_key: key, p_response: null, p_ok: false })
-    return json(500, { error: 'processing_failed' })
+    const chunks: Uint8Array[] = []; let length = 0
+    const reader = request.body?.getReader()
+    if (reader) { for (;;) { const r = await reader.read(); if (r.done) break; length += r.value.length; if (length > 1000000) { await reader.cancel(); return json(413, { error: 'payload_too_large' }) } chunks.push(r.value) } }
+    bytes = new Uint8Array(length); let offset = 0; for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length }
+  } catch { return json(400, { error: 'incomplete_body' }) }
+  const verified = verifyRequest(env.ERP_SYNC_HMAC_SECRET, { ts: request.headers.get('x-erp-timestamp') ?? '', sig: request.headers.get('x-erp-signature') ?? '' }, request.method, target, bytes, identity, dependencies?.nowSec)
+  if (!verified.ok) return json(401, { error: verified.reason })
+  // Fail closed until inbox, reservation ownership, expiry and release are integrated and accepted.
+  if (path.includes('/orders/') && !ERP_ORDER_FLOW_ENABLED && !(dependencies?.localOrders && new URL(request.url).hostname === '127.0.0.1')) return json(503, { error: 'erp_order_flow_not_implemented' })
+  if (path.includes('/catalog/') && !ERP_CATALOG_FLOW_ENABLED && !(dependencies?.localOrders && new URL(request.url).hostname === '127.0.0.1')) return json(503, { error: 'erp_catalog_flow_not_activated' })
+  let body: unknown = null
+  if (request.method === 'POST') {
+    if (request.headers.get('content-type') !== 'application/json') return json(415, { error: 'json_required' })
+    try { if (bytes[0] === 239 && bytes[1] === 187 && bytes[2] === 191) throw Error(); body = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)) } catch { return json(400, { error: 'invalid_json_utf8' }) }
+    if (!body || typeof body !== 'object' || (body as any).sourceSystem !== identity.source) return json(403, { error: 'source_mismatch' })
   }
-}
-
-function safeJson(s: string): unknown {
-  try { return JSON.parse(s) } catch { return undefined }
+  if (path.endsWith('/stock') && body && typeof body === 'object' && 'projection' in body && !ERP_ORDER_FLOW_ENABLED && !(dependencies?.localOrders && url.hostname === '127.0.0.1')) return json(503, { error: 'erp_order_flow_not_implemented' })
+  try {
+    const db = dependencies?.db ?? (await import('@/integrations/supabase/client.server')).supabaseAdmin
+    // Stock RPC owns idempotency, row outcomes and snapshot changes in ONE transaction.
+    const result = await run(body, db, { ...identity, target, contentHash: sha256Hex(bytes) })
+    return json(result.status, result.body)
+  } catch { return json(503, { error: 'erp_processing_unconfirmed' }) }
 }

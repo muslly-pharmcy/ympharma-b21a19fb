@@ -128,6 +128,8 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as ApiPublicErpV1ReconcileRouteImport } from './routes/api/public/erp/v1/reconcile'
 import { Route as ApiPublicErpV1StockRouteImport } from './routes/api/public/erp/v1/stock'
+import { Route as ApiPublicErpV1CatalogApplyRouteImport } from './routes/api/public/erp/v1/catalog.apply'
+import { Route as ApiPublicErpV1CatalogPreviewRouteImport } from './routes/api/public/erp/v1/catalog.preview'
 import { Route as ApiPublicErpV1OrdersAckRouteImport } from './routes/api/public/erp/v1/orders.ack'
 import { Route as ApiPublicErpV1OrdersPendingRouteImport } from './routes/api/public/erp/v1/orders.pending'
 
@@ -784,6 +786,18 @@ const ApiPublicErpV1StockRoute = ApiPublicErpV1StockRouteImport.update({
   path: '/api/public/erp/v1/stock',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicErpV1CatalogApplyRoute =
+  ApiPublicErpV1CatalogApplyRouteImport.update({
+    id: '/api/public/erp/v1/catalog/apply',
+    path: '/api/public/erp/v1/catalog/apply',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicErpV1CatalogPreviewRoute =
+  ApiPublicErpV1CatalogPreviewRouteImport.update({
+    id: '/api/public/erp/v1/catalog/preview',
+    path: '/api/public/erp/v1/catalog/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicErpV1OrdersAckRoute = ApiPublicErpV1OrdersAckRouteImport.update({
   id: '/api/public/erp/v1/orders/ack',
   path: '/api/public/erp/v1/orders/ack',
@@ -915,6 +929,8 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/api/public/erp/v1/reconcile': typeof ApiPublicErpV1ReconcileRoute
   '/api/public/erp/v1/stock': typeof ApiPublicErpV1StockRoute
+  '/api/public/erp/v1/catalog/apply': typeof ApiPublicErpV1CatalogApplyRoute
+  '/api/public/erp/v1/catalog/preview': typeof ApiPublicErpV1CatalogPreviewRoute
   '/api/public/erp/v1/orders/ack': typeof ApiPublicErpV1OrdersAckRoute
   '/api/public/erp/v1/orders/pending': typeof ApiPublicErpV1OrdersPendingRoute
 }
@@ -1035,6 +1051,8 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/api/public/erp/v1/reconcile': typeof ApiPublicErpV1ReconcileRoute
   '/api/public/erp/v1/stock': typeof ApiPublicErpV1StockRoute
+  '/api/public/erp/v1/catalog/apply': typeof ApiPublicErpV1CatalogApplyRoute
+  '/api/public/erp/v1/catalog/preview': typeof ApiPublicErpV1CatalogPreviewRoute
   '/api/public/erp/v1/orders/ack': typeof ApiPublicErpV1OrdersAckRoute
   '/api/public/erp/v1/orders/pending': typeof ApiPublicErpV1OrdersPendingRoute
 }
@@ -1159,6 +1177,8 @@ export interface FileRoutesById {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/api/public/erp/v1/reconcile': typeof ApiPublicErpV1ReconcileRoute
   '/api/public/erp/v1/stock': typeof ApiPublicErpV1StockRoute
+  '/api/public/erp/v1/catalog/apply': typeof ApiPublicErpV1CatalogApplyRoute
+  '/api/public/erp/v1/catalog/preview': typeof ApiPublicErpV1CatalogPreviewRoute
   '/api/public/erp/v1/orders/ack': typeof ApiPublicErpV1OrdersAckRoute
   '/api/public/erp/v1/orders/pending': typeof ApiPublicErpV1OrdersPendingRoute
 }
@@ -1283,6 +1303,8 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/api/public/erp/v1/reconcile'
     | '/api/public/erp/v1/stock'
+    | '/api/public/erp/v1/catalog/apply'
+    | '/api/public/erp/v1/catalog/preview'
     | '/api/public/erp/v1/orders/ack'
     | '/api/public/erp/v1/orders/pending'
   fileRoutesByTo: FileRoutesByTo
@@ -1403,6 +1425,8 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/api/public/erp/v1/reconcile'
     | '/api/public/erp/v1/stock'
+    | '/api/public/erp/v1/catalog/apply'
+    | '/api/public/erp/v1/catalog/preview'
     | '/api/public/erp/v1/orders/ack'
     | '/api/public/erp/v1/orders/pending'
   id:
@@ -1526,6 +1550,8 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/api/public/erp/v1/reconcile'
     | '/api/public/erp/v1/stock'
+    | '/api/public/erp/v1/catalog/apply'
+    | '/api/public/erp/v1/catalog/preview'
     | '/api/public/erp/v1/orders/ack'
     | '/api/public/erp/v1/orders/pending'
   fileRoutesById: FileRoutesById
@@ -1576,6 +1602,8 @@ export interface RootRouteChildren {
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
   ApiPublicErpV1ReconcileRoute: typeof ApiPublicErpV1ReconcileRoute
   ApiPublicErpV1StockRoute: typeof ApiPublicErpV1StockRoute
+  ApiPublicErpV1CatalogApplyRoute: typeof ApiPublicErpV1CatalogApplyRoute
+  ApiPublicErpV1CatalogPreviewRoute: typeof ApiPublicErpV1CatalogPreviewRoute
   ApiPublicErpV1OrdersAckRoute: typeof ApiPublicErpV1OrdersAckRoute
   ApiPublicErpV1OrdersPendingRoute: typeof ApiPublicErpV1OrdersPendingRoute
 }
@@ -2415,6 +2443,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicErpV1StockRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/erp/v1/catalog/apply': {
+      id: '/api/public/erp/v1/catalog/apply'
+      path: '/api/public/erp/v1/catalog/apply'
+      fullPath: '/api/public/erp/v1/catalog/apply'
+      preLoaderRoute: typeof ApiPublicErpV1CatalogApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/erp/v1/catalog/preview': {
+      id: '/api/public/erp/v1/catalog/preview'
+      path: '/api/public/erp/v1/catalog/preview'
+      fullPath: '/api/public/erp/v1/catalog/preview'
+      preLoaderRoute: typeof ApiPublicErpV1CatalogPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/erp/v1/orders/ack': {
       id: '/api/public/erp/v1/orders/ack'
       path: '/api/public/erp/v1/orders/ack'
@@ -2769,6 +2811,8 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
   ApiPublicErpV1ReconcileRoute: ApiPublicErpV1ReconcileRoute,
   ApiPublicErpV1StockRoute: ApiPublicErpV1StockRoute,
+  ApiPublicErpV1CatalogApplyRoute: ApiPublicErpV1CatalogApplyRoute,
+  ApiPublicErpV1CatalogPreviewRoute: ApiPublicErpV1CatalogPreviewRoute,
   ApiPublicErpV1OrdersAckRoute: ApiPublicErpV1OrdersAckRoute,
   ApiPublicErpV1OrdersPendingRoute: ApiPublicErpV1OrdersPendingRoute,
 }
