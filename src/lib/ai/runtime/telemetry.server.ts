@@ -80,20 +80,30 @@ export interface ModuleStatus {
 }
 
 /** Aggregate the last N hours of telemetry into a planetary status board. */
-export async function planetaryStatus(hours = 24): Promise<ModuleStatus[]> {
+export async function planetaryStatus(hours = 24, end = new Date()): Promise<ModuleStatus[]> {
+  if(!Number.isFinite(hours)||hours<=0||hours>168||!Number.isFinite(end.getTime()))throw Error('TELEMETRY_INVALID_WINDOW')
+  const until=end.toISOString()
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-  const since = new Date(Date.now() - hours * 3600_000).toISOString()
+  const since = new Date(end.getTime() - hours * 3600_000).toISOString()
   const result = await supabaseAdmin
     .from('kernel_module_telemetry')
     .select('module_key, latency_ms, failures, runs, budget_used, observed_at',{count:'exact'})
     .gte('observed_at', since)
+    .lt('observed_at', until)
     .limit(5000)
 
   const acc = new Map<string, { runs: number; failures: number; latency: number; latencyN: number; budget: number; last: string | null }>()
   for (const key of MODULE_KEYS) acc.set(key, { runs: 0, failures: 0, latency: 0, latencyN: 0, budget: 0, last: null })
 
   for (const row of completeRows(result)) {
-    const key = row.module_key as string
+    const atMs=typeof row.observed_at==='string'?Date.parse(row.observed_at):NaN
+    const budget=typeof row.budget_used==='number'?row.budget_used:typeof row.budget_used==='string'&&/^(0|[1-9]\d*)(?:\.\d{1,4})?$/.test(row.budget_used)?Number(row.budget_used):NaN
+    if(typeof row.module_key!=='string'||!row.module_key.trim()||row.module_key.length>100||
+      !Number.isSafeInteger(row.runs)||row.runs<0||!Number.isSafeInteger(row.failures)||row.failures<0||row.failures>row.runs||
+      (row.latency_ms!==null&&(typeof row.latency_ms!=='number'||!Number.isFinite(row.latency_ms)||row.latency_ms<0))||
+      !Number.isFinite(budget)||budget<0||budget>Number.MAX_SAFE_INTEGER/10000||
+      !Number.isFinite(atMs)||atMs<Date.parse(since)||atMs>=end.getTime())throw Error('TELEMETRY_INVALID_SAMPLE')
+    const key = row.module_key
     const cur = acc.get(key) ?? { runs: 0, failures: 0, latency: 0, latencyN: 0, budget: 0, last: null }
     cur.runs += (row.runs as number) ?? 0
     cur.failures += (row.failures as number) ?? 0
@@ -101,8 +111,9 @@ export async function planetaryStatus(hours = 24): Promise<ModuleStatus[]> {
       cur.latency += row.latency_ms
       cur.latencyN += 1
     }
-    cur.budget += Number(row.budget_used ?? 0)
-    const at = row.observed_at as string
+    cur.budget += budget
+    if(!Number.isSafeInteger(cur.runs)||!Number.isSafeInteger(cur.failures)||!Number.isFinite(cur.latency)||cur.budget>Number.MAX_SAFE_INTEGER/10000)throw Error('TELEMETRY_AGGREGATE_OVERFLOW')
+    const at = new Date(atMs).toISOString()
     if (!cur.last || at > cur.last) cur.last = at
     acc.set(key, cur)
   }

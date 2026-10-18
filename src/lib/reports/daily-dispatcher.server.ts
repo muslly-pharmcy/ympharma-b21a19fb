@@ -1,8 +1,8 @@
-import {completeRows,exactCount,exactOrderTotal,reportRecipient,configuredWhatsAppLink} from './report-source'
+import {acknowledgedQueueId,completeRows,exactCount,exactOrderTotal,reportRecipient,configuredWhatsAppLink} from './report-source'
 
 export interface DailyReport {
  dateLabel:string
- source:{from:string;to:string;generatedAt:string;window:'rolling_24_hours';consistency:'independent_source_reads';salesBasis:'order_face_values_not_accounting_revenue';currency:'unverified'}
+ source:{from:string;to:string;generatedAt:string;window:'rolling_24_hours';consistency:'independent_source_reads';salesBasis:'order_face_values_not_accounting_revenue';currency:'unverified';visitorsBasis:'recently_seen_records_clipped_span_not_active_dwell';pagesBasis:'lifetime_pages_of_selected_records'}
  visitors:{sessions:number;newVisitors:number;avgDwellMinutes:number;topPages:Array<{path:string;views:number}>}
  crm:{newCustomers:number;syncSynced:number;syncPending:number;syncFailed:number}
  sales:{orders:number;orderTotal:string;pendingPurchaseOrders:number;safetyStockAlerts:number}
@@ -32,16 +32,17 @@ export async function buildDailyReport():Promise<DailyReport>{
   db.from('store_bundle_orders').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
   db.from('ai_widget_events').select('id',{count:'exact',head:true}).eq('kind','assistant_message').gte('created_at',from).lt('created_at',to),
   db.from('error_logs').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
-  planetaryStatus(24),
+  planetaryStatus(24,end),
  ])
  const visitors=completeRows(visitorResult),orders=completeRows(ordersResult),posts=completeRows(postsResult)
  const pageCount=new Map<string,number>();let dwell=0
  for(const r of visitors){
-  for(const value of Array.isArray(r.pages_viewed)?r.pages_viewed:[]){const page=typeof value==='string'?value:value&&typeof value==='object'&&!Array.isArray(value)?value.path:null;if(typeof page==='string')pageCount.set(page,(pageCount.get(page)??0)+1)}
-  const start=new Date(r.created_at).getTime(),last=new Date(r.last_seen_at).getTime();if(!Number.isFinite(start)||!Number.isFinite(last))throw Error('REPORT_INVALID_SOURCE_DATE');if(last>start)dwell+=last-start
+  if(!Array.isArray(r.pages_viewed)||typeof r.first_visit!=='boolean')throw Error('REPORT_INVALID_VISITOR_SOURCE');
+  for(const value of r.pages_viewed){const page=typeof value==='string'?value:value&&typeof value==='object'&&!Array.isArray(value)?value.path:null;if(typeof page!=='string'||!page)throw Error('REPORT_INVALID_VISITOR_SOURCE');pageCount.set(page,(pageCount.get(page)??0)+1)}
+  const start=typeof r.created_at==='string'?Date.parse(r.created_at):NaN,last=typeof r.last_seen_at==='string'?Date.parse(r.last_seen_at):NaN;if(!Number.isFinite(start)||!Number.isFinite(last)||last<start||last<Date.parse(from)||last>=end.getTime())throw Error('REPORT_INVALID_SOURCE_DATE');dwell+=last-Math.max(start,Date.parse(from))
  }
- return {dateLabel,source:{from,to,generatedAt:new Date().toISOString(),window:'rolling_24_hours',consistency:'independent_source_reads',salesBasis:'order_face_values_not_accounting_revenue',currency:'unverified'},
-  visitors:{sessions:visitors.length,newVisitors:visitors.filter(r=>r.first_visit).length,avgDwellMinutes:visitors.length?Math.round(dwell/visitors.length/6000)/10:0,topPages:[...pageCount].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([path,views])=>({path,views}))},
+ return {dateLabel,source:{from,to,generatedAt:new Date().toISOString(),window:'rolling_24_hours',consistency:'independent_source_reads',salesBasis:'order_face_values_not_accounting_revenue',currency:'unverified',visitorsBasis:'recently_seen_records_clipped_span_not_active_dwell',pagesBasis:'lifetime_pages_of_selected_records'},
+  visitors:{sessions:visitors.length,newVisitors:visitors.filter(r=>r.first_visit&&Date.parse(r.created_at)>=Date.parse(from)).length,avgDwellMinutes:visitors.length?Math.round(dwell/visitors.length/6000)/10:0,topPages:[...pageCount].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([path,views])=>({path,views}))},
   crm:{newCustomers:exactCount(customers),syncSynced:exactCount(synced),syncPending:exactCount(pending),syncFailed:exactCount(failed)},
   sales:{orders:orders.length,orderTotal:exactOrderTotal(orders.map(o=>o.total)),pendingPurchaseOrders:exactCount(purchases),safetyStockAlerts:exactCount(alerts)},
   content:{generated:posts.length,published:posts.filter(p=>p.status==='published').length,pending:posts.filter(p=>p.status==='pending').length},
@@ -68,16 +69,16 @@ export function renderReportHtml(r: DailyReport): string {
   <div style="max-width:640px;margin:0 auto;padding:24px">
     <div style="background:#D9EEEB;border-radius:20px;padding:20px;margin-bottom:16px">
       <h1 style="margin:0;font-size:20px;color:#0f3b36">التقرير التنفيذي اليومي</h1>
-      <p style="margin:6px 0 0;color:#3c605b;font-size:14px">صيدلية المصلي · ${escapeHtml(r.dateLabel)}</p><p>آخر24ساعة: ${escapeHtml(r.source.from)} إلى ${escapeHtml(r.source.to)}. قراءة مصادر مستقلة وليست لقطة محاسبية واحدة. عملة قيم الطلبات غير موثقة في هذا المصدر.</p>
+      <p style="margin:6px 0 0;color:#3c605b;font-size:14px">صيدلية المصلي · ${escapeHtml(r.dateLabel)}</p><p>آخر24ساعة: ${escapeHtml(r.source.from)} إلى ${escapeHtml(r.source.to)}. قراءة مصادر مستقلة وليست لقطة محاسبية واحدة. عملة قيم الطلبات غير موثقة في هذا المصدر. مدة الزائر هي الفاصل المرصود داخل الفترة وليست زمن التفاعل الفعلي.</p>
     </div>
 
     <h2 style="font-size:15px;color:#0f3b36;margin:16px 0 6px">الزوار والتفاعل</h2>
     <table width="100%" cellspacing="0" cellpadding="0"><tr>
-      ${metric('الجلسات', String(r.visitors.sessions))}
+      ${metric('سجلات زوار نشطة', String(r.visitors.sessions))}
       ${metric('زوار جدد', String(r.visitors.newVisitors))}
-      ${metric('متوسط المكوث (د)', String(r.visitors.avgDwellMinutes))}
+      ${metric('متوسط المدة المرصودة داخل الفترة (د)', String(r.visitors.avgDwellMinutes))}
     </tr></table>
-    <div style="${CARD}"><p style="${LABEL}">أكثر الصفحات زيارة</p><ul style="margin:6px 0 0;padding-inline-start:18px;color:#0f3b36;font-size:14px">${pages}</ul></div>
+    <div style="${CARD}"><p style="${LABEL}">صفحات محفوظة في سجلات الزوار — قد تشمل زيارات أقدم</p><ul style="margin:6px 0 0;padding-inline-start:18px;color:#0f3b36;font-size:14px">${pages}</ul></div>
 
     <h2 style="font-size:15px;color:#0f3b36;margin:16px 0 6px">العملاء ومزامنة Google Sheets</h2>
     <table width="100%" cellspacing="0" cellpadding="0"><tr>
@@ -119,7 +120,7 @@ export function renderWhatsAppSummary(r: DailyReport): string {
   const lines = [
     `📊 التقرير اليومي — صيدلية المصلي`,
     `🗓 ${r.dateLabel} — آخر24ساعة: ${r.source.from} إلى ${r.source.to}`,
-    `👥 جلسات: ${r.visitors.sessions} (جدد ${r.visitors.newVisitors}) — مكوث ${r.visitors.avgDwellMinutes} د`,
+    `👥 سجلات زوار: ${r.visitors.sessions} (جدد ${r.visitors.newVisitors}) — مدة مرصودة ${r.visitors.avgDwellMinutes} د (ليست زمن تفاعل فعلي)`,
     `🧾 طلبات: ${r.sales.orders} — مجموع قيمها: ${r.sales.orderTotal} (ليس إيرادًا محاسبيًا؛ العملة غير موثقة في هذا المصدر)`,
     `🧑‍⚕️ عملاء جدد: ${r.crm.newCustomers} — مزامنة Sheets: ${r.crm.syncSynced}`,
     `📦 تنبيهات مخزون: ${r.sales.safetyStockAlerts} — فواتير قيد المعالجة: ${r.sales.pendingPurchaseOrders}`,
@@ -150,7 +151,7 @@ export async function dispatchDailyReport(): Promise<{
   let emailQueued = false
   try {
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const { error } = await supabaseAdmin.rpc('enqueue_email', {
+    const { data, error } = await supabaseAdmin.rpc('enqueue_email', {
       queue_name: 'transactional_emails',
       payload: {
         to: recipient,
@@ -159,10 +160,10 @@ export async function dispatchDailyReport(): Promise<{
         template_name: 'daily_executive_report',
       },
     })
-    emailQueued = !error
-    if (error) console.error('[daily-report] enqueue failed', error.message)
-  } catch (e) {
-    console.error('[daily-report] enqueue threw', (e as Error).message)
+    emailQueued = !error && acknowledgedQueueId(data)
+    if (!emailQueued) console.error('[daily-report] queue acknowledgment unconfirmed')
+  } catch {
+    console.error('[daily-report] queue acknowledgment unavailable')
   }
 
   try {

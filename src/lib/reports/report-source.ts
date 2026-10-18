@@ -30,3 +30,9 @@ export function configuredWhatsAppLink(summary:string,phone:string|undefined):st
  if(!/^[1-9]\d{7,14}$/.test(phone))throw Error('REPORT_WHATSAPP_NOT_CONFIGURED');
  return `https://wa.me/${phone}?text=${encodeURIComponent(summary)}`;
 }
+
+/** pgmq.send returns a positive PostgreSQL bigint; missing data is not an acknowledgment. */
+export function acknowledgedQueueId(value:unknown):boolean {
+ if(typeof value==='number')return Number.isSafeInteger(value)&&value>0;
+ return typeof value==='string'&&/^[1-9]\d{0,18}$/.test(value)&&BigInt(value)<=9223372036854775807n;
+}

@@ -144,11 +144,11 @@ function SunCoreAdmin() {
           </div>
         </div>
         {preview.isError && <p role="alert" className="text-sm text-destructive">تعذر إعداد تقرير من مصادر كاملة. {r ? 'المعروض آخر تقرير محفوظ؛ راجع وقت قراءته.' : 'راجع اتصال البيانات ثم أعد المحاولة.'}</p>}
-        {r && <p className="text-sm text-muted-foreground">الفترة: {r.source.from} — {r.source.to}. قيم الطلبات ليست تحصيلًا أو إيرادًا محاسبيًا، وعملتها غير موثقة في هذا المصدر.</p>}
+        {r && <p className="text-sm text-muted-foreground">الفترة: {r.source.from} — {r.source.to}. قيم الطلبات ليست تحصيلًا أو إيرادًا محاسبيًا، وعملتها غير موثقة في هذا المصدر. مدة الزائر مرصودة داخل الفترة وليست زمن تفاعل فعلي.</p>}
         {r ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Stat label="الجلسات" value={r.visitors.sessions} />
-            <Stat label="متوسط المكوث (د)" value={r.visitors.avgDwellMinutes} />
+            <Stat label="سجلات زوار نشطة" value={r.visitors.sessions} />
+            <Stat label="متوسط المدة المرصودة (د)" value={r.visitors.avgDwellMinutes} />
             <Stat label="الطلبات" value={r.sales.orders} />
             <Stat label="قيم الطلبات — ليست إيرادًا محاسبيًا" value={r.sales.orderTotal} />
             <Stat label="عملاء جدد" value={r.crm.newCustomers} />

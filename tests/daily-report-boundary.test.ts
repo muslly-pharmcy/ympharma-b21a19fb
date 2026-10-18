@@ -6,7 +6,7 @@ vi.mock('@/integrations/supabase/client.server',()=>({supabaseAdmin:{rpc:fixture
 }}}));
 vi.mock('@/lib/ai/runtime/telemetry.server',()=>({planetaryStatus:fixture.modules}));
 import {buildDailyReport,dispatchDailyReport,renderReportHtml,renderWhatsAppSummary,whatsappLink} from '../src/lib/reports/daily-dispatcher.server';
-import {completeRows,exactCount,exactOrderTotal,reportRecipient} from '../src/lib/reports/report-source';
+import {acknowledgedQueueId,completeRows,exactCount,exactOrderTotal,reportRecipient} from '../src/lib/reports/report-source';
 beforeEach(()=>{fixture.results.clear();fixture.calls.length=0;vi.clearAllMocks();fixture.rpc.mockResolvedValue({data:1,error:null});fixture.insert.mockResolvedValue({error:null});fixture.modules.mockResolvedValue([{moduleKey:'inventory',status:'idle',lastSeen:null}]);vi.stubEnv('EXEC_REPORT_EMAIL','');vi.stubEnv('EXEC_REPORT_DISPATCH_ENABLED','');vi.stubEnv('EXEC_REPORT_WHATSAPP','');});
 afterEach(()=>{vi.unstubAllEnvs();vi.useRealTimers();});
 describe('source-backed daily report',()=>{
@@ -31,4 +31,37 @@ describe('source-backed daily report',()=>{
  it('telemetry refuses query failure instead of silently returning idle or healthy',async()=>{
   const actual=await vi.importActual<typeof import('../src/lib/ai/runtime/telemetry.server')>('../src/lib/ai/runtime/telemetry.server');fixture.results.set('kernel_module_telemetry',{data:null,count:null,error:{message:'denied'}});await expect(actual.planetaryStatus()).rejects.toThrow('REPORT_SOURCE_INCOMPLETE');
  });
+});
+
+describe('telemetry window and numeric integrity',()=>{
+ const end=new Date('2026-10-18T12:00:00Z');
+ const sample={module_key:'inventory',runs:10,failures:2,latency_ms:50,budget_used:'0.1250',observed_at:'2026-10-18T11:00:00Z'};
+ async function read(rows:any[]){
+  fixture.results.set('kernel_module_telemetry',{data:rows,count:rows.length,error:null});
+  const actual=await vi.importActual<typeof import('../src/lib/ai/runtime/telemetry.server')>('../src/lib/ai/runtime/telemetry.server');return actual.planetaryStatus(24,end);
+ }
+ it('uses the report end for every source including telemetry',async()=>{vi.useFakeTimers();vi.setSystemTime(end);await buildDailyReport();expect(fixture.modules).toHaveBeenCalledWith(24,end);});
+ it('aggregates valid observed data and excludes the end boundary in the query',async()=>{
+  const rows=await read([sample,{...sample,runs:0,failures:0,latency_ms:null,budget_used:0,observed_at:'2026-10-18T14:30:00+03:00'}]);
+  expect(rows.find(r=>r.moduleKey==='inventory')).toMatchObject({runs:10,failures:2,errorRate:0.2,avgLatencyMs:50,budgetUsed:0.125,status:'degraded',lastSeen:'2026-10-18T11:30:00.000Z'});
+  expect(fixture.calls).toContainEqual({table:'kernel_module_telemetry',method:'lt',args:['observed_at',end.toISOString()]});
+ });
+ it.each([0,-1,169,NaN,Infinity])('rejects an invalid window %s before reading',async(hours)=>{const actual=await vi.importActual<typeof import('../src/lib/ai/runtime/telemetry.server')>('../src/lib/ai/runtime/telemetry.server');await expect(actual.planetaryStatus(hours,end)).rejects.toThrow('TELEMETRY_INVALID_WINDOW');expect(fixture.calls).toEqual([]);});
+ it.each([{runs:null},{runs:-1},{runs:1.5},{runs:'10'},{failures:11},{failures:-1},{failures:null},{latency_ms:-1},{latency_ms:Infinity},{latency_ms:'20'},{budget_used:null},{budget_used:'NaN'},{budget_used:-1},{budget_used:'1e4'},{budget_used:Infinity},{observed_at:'bad'},{observed_at:'2026-10-17T11:59:59Z'},{observed_at:'2026-10-18T12:00:00Z'},{module_key:''}])('rejects malformed evidence %j',async patch=>{await expect(read([{...sample,...patch}])).rejects.toThrow('TELEMETRY_INVALID_SAMPLE');});
+ it('rejects overflowing aggregate counts',async()=>{await expect(read([{...sample,runs:Number.MAX_SAFE_INTEGER},sample])).rejects.toThrow('TELEMETRY_AGGREGATE_OVERFLOW');});
+});
+
+describe('queue acknowledgment',()=>{
+ it.each([1,'1','9223372036854775807'])('accepts a confirmed queue id %s',value=>expect(acknowledgedQueueId(value)).toBe(true));
+ it.each([null,undefined,0,-1,1.5,Number.MAX_SAFE_INTEGER+1,'0','01','1e3','9223372036854775808',{},[]])('does not infer enqueue success from %j',value=>expect(acknowledgedQueueId(value)).toBe(false));
+ it('does not claim an email is queued without a queue id',async()=>{vi.stubEnv('EXEC_REPORT_DISPATCH_ENABLED','true');vi.stubEnv('EXEC_REPORT_EMAIL','approved@example.invalid');fixture.rpc.mockResolvedValue({data:null,error:null});const warn=vi.spyOn(console,'error').mockImplementation(()=>{});try{const result=await dispatchDailyReport();expect(result.emailQueued).toBe(false);expect(fixture.rpc).toHaveBeenCalledTimes(1);}finally{warn.mockRestore();}});
+});
+
+describe('visitor report time semantics',()=>{
+ const end=new Date('2026-10-18T12:00:00Z');
+ const row={pages_viewed:['/old-page'],first_visit:true,created_at:'2026-10-16T12:00:00Z',last_seen_at:'2026-10-18T11:00:00Z'};
+ beforeEach(()=>{vi.useFakeTimers();vi.setSystemTime(end);});
+ it('does not call an old visitor new or count time before the report window',async()=>{fixture.results.set('visitor_sessions',{data:[row],count:1,error:null});const r=await buildDailyReport();expect(r.visitors.newVisitors).toBe(0);expect(r.visitors.avgDwellMinutes).toBe(1380);expect(r.source.pagesBasis).toBe('lifetime_pages_of_selected_records');expect(renderReportHtml(r)).toContain('ليست زمن التفاعل الفعلي');});
+ it('counts a first-seen visitor created inside the window',async()=>{fixture.results.set('visitor_sessions',{data:[{...row,created_at:'2026-10-18T10:00:00Z'}],count:1,error:null});expect((await buildDailyReport()).visitors.newVisitors).toBe(1);});
+ it.each([{created_at:null},{pages_viewed:null},{pages_viewed:[null]},{first_visit:null},{created_at:'2026-10-18T11:30:00Z'},{last_seen_at:'2026-10-18T12:00:00Z'}])('rejects contradictory or missing visitor evidence %j',async patch=>{fixture.results.set('visitor_sessions',{data:[{...row,...patch}],count:1,error:null});await expect(buildDailyReport()).rejects.toThrow(/REPORT_INVALID/);});
 });
