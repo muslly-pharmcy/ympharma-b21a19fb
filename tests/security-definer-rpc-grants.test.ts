@@ -6,12 +6,12 @@ describe('privileged RPC grants', () => {
   const migration = readFileSync(
     resolve('supabase/migrations/20260816040000_omni_architect_lock_internal_rpcs.sql'),
     'utf8',
-  )
+  ).replace(/\r\n/g, '\n')
 
   const dlqAuthorizationMigration = readFileSync(
     resolve('supabase/migrations/20261010072200_authorize_agent_events_dlq_stats.sql'),
     'utf8',
-  )
+  ).replace(/\r\n/g, '\n')
 
   it('keeps organization-mutating inventory RPCs off the authenticated Data API', () => {
     for (const name of ['inv_receive_stock', 'inv_adjust_stock', 'inv_transfer_stock', 'po_receive']) {

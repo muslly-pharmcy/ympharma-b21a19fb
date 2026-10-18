@@ -90,18 +90,25 @@ export const decideAuthorizationInput = idem.extend({
 export type DecideAuthorizationInput = z.infer<typeof decideAuthorizationInput>
 
 // ---------- claims ----------
+// Match the existing PostgreSQL NUMERIC columns without silently rounding input.
+const claimMoney = z.number().finite().min(0).max(9999999999.99)
+  .refine((value) => /^\d+(?:\.\d{1,2})?$/.test(String(value)), 'At most two decimal places are supported')
+const claimQuantity = z.number().finite().positive().max(999999999.999)
+  .refine((value) => /^\d+(?:\.\d{1,3})?$/.test(String(value)), 'At most three decimal places are supported')
 export const claimItemInput = z.object({
   dispenseItemId: uuid.optional().nullable(),
   productId: uuid.optional().nullable(),
   description: z.string().min(1).max(300),
-  quantity: z.number().positive().default(1),
-  unitBilled: z.number().min(0).default(0),
-  billedAmount: z.number().min(0).default(0),
+  quantity: claimQuantity.default(1),
+  unitBilled: claimMoney.default(0),
+  billedAmount: claimMoney.default(0),
   notes: z.string().max(500).optional().nullable(),
 })
 export type ClaimItemInput = z.infer<typeof claimItemInput>
 
 export const createClaimInput = idem.extend({
+  // The caller must retain this key until a definite outcome is received.
+  idempotencyKey: z.string().min(8).max(128),
   organizationId: uuid,
   patientId: uuid,
   providerId: uuid,

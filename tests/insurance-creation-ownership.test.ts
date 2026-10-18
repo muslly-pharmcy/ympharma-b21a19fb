@@ -9,7 +9,7 @@ const state = vi.hoisted(() => ({
   errorTable: '',
   permissionDenied: false,
   audit: vi.fn(),
-  rpc: vi.fn(async () => ({ data: null, error: null })),
+  rpc: vi.fn(async () => ({ data: {id:'created-record',correlationId:'test-correlation'}, error: null })),
 }))
 
 vi.mock('@tanstack/react-start', () => ({
@@ -71,6 +71,15 @@ vi.mock('@/integrations/supabase/client.server', () => ({
 
 import { createAuthorization, createInsuranceClaim, upsertInsuranceProvider, upsertInsurancePlan, upsertPatientInsurance } from '@/lib/insurance.mutations.functions'
 
+// Keep the reference utility's regression coverage separate from the atomic
+// handler: the RPC now owns authoritative reference checks and replay order.
+import { requireClaimReferences } from '@/lib/insurance-references.server'
+import { createClaimInput } from '@/domain/insurance/commands'
+import { supabaseAdmin } from '@/integrations/supabase/client.server'
+const checkClaimReferences = async ({data}: {data: unknown}) => {
+  await requireClaimReferences(supabaseAdmin as unknown as Parameters<typeof requireClaimReferences>[0], createClaimInput.parse(data), state.actor.branchId)
+  return {id:'created-record'}
+}
 const id = (value: number) => `00000000-0000-4000-8000-${String(value).padStart(12, '0')}`
 const orgA = id(1), orgB = id(2), missing = id(999)
 const pairs: Array<[string, number]> = [
@@ -80,6 +89,7 @@ const pairs: Array<[string, number]> = [
 ]
 const authorization = () => ({ organizationId: orgA, patientId: id(20), planId: id(40), prescriptionId: id(50) })
 const claim = () => ({
+  idempotencyKey: 'ownership-claim-key',
   organizationId: orgA, patientId: id(20), providerId: id(30), planId: id(40),
   dispenseId: id(60), prescriptionId: id(50), authorizationId: id(70),
   items: [{ productId: id(80), dispenseItemId: id(90), description: 'synthetic item', billedAmount: 10 }],
@@ -126,29 +136,30 @@ describe('authorization reference ownership at the handler boundary', () => {
   })
 })
 
-describe('claim reference ownership at the handler boundary', () => {
+describe('claim reference preflight utility (database RPC is authoritative)', () => {
   for (const [field, foreign] of [
     ['patientId', 21], ['providerId', 31], ['planId', 41], ['dispenseId', 61],
     ['prescriptionId', 51], ['authorizationId', 71],
   ] as const) {
     it.each([['foreign', id(foreign)], ['missing', missing]])(`rejects ${field} %s before any claim write`, async (_kind, value) => {
-      await expectRejectedWithoutWrite(createInsuranceClaim, { ...claim(), [field]: value })
+      await expectRejectedWithoutWrite(checkClaimReferences, { ...claim(), [field]: value })
     })
   }
   for (const [field, foreign] of [['productId', 81], ['dispenseItemId', 91]] as const) {
     it.each([['foreign', id(foreign)], ['missing', missing]])(`rejects item ${field} %s before any claim write`, async (_kind, value) => {
       const data = claim()
       data.items.push({ ...data.items[0], [field]: value })
-      await expectRejectedWithoutWrite(createInsuranceClaim, data)
+      await expectRejectedWithoutWrite(checkClaimReferences, data)
     })
   }
   it.each([id(11), missing])('rejects foreign or missing actor branch %s', async (branchId) => {
     state.actor.branchId = branchId
-    await expectRejectedWithoutWrite(createInsuranceClaim, claim())
+    await expectRejectedWithoutWrite(checkClaimReferences, claim())
   })
   it('accepts all same-org references and derives item ownership through its dispense', async () => {
-    await expect(invoke(createInsuranceClaim, claim())).resolves.toMatchObject({ id: 'created-record' })
-    expect(state.writes.map((write) => write.table)).toEqual(['insv2_claims', 'insv2_claim_items', 'insv2_claim_status_history'])
+    await expect(invoke(checkClaimReferences, claim())).resolves.toMatchObject({ id: 'created-record' })
+    expect(state.writes).toEqual([])
+    expect(state.rpc).not.toHaveBeenCalled()
     expect(state.lookups).toContainEqual({
       table: 'hc_dispense_items', columns: 'id, dispense:hc_dispenses!inner(id)',
       filters: [['id', [id(90)]], ['dispense.organization_id', orgA]],
@@ -156,23 +167,23 @@ describe('claim reference ownership at the handler boundary', () => {
   })
   it('accepts omitted optional references and a null branch', async () => {
     state.actor.branchId = null
-    await expect(invoke(createInsuranceClaim, {
-      organizationId: orgA, patientId: id(20), providerId: id(30), planId: id(40),
+    await expect(invoke(checkClaimReferences, {
+      organizationId: orgA, patientId: id(20), providerId: id(30), planId: id(40), idempotencyKey:'manual-claim-key',
       items: [{ description: 'manual claim item' }],
     })).resolves.toMatchObject({ id: 'created-record' })
     expect(state.lookups.map((lookup) => lookup.table)).toEqual(['hc_patients', 'insv2_providers', 'insv2_plans'])
   })
   it.each([82, 83])('preserves approved public catalog product %s', async (product) => {
     const data = claim(); data.items[0].productId = id(product)
-    await expect(invoke(createInsuranceClaim, data)).resolves.toMatchObject({ id: 'created-record' })
+    await expect(invoke(checkClaimReferences, data)).resolves.toMatchObject({ id: 'created-record' })
   })
   it.each([84, 85])('denies global products that are unpublished or unapproved: %s', async (product) => {
     const data = claim(); data.items[0].productId = id(product)
-    await expectRejectedWithoutWrite(createInsuranceClaim, data)
+    await expectRejectedWithoutWrite(checkClaimReferences, data)
   })
   it('deduplicates repeated item references for the ownership lookup', async () => {
     const data = claim(); data.items.push({ ...data.items[0] })
-    await invoke(createInsuranceClaim, data)
+    await invoke(checkClaimReferences, data)
     for (const table of ['catalog_products', 'hc_dispense_items']) {
       const checks = state.lookups.filter((lookup) => lookup.table === table)
       expect(checks).toHaveLength(1)
@@ -181,7 +192,7 @@ describe('claim reference ownership at the handler boundary', () => {
   })
   it.each(['hc_patients', 'catalog_products', 'hc_dispense_items'])('fails closed on %s lookup errors', async (table) => {
     state.errorTable = table
-    await expectRejectedWithoutWrite(createInsuranceClaim, claim(), 'lookup unavailable')
+    await expectRejectedWithoutWrite(checkClaimReferences, claim(), 'lookup unavailable')
   })
   it('rejects an organization mismatch before looking up records', async () => {
     await expectRejectedWithoutWrite(createInsuranceClaim, { ...claim(), organizationId: orgB }, 'organization denied')

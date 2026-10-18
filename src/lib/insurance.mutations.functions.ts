@@ -12,7 +12,7 @@ import {
 } from '@/domain/insurance/commands'
 import { canTransitionClaim, type ClaimStatus } from '@/domain/insurance/schemas'
 import { requireOrganizationRecord } from './organization-record.server'
-import { requireAuthorizationReferences, requireClaimReferences } from './insurance-references.server'
+import { requireAuthorizationReferences } from './insurance-references.server'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type AnyDB = { from: (t: string) => any; rpc: (n: string, a?: unknown) => any }
@@ -282,56 +282,25 @@ async function writeClaimStatus(
 export const createInsuranceClaim = createServerFn({ method: 'POST' })
   .validator((raw: unknown): CreateClaimInput => createClaimInput.parse(raw))
   .handler(async ({ data }) => {
-    const { getActor, requireOrg, requirePermission, withIdempotency, newCorrelationId, db, audit } = await loadDeps()
+    const { getActor, requireOrg, requirePermission, newCorrelationId, db } = await loadDeps()
     const actor = await getActor()
     requireOrg(actor, data.organizationId)
     requirePermission(actor, 'insurance.write')
-    const correlation = data.correlationId ?? newCorrelationId('clm')
-
-    return withIdempotency(data.idempotencyKey, actor.userId, 'createInsuranceClaim', async () => {
-      // Check every reference before the first write, including all item rows.
-      await requireClaimReferences(db, data, actor.branchId)
-      const totalBilled = data.items.reduce((s, it) => s + it.billedAmount, 0)
-      const { data: claim, error } = await db.from('insv2_claims').insert({
-        organization_id: data.organizationId,
-        branch_id: actor.branchId,
-        patient_id: data.patientId,
-        provider_id: data.providerId,
-        plan_id: data.planId,
-        dispense_id: data.dispenseId ?? null,
-        prescription_id: data.prescriptionId ?? null,
-        authorization_id: data.authorizationId ?? null,
-        status: 'draft',
-        total_billed: totalBilled,
-        currency: data.currency,
-        diagnosis: data.diagnosis ?? null,
-        notes: data.notes ?? null,
-        correlation_id: correlation,
-        created_by: actor.userId,
-      }).select('id').single()
-      if (error) throw new Error(error.message)
-      const claimId = claim.id as string
-
-      const itemRows = data.items.map((it) => ({
-        claim_id: claimId,
-        dispense_item_id: it.dispenseItemId ?? null,
-        product_id: it.productId ?? null,
-        description: it.description,
-        quantity: it.quantity,
-        unit_billed: it.unitBilled,
-        billed_amount: it.billedAmount,
-        notes: it.notes ?? null,
-      }))
-      const { error: itErr } = await db.from('insv2_claim_items').insert(itemRows)
-      if (itErr) throw new Error(itErr.message)
-
-      await db.from('insv2_claim_status_history').insert({
-        claim_id: claimId, from_status: null, to_status: 'draft', changed_by: actor.userId,
-      })
-      await emit('InsuranceClaimCreated', { claim_id: claimId, total_billed: totalBilled }, correlation)
-      await audit(actor, { action: 'insurance.claim.create', resourceType: 'insv2_claim', resourceId: claimId, payload: { items: itemRows.length, total_billed: totalBilled } })
-      return { id: claimId, correlationId: correlation }
+    // Replay is resolved inside the transaction before revalidating references:
+    // optional links may have been deleted after the original commit.
+    const { data: result, error } = await db.rpc('insv2_create_claim_atomic', {
+      p_actor_id: actor.userId,
+      p_branch_id: actor.branchId,
+      p_request: data,
+      p_correlation_id: data.correlationId ?? newCorrelationId('clm'),
     })
+    if (error) throw new Error(error.message)
+    if (!result || typeof result.id !== 'string' || typeof result.correlationId !== 'string') {
+      throw new Error('Invalid atomic claim response')
+    }
+    // Header, items, history, event, audit and replay receipt committed together.
+    // Never use the legacy key-only cache or emit side effects a second time.
+    return { id: result.id as string, correlationId: result.correlationId as string }
   })
 
 export const submitInsuranceClaim = createServerFn({ method: 'POST' })
