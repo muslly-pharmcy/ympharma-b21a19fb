@@ -83,7 +83,8 @@ function SunCoreAdmin() {
   const send = useMutation({
     mutationFn: () => sendFn({}),
     onSuccess: (r) => {
-      toast.success(r.emailQueued ? 'تم إرسال التقرير إلى بريدك' : 'تم إنشاء التقرير (تعذر وضعه في طابور البريد)')
+      if (r.emailQueued) toast.success('أضيف التقرير إلى طابور البريد للجهة المهيأة؛ وصوله لم يؤكد بعد')
+      else toast.error('تم إنشاء التقرير، لكن وضعه في طابور البريد غير مؤكد')
       void qc.invalidateQueries({ queryKey: ['sun-core', 'report'] })
     },
     onError: (e: Error) => toast.error(e.message),
@@ -96,13 +97,14 @@ function SunCoreAdmin() {
       <header className="glass-panel rounded-3xl p-6">
         <h1 className="text-2xl font-bold text-foreground">نواة الشمس — مركز التشغيل الذاتي</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          حالة الوحدات، مزامنة العملاء مع Google Sheets، والتقرير التنفيذي اليومي (9:00 مساءً).
+          حالة الوحدات، مزامنة العملاء مع Google Sheets، وتقرير آخر24ساعة من المصادر المتاحة.
         </p>
       </header>
 
       {/* Planetary status */}
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">حالة الوحدات (24 ساعة)</h2>
+        {status.isError && <p role="alert" className="text-sm text-destructive">تعذرت قراءة قياسات الوحدات؛ لا يمكن تأكيد سلامتها حاليًا.</p>}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {(status.data ?? []).map((m) => (
             <div key={m.moduleKey} className={`glass-card rounded-2xl border p-4 ${STATUS_STYLE[m.status] ?? ''}`}>
@@ -141,19 +143,21 @@ function SunCoreAdmin() {
             </button>
           </div>
         </div>
+        {preview.isError && <p role="alert" className="text-sm text-destructive">تعذر إعداد تقرير من مصادر كاملة. {r ? 'المعروض آخر تقرير محفوظ؛ راجع وقت قراءته.' : 'راجع اتصال البيانات ثم أعد المحاولة.'}</p>}
+        {r && <p className="text-sm text-muted-foreground">الفترة: {r.source.from} — {r.source.to}. قيم الطلبات ليست تحصيلًا أو إيرادًا محاسبيًا، وعملتها غير موثقة في هذا المصدر.</p>}
         {r ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat label="الجلسات" value={r.visitors.sessions} />
             <Stat label="متوسط المكوث (د)" value={r.visitors.avgDwellMinutes} />
             <Stat label="الطلبات" value={r.sales.orders} />
-            <Stat label="الإيراد" value={r.sales.revenue.toLocaleString('ar-YE')} />
+            <Stat label="قيم الطلبات — ليست إيرادًا محاسبيًا" value={r.sales.orderTotal} />
             <Stat label="عملاء جدد" value={r.crm.newCustomers} />
             <Stat label="تمت مزامنتهم" value={r.crm.syncSynced} />
             <Stat label="تنبيهات المخزون" value={r.sales.safetyStockAlerts} />
             <Stat label="أخطاء 24 ساعة" value={r.health.errors} />
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">جارٍ تجميع التقرير…</p>
+          <p className="text-sm text-muted-foreground">{preview.isError ? 'التقرير غير متاح حاليًا.' : 'جارٍ تجميع التقرير…'}</p>
         )}
       </section>
 
