@@ -3,8 +3,14 @@
 **Source:** `WAVE-C6-REMEDIATION-PLAN.md` §4 Phase R0.
 **Rule:** Public soft-launch is blocked until every ID below reports
 `RESOLVED`.
-**Last verified:** 2026-08-14 (re-baselined against the repository, not against
+**Historical baseline:** 2026-08-14 (re-baselined against the repository, not against
 prior reports — see `REPAIR_REPORT.md`).
+
+> **Current status (2026-10-10): BLOCKED.** The table and test counts below are a
+> historical snapshot, not current release evidence. See
+> [`YMPHARMA_RELEASE_READINESS.md`](YMPHARMA_RELEASE_READINESS.md) for the current
+> deployment state, blockers, and verification gates. No production deployment,
+> DNS change, or live migration was performed in the latest audit.
 
 ## Launch-blocking findings (Phase R0)
 

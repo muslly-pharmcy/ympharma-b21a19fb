@@ -20,10 +20,10 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: 1.4.3
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Typecheck
         run: bunx tsc --noEmit
@@ -33,3 +33,9 @@ jobs:
 
       - name: Unit tests
         run: bunx vitest run
+
+      - name: Build Node server target
+        run: bun run build
+
+      - name: Validate Cloudflare Worker bundle (no deployment)
+        run: bun run validate:cloudflare
