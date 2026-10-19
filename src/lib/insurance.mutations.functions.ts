@@ -11,6 +11,7 @@ import {
   type RecordPaymentInput, type ReconcileClaimInput, type CancelClaimInput,
 } from '@/domain/insurance/commands'
 import { canTransitionClaim, type ClaimStatus } from '@/domain/insurance/schemas'
+import { requireOrganizationRecord } from './organization-record.server'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type AnyDB = { from: (t: string) => any; rpc: (n: string, a?: unknown) => any }
@@ -53,6 +54,9 @@ export const upsertInsuranceProvider = createServerFn({ method: 'POST' })
     const actor = await getActor()
     requireOrg(actor, data.organizationId)
     requirePermission(actor, 'insurance.write')
+    if (data.id) {
+      await requireOrganizationRecord(db, 'insv2_providers', data.id, data.organizationId)
+    }
 
     const payload = {
       organization_id: data.organizationId,
@@ -68,7 +72,7 @@ export const upsertInsuranceProvider = createServerFn({ method: 'POST' })
       created_by: actor.userId,
     }
     const row = data.id
-      ? await db.from('insv2_providers').update(payload).eq('id', data.id).select('*').single()
+      ? await db.from('insv2_providers').update(payload).eq('id', data.id).eq('organization_id', data.organizationId).select('*').single()
       : await db.from('insv2_providers').insert(payload).select('*').single()
     if (row.error) throw new Error(row.error.message)
     await audit(actor, { action: data.id ? 'insurance.provider.update' : 'insurance.provider.create', resourceType: 'insv2_provider', resourceId: row.data.id })
@@ -82,6 +86,10 @@ export const upsertInsurancePlan = createServerFn({ method: 'POST' })
     const actor = await getActor()
     requireOrg(actor, data.organizationId)
     requirePermission(actor, 'insurance.write')
+    await requireOrganizationRecord(db, 'insv2_providers', data.providerId, data.organizationId)
+    if (data.id) {
+      await requireOrganizationRecord(db, 'insv2_plans', data.id, data.organizationId)
+    }
 
     const payload = {
       organization_id: data.organizationId,
@@ -98,7 +106,7 @@ export const upsertInsurancePlan = createServerFn({ method: 'POST' })
       created_by: actor.userId,
     }
     const row = data.id
-      ? await db.from('insv2_plans').update(payload).eq('id', data.id).select('*').single()
+      ? await db.from('insv2_plans').update(payload).eq('id', data.id).eq('organization_id', data.organizationId).select('*').single()
       : await db.from('insv2_plans').insert(payload).select('*').single()
     if (row.error) throw new Error(row.error.message)
     await audit(actor, { action: data.id ? 'insurance.plan.update' : 'insurance.plan.create', resourceType: 'insv2_plan', resourceId: row.data.id })
@@ -115,6 +123,11 @@ export const upsertPatientInsurance = createServerFn({ method: 'POST' })
     const actor = await getActor()
     requireOrg(actor, data.organizationId)
     requirePermission(actor, 'insurance.write')
+    await requireOrganizationRecord(db, 'hc_patients', data.patientId, data.organizationId)
+    await requireOrganizationRecord(db, 'insv2_plans', data.planId, data.organizationId)
+    if (data.id) {
+      await requireOrganizationRecord(db, 'insv2_patient_insurance', data.id, data.organizationId)
+    }
 
     const payload = {
       organization_id: data.organizationId,
@@ -132,7 +145,7 @@ export const upsertPatientInsurance = createServerFn({ method: 'POST' })
       created_by: actor.userId,
     }
     const row = data.id
-      ? await db.from('insv2_patient_insurance').update(payload).eq('id', data.id).select('*').single()
+      ? await db.from('insv2_patient_insurance').update(payload).eq('id', data.id).eq('organization_id', data.organizationId).select('*').single()
       : await db.from('insv2_patient_insurance').insert(payload).select('*').single()
     if (row.error) throw new Error(row.error.message)
     await audit(actor, { action: data.id ? 'insurance.patient.update' : 'insurance.patient.create', resourceType: 'insv2_patient_insurance', resourceId: row.data.id })
