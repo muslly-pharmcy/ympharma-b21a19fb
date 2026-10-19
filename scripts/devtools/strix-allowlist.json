@@ -1,0 +1,6 @@
+{
+  "allowedTargets": [
+    "./staging-scan",
+    "./staging-scan/**"
+  ]
+}
