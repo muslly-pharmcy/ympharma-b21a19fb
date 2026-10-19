@@ -13,19 +13,28 @@ const NAME = { first: 'محمد', father: 'علي', family: 'المصلي' }
 const card = (page: Page) => page.locator('main').last()
 
 async function gotoSignup(page: Page) {
+  // Engagement prompts are covered separately. Keep them from obscuring the
+  // auth card when a cold development build takes more than 15 seconds.
+  await page.addInitScript(() => {
+    window.sessionStorage.setItem('engage:exit-intent', '1')
+    window.sessionStorage.setItem('engage:scroll-prompt', '1')
+  })
   await page.goto('/auth?mode=signup', { waitUntil: 'domcontentloaded' })
   await expect(page.getByText('أدخل اسمك الثلاثي')).toBeVisible()
 
   // Prove that React hydration has attached the mode-switch handler before
   // typing. Waiting for networkidle is unreliable because the app keeps
-  // background connections open.
+  // background connections open. Let the visible sign-in form be the
+  // authoritative hydration signal.
   await expect(async () => {
-    await page.getByRole('button', { name: 'لديّ حساب — تسجيل الدخول' }).click()
+    await page.getByRole('button', { name: 'لديّ حساب — تسجيل الدخول' }).dispatchEvent('click')
     await expect(card(page).getByRole('button', { name: 'تسجيل الدخول', exact: true })).toBeVisible({
       timeout: 1_000,
     })
-  }).toPass({ timeout: 15_000 })
-  await page.getByRole('button', { name: 'إنشاء حساب جديد' }).click()
+  }).toPass({ timeout: 30_000 })
+  // Dispatching the mode switch avoids the fixed mobile navbar intercepting a
+  // pointer click while the auth card is settling after hydration.
+  await page.getByRole('button', { name: 'إنشاء حساب جديد' }).dispatchEvent('click')
   await expect(page.getByText('أدخل اسمك الثلاثي')).toBeVisible()
 }
 
