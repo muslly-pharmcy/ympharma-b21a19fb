@@ -1,4 +1,30 @@
 type SourceResult<T> = {data: T[] | null; count: number | null; error?: unknown};
+/** Bounded pagination for UUID-keyed sources ordered by id ascending.
+ * Count/identity drift fails closed; this is not a transactional snapshot.
+ */
+export async function readAllReportRows<T extends {id:string}>(
+ fetchPage:(from:number,to:number)=>PromiseLike<SourceResult<T>>,
+):Promise<SourceResult<T>> {
+ const pageSize=500,maxRows=50000,maxPages=200;
+ const rows:T[]=[];let expected:number|undefined,lastId='';
+ for(let page=0;page<maxPages;page++){
+  const result=await fetchPage(rows.length,rows.length+pageSize-1);
+  const count=exactCount(result);
+  if(count>maxRows)throw Error('REPORT_SOURCE_TOO_LARGE');
+  if(expected!==undefined&&count!==expected)throw Error('REPORT_SOURCE_CHANGED');
+  expected=count;
+  if(!Array.isArray(result.data)||result.data.length>pageSize||rows.length+result.data.length>count)throw Error('REPORT_SOURCE_INCOMPLETE');
+  if(!result.data.length&&rows.length<count)throw Error('REPORT_SOURCE_INCOMPLETE');
+  for(const row of result.data){
+   if(!row||typeof row.id!=='string'||!(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i).test(row.id))throw Error('REPORT_INVALID_ROW_ID');
+   const id=row.id.toLowerCase();
+   if(id<=lastId)throw Error('REPORT_SOURCE_CHANGED');
+   lastId=id;rows.push(row);
+  }
+  if(rows.length===count)return {data:rows,count,error:null};
+ }
+ throw Error('REPORT_SOURCE_PAGE_LIMIT');
+}
 /** Missing, denied or truncated source data must never become a zero metric. */
 export function completeRows<T>(result: SourceResult<T>): T[] {
  if(result.error || !Array.isArray(result.data) || !Number.isSafeInteger(result.count) || result.count !== result.data.length) throw Error('REPORT_SOURCE_INCOMPLETE');

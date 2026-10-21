@@ -1,4 +1,4 @@
-import {acknowledgedQueueId,completeRows,exactCount,exactOrderTotal,reportRecipient,configuredWhatsAppLink} from './report-source'
+import {readAllReportRows,acknowledgedQueueId,completeRows,exactCount,exactOrderTotal,reportRecipient,configuredWhatsAppLink} from './report-source'
 
 export interface DailyReport {
  dateLabel:string
@@ -18,15 +18,15 @@ export async function buildDailyReport():Promise<DailyReport>{
  const end=new Date(),to=end.toISOString(),from=new Date(end.getTime()-24*3600_000).toISOString()
  const dateLabel=new Intl.DateTimeFormat('ar-YE',{timeZone:'Asia/Aden',dateStyle:'full'}).format(end)
  const [visitorResult,customers,synced,pending,failed,ordersResult,purchases,alerts,postsResult,rx,refills,bundles,messages,errors,modules]=await Promise.all([
-  db.from('visitor_sessions').select('pages_viewed, first_visit, created_at, last_seen_at',{count:'exact'}).gte('last_seen_at',from).lt('last_seen_at',to).limit(5000),
+  readAllReportRows((start,finish)=>db.from('visitor_sessions').select('id, pages_viewed, first_visit, created_at, last_seen_at',{count:'exact'}).gte('last_seen_at',from).lt('last_seen_at',to).order('id',{ascending:true}).range(start,finish)),
   db.from('crm_customers').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
   db.from('crm_sync_log').select('id',{count:'exact',head:true}).eq('status','synced').gte('created_at',from).lt('created_at',to),
   db.from('crm_sync_log').select('id',{count:'exact',head:true}).eq('status','pending').lt('created_at',to),
   db.from('crm_sync_log').select('id',{count:'exact',head:true}).eq('status','failed').lt('created_at',to),
-  db.from('orders').select('total, created_at',{count:'exact'}).gte('created_at',from).lt('created_at',to).limit(5000),
+  readAllReportRows((start,finish)=>db.from('orders').select('id, total, created_at',{count:'exact'}).gte('created_at',from).lt('created_at',to).order('id',{ascending:true}).range(start,finish)),
   db.from('invoice_uploads').select('id',{count:'exact',head:true}).in('status',['uploaded','extracting','extracted']).lt('created_at',to),
   db.from('inv_reorder_suggestions').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
-  db.from('social_posts').select('status',{count:'exact'}).gte('created_at',from).lt('created_at',to).limit(500),
+  readAllReportRows((start,finish)=>db.from('social_posts').select('id, status',{count:'exact'}).gte('created_at',from).lt('created_at',to).order('id',{ascending:true}).range(start,finish)),
   db.from('store_prescription_uploads').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
   db.from('store_refill_subscriptions').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
   db.from('store_bundle_orders').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),

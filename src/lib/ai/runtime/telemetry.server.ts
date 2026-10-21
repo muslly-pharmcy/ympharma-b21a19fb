@@ -1,4 +1,4 @@
-import {completeRows} from '../../reports/report-source'
+import {completeRows,readAllReportRows} from '../../reports/report-source'
 // Sun Core planetary telemetry — health, latency, error rate and budget per module.
 // Written by module wrappers, read by the kernel router and admin dashboard.
 
@@ -85,12 +85,13 @@ export async function planetaryStatus(hours = 24, end = new Date()): Promise<Mod
   const until=end.toISOString()
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
   const since = new Date(end.getTime() - hours * 3600_000).toISOString()
-  const result = await supabaseAdmin
+  const result = await readAllReportRows((start,finish)=>supabaseAdmin
     .from('kernel_module_telemetry')
-    .select('module_key, latency_ms, failures, runs, budget_used, observed_at',{count:'exact'})
+    .select('id, module_key, latency_ms, failures, runs, budget_used, observed_at',{count:'exact'})
     .gte('observed_at', since)
     .lt('observed_at', until)
-    .limit(5000)
+    .order('id',{ascending:true})
+    .range(start,finish))
 
   const acc = new Map<string, { runs: number; failures: number; latency: number; latencyN: number; budget: number; last: string | null }>()
   for (const key of MODULE_KEYS) acc.set(key, { runs: 0, failures: 0, latency: 0, latencyN: 0, budget: 0, last: null })

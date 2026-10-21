@@ -1,8 +1,13 @@
 import {beforeEach,afterEach,describe,it,expect,vi} from 'vitest';
 const fixture=vi.hoisted(()=>({results:new Map<string,any>(),calls:[] as Array<{table:string;method:string;args:unknown[]}>,rpc:vi.fn(),insert:vi.fn(),modules:vi.fn()}));
 vi.mock('@/integrations/supabase/client.server',()=>({supabaseAdmin:{rpc:fixture.rpc,from(table:string){
- const builder:any={};for(const method of ['select','gte','lt','limit','eq','in'])builder[method]=(...args:unknown[])=>{fixture.calls.push({table,method,args});return builder;};
- builder.insert=fixture.insert;builder.then=(resolve:any,reject:any)=>Promise.resolve(fixture.results.get(table)??{data:[],count:0,error:null}).then(resolve,reject);return builder;
+ const builder:any={};for(const method of ['select','gte','lt','limit','eq','in','order'])builder[method]=(...args:unknown[])=>{fixture.calls.push({table,method,args});return builder;};
+ let range:[number,number]|null=null;builder.range=(start:number,end:number)=>{range=[start,end];fixture.calls.push({table,method:'range',args:[start,end]});return builder;};
+ builder.insert=fixture.insert;builder.then=(resolve:any,reject:any)=>{
+  const result=fixture.results.get(table)??{data:[],count:0,error:null};
+  const data=Array.isArray(result.data)?result.data.map((r:any,i:number)=>({id:`00000000-0000-0000-0000-${String(i+1).padStart(12,'0')}`,...r})):result.data;
+  return Promise.resolve({...result,data:range&&Array.isArray(data)?data.slice(range[0],range[1]+1):data}).then(resolve,reject);
+ };return builder;
 }}}));
 vi.mock('@/lib/ai/runtime/telemetry.server',()=>({planetaryStatus:fixture.modules}));
 import {buildDailyReport,dispatchDailyReport,renderReportHtml,renderWhatsAppSummary,whatsappLink} from '../src/lib/reports/daily-dispatcher.server';
@@ -64,4 +69,20 @@ describe('visitor report time semantics',()=>{
  it('does not call an old visitor new or count time before the report window',async()=>{fixture.results.set('visitor_sessions',{data:[row],count:1,error:null});const r=await buildDailyReport();expect(r.visitors.newVisitors).toBe(0);expect(r.visitors.avgDwellMinutes).toBe(1380);expect(r.source.pagesBasis).toBe('lifetime_pages_of_selected_records');expect(renderReportHtml(r)).toContain('ليست زمن التفاعل الفعلي');});
  it('counts a first-seen visitor created inside the window',async()=>{fixture.results.set('visitor_sessions',{data:[{...row,created_at:'2026-10-18T10:00:00Z'}],count:1,error:null});expect((await buildDailyReport()).visitors.newVisitors).toBe(1);});
  it.each([{created_at:null},{pages_viewed:null},{pages_viewed:[null]},{first_visit:null},{created_at:'2026-10-18T11:30:00Z'},{last_seen_at:'2026-10-18T12:00:00Z'}])('rejects contradictory or missing visitor evidence %j',async patch=>{fixture.results.set('visitor_sessions',{data:[{...row,...patch}],count:1,error:null});await expect(buildDailyReport()).rejects.toThrow(/REPORT_INVALID/);});
+});
+
+describe('large report sources',()=>{
+ it('reads every order and post instead of silently capping the report',async()=>{
+  fixture.results.set('orders',{data:Array.from({length:1001},()=>({total:'0.1000'})),count:1001,error:null});
+  fixture.results.set('social_posts',{data:Array.from({length:501},()=>({status:'published'})),count:501,error:null});
+  const report=await buildDailyReport();expect(report.sales.orders).toBe(1001);expect(report.sales.orderTotal).toBe('100.1000');expect(report.content.published).toBe(501);
+  expect(fixture.calls.filter(c=>c.table==='orders'&&c.method==='range').map(c=>c.args)).toEqual([[0,499],[500,999],[1000,1499]]);
+  for(const table of ['orders','visitor_sessions','social_posts'])expect(fixture.calls).toContainEqual({table,method:'order',args:['id',{ascending:true}]});
+ });
+});
+
+it('aggregates telemetry across pages with the same fixed time window',async()=>{
+ const observed_at='2026-10-21T10:00:00Z';fixture.results.set('kernel_module_telemetry',{data:Array.from({length:501},()=>({module_key:'inventory',runs:1,failures:0,latency_ms:10,budget_used:0,observed_at})),count:501,error:null});
+ const actual=await vi.importActual<typeof import('../src/lib/ai/runtime/telemetry.server')>('../src/lib/ai/runtime/telemetry.server');const statuses=await actual.planetaryStatus(24,new Date('2026-10-21T12:00:00Z'));expect(statuses.find(m=>m.moduleKey==='inventory')?.runs).toBe(501);
+ expect(fixture.calls.filter(c=>c.table==='kernel_module_telemetry'&&c.method==='range').map(c=>c.args)).toEqual([[0,499],[500,999]]);
 });
