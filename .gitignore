@@ -3,23 +3,25 @@ node_modules
 .pnp
 .pnp.js
 
-# Build
+# Build and local tools
 dist
 dist-ssr
 .output
 .wrangler
 artifacts
+staging-scan
+supabase/.temp/
 android/.gradle
 android/build
 android/app/build
 android/local.properties
 *.local
 
-# Environment
+# Environment (keep only explicitly sanitized templates)
 .env
-.env.local
-.env.local.backup
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
 
 # Editor
 .vscode/*
@@ -50,5 +52,5 @@ coverage
 test-results
 playwright-report
 
-# Prevent bun/npm lock conflicts
+# Bun is the canonical lockfile
 package-lock.json

@@ -33,3 +33,12 @@ jobs:
 
       - name: Unit tests
         run: bunx vitest run
+
+      - name: Developer tooling boundary tests
+        run: bun run test:tooling
+
+      - name: Build Node server target
+        run: bun run build
+
+      - name: Validate Cloudflare Worker bundle (no deployment)
+        run: bun run validate:cloudflare

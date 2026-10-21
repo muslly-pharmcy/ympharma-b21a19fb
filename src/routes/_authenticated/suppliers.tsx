@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { listSuppliers } from '@/lib/suppliers.functions'
@@ -12,7 +13,7 @@ export const Route = createFileRoute('/_authenticated/suppliers')({
   }),
   component: SuppliersPage,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">{error.message}</div>
+    <div className="p-8 text-center text-red-600">{classifyError(error).userMessageAr}</div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })

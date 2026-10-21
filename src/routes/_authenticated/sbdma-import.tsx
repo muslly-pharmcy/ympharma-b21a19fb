@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -33,7 +34,7 @@ export const Route = createFileRoute('/_authenticated/sbdma-import')({
   }),
   component: SbdmaImportPage,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">فشل تحميل الصفحة: {error.message}</div>
+    <div className="p-8 text-center text-red-600">فشل تحميل الصفحة: {classifyError(error).userMessageAr}</div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })

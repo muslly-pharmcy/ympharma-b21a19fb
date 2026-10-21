@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -7,7 +8,7 @@ import { listInsuranceClaims } from '@/lib/insurance.functions'
 export const Route = createFileRoute('/_authenticated/insurance/claims')({
   head: () => ({ meta: [{ title: 'مطالبات التأمين — MUSLLY AI OS' }] }),
   component: ClaimsListPage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{classifyError(error).userMessageAr}</div>,
 })
 
 const STATUS_LABEL: Record<string, string> = {

@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
@@ -41,7 +42,7 @@ export const Route = createFileRoute('/_authenticated/patient-profile')({
   component: PatientProfileRoute,
   errorComponent: ({ error }) => (
     <div className="p-8 text-center text-red-600" dir="rtl">
-      {error.message}
+      {classifyError(error).userMessageAr}
     </div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">الصفحة غير موجودة</div>,

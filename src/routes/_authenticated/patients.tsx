@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -15,7 +16,7 @@ export const Route = createFileRoute('/_authenticated/patients')({
   }),
   component: PatientsPage,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">فشل التحميل: {error.message}</div>
+    <div className="p-8 text-center text-red-600">فشل التحميل: {classifyError(error).userMessageAr}</div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })
