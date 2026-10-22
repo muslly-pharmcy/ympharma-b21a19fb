@@ -29,7 +29,7 @@
 
     "playwright:install": "npx playwright install --with-deps",
 
-    "security:strix:docker": "docker run --rm -v \"$PWD\":/work -w /work ghcr.io/usestrix/strix-sandbox:latest strix --target /work",
+    "security:strix:docker": "node scripts/devtools/strix-scan.js",
     "security:strix:help": "echo 'Strix is provided as a Python/Docker tool (ghcr.io/usestrix/strix-sandbox). Run the docker command in security:strix:docker locally for a test scan. Do NOT run this in production without review.'",
 
     "skillui:help": "npx skillui --help",
