@@ -51,3 +51,27 @@
 - ملاحظة من القراءة فقط: ci.yml يتضمن بالفعل validate:cloudflare، فلا يصح ادعاء أن إضافة الخطوة مفقودة هي إصلاح جديد. سجل Workers Builds غير مقروء في هذه المهمة.
 
 السجلات الكاملة محلياً في المجلد المجاور `../release-audit-evidence-20261021/`؛ تاريخ اسم المجلد هو تاريخ بدء العمل، وليس تاريخ نجاح CI. سجل baseline-strix.log يحفظ الخطأ الأصلي؛ p0-1-*.log تحفظ النتائج اللاحقة. لا ينسب شيء من هذه النتائج إلى main أو الإنتاج.
+
+## تحديث الأدلة من GitHub — 2026-10-23
+
+PR المسودة: https://github.com/muslly-pharmcy/ympharma-b21a19fb/pull/18 . أُنشئ عبر gh باستعمال اعتماد Git الموجود في ذاكرة العملية فقط؛ لم تُحفظ بيانات اعتماد ولم يتغير تسجيل الدخول. تعذر موصل GitHub بصلاحية 403 لا يعني تعذر الكتابة عبر Git المحلي.
+
+النتائج التالية تخص head `993b13f1e73d1181ff3ab14921025babc9919ec8`، بيئة GitHub Actions/Ubuntu، وليست main أو الإنتاج:
+
+| الفحص/الأمر | النتيجة الفعلية والدليل |
+|---|---|
+| CI: Typecheck, lint and test | ناجح: https://github.com/muslly-pharmcy/ympharma-b21a19fb/actions/runs/39863080268/job/120118403498 |
+| `bunx vitest run` في CI | 293 ناجح، 0 فاشل، 8 متجاوزة؛ 42 ملفاً ناجحاً وملف متجاوز |
+| `bunx tsc --noEmit` و`bunx eslint . --max-warnings=-1` و`bun run build` | ناجحة في نفس job؛ ESLint سجل 6 تحذيرات |
+| `bun run validate:cloudflare` | ناجح في نفس job؛ أنشأ Worker وسجل `--dry-run: exiting now.`؛ لا نشر فعلي |
+| CodeQL | ناجح |
+| `osv-scanner` المستقل | ناجح: https://github.com/muslly-pharmcy/ympharma-b21a19fb/runs/120118548797 |
+| OSV Security Scan / osv-scan | فاشل: https://github.com/muslly-pharmcy/ympharma-b21a19fb/actions/runs/39863080482/job/120118403313 |
+| Workers Builds | فاشل بحسب check: https://github.com/muslly-pharmcy/ympharma-b21a19fb/runs/120113770242 . لم يُقرأ سجل السبب؛ P0-2 لم يبدأ |
+| Supabase Preview | متجاوز؛ ليس نجاحاً أو دليلاً على تطبيق migrations |
+
+جُلبت logs بالأمر `gh run view --repo muslly-pharmcy/ympharma-b21a19fb --job <job-id> --log`؛ exit 0 لكلا job IDs أعلاه. قرئت النتائج عبر `gh api repos/muslly-pharmcy/ympharma-b21a19fb/commits/993b13f1e73d1181ff3ab14921025babc9919ec8/check-runs`؛ exit 0.
+
+سجل OSV نفسه يفحص package-lock.json (1341 حزمة) وbun.lock (1530 حزمة)، ثم يطبع: `Total 33 packages affected by 94 known vulnerabilities (9 Critical, 37 High, 43 Medium, 5 Low, 0 Unknown)`، و`94 vulnerabilities can be fixed.`. تظهر نتائج في الملفين، فلا يصح نسبتها إلى package-lock القديم وحده. هذه نتائج مطابقة اعتماديات من scanner وليست إثبات استغلال التطبيق. ثبات القفل لا يمنع ظهور advisories جديدة. لم يتغير fail-on-vuln أو osv-scanner.toml أو أي ملف قفل في هذا PR.
+
+الحكم المحدث: فحص CI الأساسي ناجح على head المذكور، لكن مجموعة الفحوص الإجمالية فاشلة، وتشغيل الأدوات الخارجية الحقيقي غير منفذ. P0-1 يبقى غير مغلق؛ P0-2..P1-5 لم تبدأ وفق شرط الترتيب. معالجة الاعتماديات تتطلب نطاقاً مستقلاً ولا تُخفى داخل PR الأدوات الصغير. كل وصف سابق لـCI بأنه غير معلوم أعلاه يوثق مرحلة سابقة وتحل هذه النتائج محلّه. أي commit توثيق لاحق لا يرث نتيجة CI لهذا head تلقائياً.
