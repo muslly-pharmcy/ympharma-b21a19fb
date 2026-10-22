@@ -57,43 +57,11 @@ export const updateProduct = createServerFn({ method: 'POST' })
   .validator((raw: unknown): UpdateProductInput => updateProductInput.parse(raw))
   .handler(async ({ data }) => {
     const { getActor, requirePermission } = await import('./session.server')
-    const { withIdempotency, newCorrelationId } = await import('./idempotency.server')
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const { audit } = await import('./audit.server')
+    const { updateCatalogProduct } = await import('./catalog-update.server')
     const actor = await getActor()
     requirePermission(actor, 'catalog.write')
-    const correlation = data.correlationId ?? newCorrelationId('product')
-
-    return withIdempotency(data.idempotencyKey, actor.userId, 'updateProduct', async () => {
-      const { data: existing, error: fetchErr } = await supabaseAdmin
-        .from('catalog_products')
-        .select('organization_id')
-        .eq('id', data.id)
-        .single()
-      if (fetchErr) throw new Error(fetchErr.message)
-      if (existing.organization_id !== actor.organizationId) {
-        throw new Error('Forbidden: cross-org update')
-      }
-
-      const patch = Object.fromEntries(
-        Object.entries(data.patch).filter(([, v]) => v !== undefined),
-      )
-      const { error } = await supabaseAdmin
-        .from('catalog_products')
-        .update(patch as never)
-        .eq('id', data.id)
-      if (error) throw new Error(error.message)
-
-      await (supabaseAdmin.rpc as unknown as (name: string, args: unknown) => Promise<{ data: unknown; error: { message: string } | null }>)('emit_domain_event', {
-        p_event_type: 'ProductUpdated',
-        p_source: 'catalog-mutations',
-        p_payload: { product_id: data.id, patch } as unknown as never,
-        p_priority: 'normal',
-        p_correlation_id: correlation,
-      })
-      await audit(actor, { action: 'catalog.product.update', resourceType: 'catalog_product', resourceId: data.id, payload: { patch } })
-      return { id: data.id, correlationId: correlation }
-    })
+    return updateCatalogProduct(supabaseAdmin as unknown as import('./catalog-update.server').CatalogUpdateDatabase, actor, data)
   })
 
 export const archiveProduct = createServerFn({ method: 'POST' })

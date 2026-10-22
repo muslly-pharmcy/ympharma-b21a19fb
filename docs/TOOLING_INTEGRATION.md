@@ -1,35 +1,38 @@
-# Tooling integration for Playwright, Strix, SkillUI and Context7
+# Developer tooling
 
-This document describes the repository-level integration for developer tools. It is intended for local developer machines and reviewed staging runners only. NEVER run scanners against production systems without explicit, written authorization.
+These ESM wrappers run from the repository root even when invoked from another directory.
+Bun owns the lockfile. Install project dependencies with `bun install --frozen-lockfile`.
 
-Files and scripts added
-- scripts/devtools/tooling-doctor.js         - environment checks
-- scripts/devtools/playwright-install.js   - installs Playwright browsers
-- scripts/devtools/playwright-smoke.js     - runs Playwright tests (chromium)
-- scripts/devtools/skillui-extract.js       - gated SkillUI extraction (requires SKILLUI_ALLOW=1)
-- scripts/devtools/ctx7-check.js            - gated Context7 check (requires CTX7_ALLOW=1)
-- scripts/devtools/strix-help.js            - local help text
-- scripts/devtools/strix-scan.js            - gated Strix Docker scanner (requires SECURITY_STRIX_DOCKER=1 and allowlist entry)
-- scripts/devtools/strix-allowlist.json     - allowlist of permitted SCAN_TARGET values
+## Local checks
 
-Safe defaults and gating
-- Strix: gated and pinned to ghcr.io/usestrix/strix-sandbox:1.3.0 by default. Requires SECURITY_STRIX_DOCKER=1 and a matching entry in scripts/devtools/strix-allowlist.json. Output is written to ./artifacts/strix-report.json and must be sanitized before sharing.
-- SkillUI: gated via SKILLUI_ALLOW=1 and outputs into ./artifacts/skillui
-- Context7 (ctx7): gated via CTX7_ALLOW=1
+- `bun run tooling:doctor`: checks Node, Bun, Git and the Playwright declaration. Missing Docker or PowerShell 7 is informational; a missing required tool fails.
+- `bun run test:tooling`: isolated regression tests for argument handling, opt-in gates, path boundaries and ignored environment files. No scanner, database or external service is invoked.
+- `bun run playwright:smoke`: runs existing Chromium E2E tests against `E2E_BASE_URL` (default localhost:8080). Use an isolated test server and synthetic identities.
+- `bun run playwright:install`: explicitly installs browsers using the already installed Playwright CLI. Add `--with-deps` only when system dependency installation is intended.
 
-Developer commands (examples)
-- node scripts/devtools/tooling-doctor.js
-- node scripts/devtools/playwright-install.js
-- node scripts/devtools/playwright-smoke.js
-- SKILLUI_ALLOW=1 SKILLUI_OUT=./artifacts/skillui node scripts/devtools/skillui-extract.js
-- CTX7_ALLOW=1 node scripts/devtools/ctx7-check.js
-- SECURITY_STRIX_DOCKER=1 SCAN_TARGET=./staging-scan node scripts/devtools/strix-scan.js
+## Optional tools
 
-Windows notes
-- These scripts are implemented in Node and are cross-platform. Use PowerShell or cmd.exe as appropriate when setting environment variables. For PowerShell:
-  $env:SKILLUI_ALLOW = "1"; node scripts/devtools/skillui-extract.js
+Help commands print local instructions without contacting a registry:
+`bun run ctx7:help`, `bun run skillui:help`, `bun run security:strix:help`.
 
-Artifacts
-- All generated artifacts are written under ./artifacts and .gitignored by the project (see .gitignore update).
+Context7 and SkillUI are optional and are not installed automatically. Review and install an appropriate version locally before enabling their wrappers. `CTX7_ALLOW=1` permits the Context7 connectivity check; `SKILLUI_ALLOW=1` permits directory extraction. `SKILLUI_OUT` defaults to `artifacts/skillui` and must remain within `artifacts/`, including after junction/symlink resolution. The integrations' external CLI compatibility still requires a real authorized smoke check.
 
-See docs/TOOLING_INTEGRATION.md and SETUP.md for step-by-step installation and safety checklist.
+## Strix
+
+`security:strix:docker` calls the guarded wrapper. It requires both `SECURITY_STRIX_DOCKER=1` and an exact `SCAN_TARGET` entry in `scripts/devtools/strix-allowlist.json`:
+
+```powershell
+$env:SECURITY_STRIX_DOCKER = '1'
+$env:SCAN_TARGET = './staging-scan'
+bun run security:strix:docker
+```
+
+Stage only approved, sanitized code in that directory. URLs, wildcards, repository-root scans and paths escaping the checkout are rejected. The selected directory is mounted read-only at `/work/target`; only `artifacts/strix` is writable for reports. The entire repository and its environment files are not mounted.
+
+The existing image pin is `ghcr.io/usestrix/strix-sandbox:1.3.0`. Other image overrides, including `latest`, are rejected. Image availability and scanner CLI compatibility have **not** been verified by the local boundary tests; review the image before an authorized scan. Reports may contain sensitive source details and remain ignored by Git.
+
+## Cloudflare validation
+
+`bun run validate:cloudflare` builds locally and invokes Wrangler with fixed `deploy --dry-run` arguments. It rejects every additional argument before resolving dependencies or building. It does not deploy a Worker. A successful local build does not establish that the remote build configuration, runtime bindings or credentials are correct.
+
+Environment files, dependencies, local Supabase metadata, browser reports and artifacts are ignored. Only explicitly sanitized `.env.example` / `.env.*.example` templates are allowed.

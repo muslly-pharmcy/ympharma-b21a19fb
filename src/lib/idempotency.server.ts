@@ -10,13 +10,26 @@ export async function withIdempotency<T>(
 
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
 
-  const { data: existing } = await supabaseAdmin
+  const { data: existing, error: lookupError } = await supabaseAdmin
     .from('inventory_idempotency')
-    .select('response')
+    .select('actor_id, command, response')
     .eq('key', key)
     .maybeSingle()
 
-  if (existing?.response) return existing.response as T
+  // A global key is not authorization to read another actor's result. Reject
+  // collisions before invoking the callback; filtering out the row would turn
+  // a forbidden replay into a fresh mutation instead.
+  if (lookupError) throw new Error('Unable to verify idempotency receipt')
+  if (existing) {
+    if (existing.actor_id !== actorId || existing.command !== command) {
+      throw new Error('Idempotency key conflicts with another operation')
+    }
+    return existing.response as T
+  }
+
+  // This legacy helper does not make the callback and receipt atomic. Financial
+  // commands must use a transactional RPC binding actor, organization, payload
+  // and key, as insv2_create_claim_atomic does.
 
   const result = await fn()
 

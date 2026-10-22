@@ -11,6 +11,8 @@ import {
   type RecordPaymentInput, type ReconcileClaimInput, type CancelClaimInput,
 } from '@/domain/insurance/commands'
 import { canTransitionClaim, type ClaimStatus } from '@/domain/insurance/schemas'
+import { requireOrganizationRecord } from './organization-record.server'
+import { requireAuthorizationReferences } from './insurance-references.server'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type AnyDB = { from: (t: string) => any; rpc: (n: string, a?: unknown) => any }
@@ -53,6 +55,9 @@ export const upsertInsuranceProvider = createServerFn({ method: 'POST' })
     const actor = await getActor()
     requireOrg(actor, data.organizationId)
     requirePermission(actor, 'insurance.write')
+    if (data.id) {
+      await requireOrganizationRecord(db, 'insv2_providers', data.id, data.organizationId)
+    }
 
     const payload = {
       organization_id: data.organizationId,
@@ -68,7 +73,7 @@ export const upsertInsuranceProvider = createServerFn({ method: 'POST' })
       created_by: actor.userId,
     }
     const row = data.id
-      ? await db.from('insv2_providers').update(payload).eq('id', data.id).select('*').single()
+      ? await db.from('insv2_providers').update(payload).eq('id', data.id).eq('organization_id', data.organizationId).select('*').single()
       : await db.from('insv2_providers').insert(payload).select('*').single()
     if (row.error) throw new Error(row.error.message)
     await audit(actor, { action: data.id ? 'insurance.provider.update' : 'insurance.provider.create', resourceType: 'insv2_provider', resourceId: row.data.id })
@@ -82,6 +87,10 @@ export const upsertInsurancePlan = createServerFn({ method: 'POST' })
     const actor = await getActor()
     requireOrg(actor, data.organizationId)
     requirePermission(actor, 'insurance.write')
+    await requireOrganizationRecord(db, 'insv2_providers', data.providerId, data.organizationId)
+    if (data.id) {
+      await requireOrganizationRecord(db, 'insv2_plans', data.id, data.organizationId)
+    }
 
     const payload = {
       organization_id: data.organizationId,
@@ -98,7 +107,7 @@ export const upsertInsurancePlan = createServerFn({ method: 'POST' })
       created_by: actor.userId,
     }
     const row = data.id
-      ? await db.from('insv2_plans').update(payload).eq('id', data.id).select('*').single()
+      ? await db.from('insv2_plans').update(payload).eq('id', data.id).eq('organization_id', data.organizationId).select('*').single()
       : await db.from('insv2_plans').insert(payload).select('*').single()
     if (row.error) throw new Error(row.error.message)
     await audit(actor, { action: data.id ? 'insurance.plan.update' : 'insurance.plan.create', resourceType: 'insv2_plan', resourceId: row.data.id })
@@ -115,6 +124,11 @@ export const upsertPatientInsurance = createServerFn({ method: 'POST' })
     const actor = await getActor()
     requireOrg(actor, data.organizationId)
     requirePermission(actor, 'insurance.write')
+    await requireOrganizationRecord(db, 'hc_patients', data.patientId, data.organizationId)
+    await requireOrganizationRecord(db, 'insv2_plans', data.planId, data.organizationId)
+    if (data.id) {
+      await requireOrganizationRecord(db, 'insv2_patient_insurance', data.id, data.organizationId)
+    }
 
     const payload = {
       organization_id: data.organizationId,
@@ -132,7 +146,7 @@ export const upsertPatientInsurance = createServerFn({ method: 'POST' })
       created_by: actor.userId,
     }
     const row = data.id
-      ? await db.from('insv2_patient_insurance').update(payload).eq('id', data.id).select('*').single()
+      ? await db.from('insv2_patient_insurance').update(payload).eq('id', data.id).eq('organization_id', data.organizationId).select('*').single()
       : await db.from('insv2_patient_insurance').insert(payload).select('*').single()
     if (row.error) throw new Error(row.error.message)
     await audit(actor, { action: data.id ? 'insurance.patient.update' : 'insurance.patient.create', resourceType: 'insv2_patient_insurance', resourceId: row.data.id })
@@ -153,7 +167,7 @@ export const verifyCoverage = createServerFn({ method: 'POST' })
     const onDate = data.onDate ?? new Date().toISOString().slice(0, 10)
 
     let q = db.from('insv2_patient_insurance')
-      .select('*, plan:insv2_plans(*)')
+      .select('*, plan:insv2_plans!insv2_patient_insurance_plan_id_fkey(*)')
       .eq('organization_id', data.organizationId)
       .eq('patient_id', data.patientId)
       .eq('status', 'active')
@@ -192,6 +206,7 @@ export const createAuthorization = createServerFn({ method: 'POST' })
     const actor = await getActor()
     requireOrg(actor, data.organizationId)
     requirePermission(actor, 'insurance.write')
+    await requireAuthorizationReferences(db, data)
     const correlation = data.correlationId ?? newCorrelationId('ins')
 
     const { data: row, error } = await db.from('insv2_authorizations').insert({
@@ -267,54 +282,25 @@ async function writeClaimStatus(
 export const createInsuranceClaim = createServerFn({ method: 'POST' })
   .validator((raw: unknown): CreateClaimInput => createClaimInput.parse(raw))
   .handler(async ({ data }) => {
-    const { getActor, requireOrg, requirePermission, withIdempotency, newCorrelationId, db, audit } = await loadDeps()
+    const { getActor, requireOrg, requirePermission, newCorrelationId, db } = await loadDeps()
     const actor = await getActor()
     requireOrg(actor, data.organizationId)
     requirePermission(actor, 'insurance.write')
-    const correlation = data.correlationId ?? newCorrelationId('clm')
-
-    return withIdempotency(data.idempotencyKey, actor.userId, 'createInsuranceClaim', async () => {
-      const totalBilled = data.items.reduce((s, it) => s + it.billedAmount, 0)
-      const { data: claim, error } = await db.from('insv2_claims').insert({
-        organization_id: data.organizationId,
-        branch_id: actor.branchId,
-        patient_id: data.patientId,
-        provider_id: data.providerId,
-        plan_id: data.planId,
-        dispense_id: data.dispenseId ?? null,
-        prescription_id: data.prescriptionId ?? null,
-        authorization_id: data.authorizationId ?? null,
-        status: 'draft',
-        total_billed: totalBilled,
-        currency: data.currency,
-        diagnosis: data.diagnosis ?? null,
-        notes: data.notes ?? null,
-        correlation_id: correlation,
-        created_by: actor.userId,
-      }).select('id').single()
-      if (error) throw new Error(error.message)
-      const claimId = claim.id as string
-
-      const itemRows = data.items.map((it) => ({
-        claim_id: claimId,
-        dispense_item_id: it.dispenseItemId ?? null,
-        product_id: it.productId ?? null,
-        description: it.description,
-        quantity: it.quantity,
-        unit_billed: it.unitBilled,
-        billed_amount: it.billedAmount,
-        notes: it.notes ?? null,
-      }))
-      const { error: itErr } = await db.from('insv2_claim_items').insert(itemRows)
-      if (itErr) throw new Error(itErr.message)
-
-      await db.from('insv2_claim_status_history').insert({
-        claim_id: claimId, from_status: null, to_status: 'draft', changed_by: actor.userId,
-      })
-      await emit('InsuranceClaimCreated', { claim_id: claimId, total_billed: totalBilled }, correlation)
-      await audit(actor, { action: 'insurance.claim.create', resourceType: 'insv2_claim', resourceId: claimId, payload: { items: itemRows.length, total_billed: totalBilled } })
-      return { id: claimId, correlationId: correlation }
+    // Replay is resolved inside the transaction before revalidating references:
+    // optional links may have been deleted after the original commit.
+    const { data: result, error } = await db.rpc('insv2_create_claim_atomic', {
+      p_actor_id: actor.userId,
+      p_branch_id: actor.branchId,
+      p_request: data,
+      p_correlation_id: data.correlationId ?? newCorrelationId('clm'),
     })
+    if (error) throw new Error(error.message)
+    if (!result || typeof result.id !== 'string' || typeof result.correlationId !== 'string') {
+      throw new Error('Invalid atomic claim response')
+    }
+    // Header, items, history, event, audit and replay receipt committed together.
+    // Never use the legacy key-only cache or emit side effects a second time.
+    return { id: result.id as string, correlationId: result.correlationId as string }
   })
 
 export const submitInsuranceClaim = createServerFn({ method: 'POST' })

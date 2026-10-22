@@ -1,213 +1,70 @@
-# YmPharma ERP ↔ muslly.com — عقد التكامل v1 (مسودة للمراجعة)
+# ERP integration — protocol 2, local acceptance candidate
 
-> الحالة: **بيئة اختبار، الربط الحي معطّل** (`ERP_SYNC_ENABLED` غير مفعّل → كل المسارات ترد 503).
-> لا توجد أي أسرار في هذا الملف. أي قيمة سرية تظهر كـ `REDACTED`. المفتاح في المثال وهمي للاختبار فقط.
+This describes the retained integration reconciled onto store commit 0fcb2d5f2753ee2de5f4b3bf231ca4494c9371f6. It supersedes the October 8 description of row staging and an in-memory reservation reference. No production identity, mapping, key, checkout mode or worker is activated.
 
-## 0. الطوبولوجيا ومصدر الحقيقة
-- ERP يبقى على الشبكة المحلية. وكيل على جهاز بجانب ERP يفتح **اتصالًا صادرًا HTTPS فقط** إلى الموقع. الموقع لا يتصل أبدًا بالشبكة المحلية، ولا تُفتح قاعدة ERP للإنترنت.
-- ERP هو مصدر سعر البيع والكمية المتاحة. الموقع يخزن نسخة مُصدَّرة (لقطات) في جدول `erp_stock_snapshots` ولا يكتب في دفاتر ERP.
-- العنوان الأساسي: `https://muslly.com/api/public/erp/v1` — **غير مفعّل حاليًا**، والنسخة المنشورة لا تحتوي هذه المسارات بعد (لم يتم النشر).
+## Activation and identity
 
-## 1. المسارات
+Routes retain /api/public/erp/v1/* and require x-erp-protocol: 2; there is no v1 authentication fallback. All routes require ERP_SYNC_ENABLED=true, ERP_SYNC_CONTRACT_VERSION=2 and configured source/key/HMAC identities. Non-test requests require ERP_SYNC_APPROVED_DATABASE_URL to equal the resolved server database URL. Secrets remain server-only.
 
-| الطريقة | المسار الكامل | الغرض |
-|---|---|---|
-| POST | `https://muslly.com/api/public/erp/v1/stock` | استقبال لقطات المخزون والأسعار |
-| GET | `https://muslly.com/api/public/erp/v1/orders/pending?after=<ISO-8601>` | سحب طلبات الموقع بانتظار المراجعة |
-| POST | `https://muslly.com/api/public/erp/v1/orders/ack` | تسجيل قرار ERP على طلب |
-| GET | `https://muslly.com/api/public/erp/v1/reconcile` | مطابقة النسخة المخزنة في الموقع |
+ERP_ORDER_FLOW_ENABLED and ERP_CATALOG_FLOW_ENABLED remain false. Order gating covers pending, ACK and reservation projections sent to /stock. Ordinary stock row staging is independent. Only an explicitly injected localOrders dependency at 127.0.0.1 permits acceptance tests. Client fields and environment flags cannot enable this dependency.
 
-مسار `/catalog` المذكور في الخطة **لم يُنفّذ** (غير محسوم: هل تُرسل بيانات الأصناف الوصفية مع `/stock` أم في مسار مستقل).
+Database checkout mode is separate: erp_checkout_private.control starts as legacy. ERP mode enables review checkout; paused blocks new orders but permits status/cancellation. Returning to legacy or changing source requires terminal reconciliation. The wrapper permits legacy checkout only in legacy mode, and direct execution of the renamed legacy function is revoked. These gates do not automatically shut down every other inventory writer.
 
-### 1.1 POST /stock
-طلب:
-```json
-{
-  "sourceSystem": "YMPHARMA-ERP",
-  "rows": [
-    {
-      "erp_item_id": "ITEM-0001",
-      "erp_branch_id": "BR-01",
-      "source_version": 42,
-      "qty_available": 12,
-      "unit_code": "BOX",
-      "selling_price": 2200,
-      "official_reference_price": 2000,
-      "currency": "YER"
-    }
-  ]
-}
+## Signing and retries
+
+Required headers: x-erp-protocol, x-erp-key-id, x-erp-source, x-erp-timestamp, x-erp-signature and POST Idempotency-Key. The JSON source must match the signed/configured source. HMAC-SHA256 lower-case hex signs these UTF-8 fields joined with LF, without final LF:
+
 ```
-| الحقل | النوع | إلزامي | القيد |
-|---|---|---|---|
-| sourceSystem | string | نعم | 1–120 حرف |
-| rows | array | نعم | 1–500 صف |
-| erp_item_id | string | نعم | 1–120 |
-| erp_branch_id | string | نعم | 1–120 |
-| source_version | integer | نعم | 0 … 9007199254740991 (حد JSON الآمن) |
-| qty_available | number | نعم | ≥ 0 |
-| unit_code | string | نعم | 1–20 |
-| selling_price | number/null | لا | ≥ 0 |
-| official_reference_price | number/null | لا | ≥ 0 |
-| purchase_cost | number/null | لا | **يُقترح عدم إرساله في v1** (انظر §7) |
-| currency | "YER"/"SAR"/"USD" | لا | الافتراضي YER |
-
-رد ناجح (200):
-```json
-{ "received": 1, "applied": 1, "stale": 0, "invalid": 0 }
-```
-إعادة نفس الطلب بنفس المفتاح والمحتوى (200):
-```json
-{ "received": 1, "applied": 1, "stale": 0, "invalid": 0, "replayed": true }
+ERP-MUSLLY/2
+<keyId>
+<source>
+<integer Unix timestamp seconds>
+<uppercase method>
+<canonical path and query>
+<request key, empty for GET>
+<SHA256 of exact raw body bytes>
 ```
 
-### 1.2 GET /orders/pending
-- `after` اختياري (ISO-8601). يرجع حتى 100 طلب بحالة `pending_erp_review` أحدث من `after`، مرتبة تصاعديًا.
-```json
-{
-  "orders": [
-    { "order_id": "uuid", "payload": { }, "status": "pending_erp_review", "created_at": "2026-10-08T00:00:00Z" }
-  ],
-  "next": "2026-10-08T00:00:00Z"
-}
-```
-`next` = `created_at` لآخر طلب، أو `null`. يُمرَّر كـ `after` في الطلب التالي.
-محتوى `payload` **غير محسوم** (انظر §6).
+The signing window is 300 seconds. POST requires application/json, valid UTF-8, no BOM/Content-Encoding and at most 1,000,000 bytes. GET signs an empty body. Authentication precedes cached outcomes. Unique allowed cursor/limit query keys use canonical sorting and RFC3986 encoding. Aliases/trailing slashes are rejected. Retry exact bytes and key, refreshing only timestamp/signature. Non-secret shared vectors: tests/fixtures/erp-v2.json.
 
-### 1.3 POST /orders/ack
-```json
-{ "orderId": "2b9c…-uuid", "status": "accepted" }
-```
-`status` ∈ `received` | `accepted` | `rejected`. رد:
-```json
-{ "orderId": "2b9c…-uuid", "erpStatus": "accepted" }
-```
+## Stock staging and shared request identity
 
-### 1.4 GET /reconcile
-```json
-{ "rows": [ { "erp_item_id": "ITEM-0001", "erp_branch_id": "BR-01", "source_version": 42,
-  "qty_available": 12, "unit_code": "BOX", "selling_price": 2200, "currency": "YER" } ] }
-```
-حتى 5000 صف، ولا يتضمن تكلفة الشراء. التقسيم إلى صفحات **لم يُنفّذ**.
+The row form contains sourceSystem, sourceEpoch and rows. Row fields are row_id, erp_item_id, erp_branch_id, source_version, reservation_watermark, qty_available, unit_code, currency and optional selling_price/official_reference_price. Decimal values are strings. Cost and unknown fields are rejected.
 
-### 1.5 الأخطاء
-كل الأخطاء بصيغة `{ "error": "<code>" }`:
+erp_v2_apply_stock requires approved source/epoch and verified item/branch/UOM mapping. NUMERIC conversion rejects fractional base units. Selling and official-reference prices stay distinct. This form writes erp_v2_snapshots, not the website stock ledger.
 
-| HTTP | code | المعنى / ماذا يفعل الوكيل |
-|---|---|---|
-| 503 | erp_sync_disabled | الربط مغلق. لا تُعد المحاولة تلقائيًا |
-| 503 | erp_secret_not_configured | المفتاح غير مضبوط على الخادم |
-| 401 | stale_timestamp | الوقت خارج ±300 ثانية. صحّح ساعة الجهاز |
-| 401 | bad_signature | توقيع خاطئ |
-| 413 | payload_too_large | الجسم أكبر من 1,000,000 حرف |
-| 400 | invalid_json | JSON غير صالح |
-| 400 | missing_idempotency_key | المفتاح مفقود أو طوله خارج 8–200 (POST فقط) |
-| 400 | invalid_envelope / invalid_body | لم يطابق المخطط. الدفعة كلها لم تُطبَّق |
-| 409 | idempotency_key_reused_with_different_content | نفس المفتاح بمحتوى مختلف. أنشئ مفتاحًا جديدًا |
-| 409 | request_in_progress | نفس الطلب قيد التنفيذ. يحمل `retryAfterSeconds: 5` |
-| 404 | order_not_queued | الطلب غير موجود في قائمة ERP |
-| 500 | idempotency_store_failed / apply_failed / processing_failed / read_failed / update_failed | فشل داخلي. يُحذف حجز المفتاح، فيمكن إعادة المحاولة بنفس المفتاح ونفس المحتوى |
+Snapshots, row results and request outcomes commit together. Results distinguish APPLIED, STALE, INVALID and CONFLICT. Exact request replay returns the saved result; changed content returns409. A shared source transaction lock and cross-table checks give row and projection payloads one source/request-key identity. Request expiry tombstones require reconciliation, not automatic recreation. Row identity remains immutable across batch retries.
 
-## 2. التوقيع
-الرؤوس:
+## Durable reservations
 
-| الرأس | القيمة |
-|---|---|
-| `x-erp-timestamp` | ثوانٍ Unix بالتوقيت العالمي، كنص عشري صحيح (مثال `1800000000`) |
-| `x-erp-signature` | 64 حرفًا hex بأحرف صغيرة (الخادم يقبل الكبيرة أيضًا) |
-| `Idempotency-Key` | لطلبات POST فقط، 8–200 حرف، فريد لكل عملية منطقية |
-| `Content-Type` | `application/json; charset=utf-8` |
+The projection form contains version, watermark, observed_at, rows and coverage. It is gated with order flow. Versions advance; watermark/time cannot regress. Snapshots must be fresh and row mappings verified.
 
-الخوارزمية:
-```text
-body_hash = lowercase_hex( SHA-256( raw_body_bytes_UTF8 ) )
-message   = timestamp + "." + METHOD + "." + path + "." + body_hash
-signature = lowercase_hex( HMAC-SHA256( key = UTF8(secret), message = UTF8(message) ) )
-```
-- `METHOD` بأحرف كبيرة (`POST` / `GET`).
-- `path` هو المسار فقط بدون نطاق وبدون معاملات الرابط، مثل `/api/public/erp/v1/stock`.
-- **معاملات الرابط (`?after=`) غير موقّعة حاليًا.** هذا قيد معروف: يمكن تغيير `after` دون كشف ذلك. يقرأ الموقع فقط، فلا خطر كتابة. توقيع المعاملات **غير محسوم** ويُقترح إضافته قبل التفعيل.
-- الجسم الفارغ (GET): `body_hash` = SHA-256 لنص فارغ = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
-- يُوقَّع **نفس البايتات المرسلة بالضبط**. لا تُعِد تنسيق JSON بعد التوقيع.
-- السر الحقيقي: `ERP_SYNC_HMAC_SECRET = REDACTED` (لم يُنشأ بعد. يُحفظ في إعدادات الأسرار الآمنة فقط).
+Coverage requires order_id, version, state, sequence and items, with exact original items. Missing/null fields, incorrect number encodings and unknown fields are rejected. Coverage cannot disappear or regress. ACK and coverage are checked in both arrival orders, including ACKs beyond the snapshot watermark. One event version has one immutable ACK commit. A later lifecycle state, such as automatic expiry after HELD, may advance coverage at the same version. Contradictory state/version/commit copies are rejected.
 
-### 2.1 مثال اختبار (مفتاح وهمي للمثال فقط)
-```text
-secret    = EXAMPLE_ONLY_NOT_A_REAL_SECRET
-timestamp = 1800000000
-method    = POST
-path      = /api/public/erp/v1/stock
-body      = {"sourceSystem":"YMPHARMA-ERP","rows":[{"erp_item_id":"ITEM-0001","erp_branch_id":"BR-01","source_version":42,"qty_available":12,"unit_code":"BOX","selling_price":2200,"official_reference_price":2000,"currency":"YER"}]}
-body_hash = 76fd323cfe8d56b422e2b2eeb1d392f174e796186434c9bbadd938ed22c7eddc
-signature = f9b4cdd3d2bacf22ea19045e2cad551892a11de181daa063e52bf5c339d69b02
-```
-مثال GET بجسم فارغ (نفس المفتاح والوقت، المسار `/api/public/erp/v1/reconcile`):
-```text
-signature = f9ebe88bfc48879d77b210177dcf7d170518f9c438c926be042c619e907796b8
-```
-الوقت في المثال ثابت، لذلك يرفضه الخادم الحقيقي كـ `stale_timestamp`. المثال للتحقق من صحة الحساب فقط.
+erp_bridge_submit serializes reserve/cancel/expire versions. Pending events use a durable monotonic cursor. Uncovered local orders remain subtracted; ACK alone never releases stock. Covered orders are already included in the ERP net quantity and are not subtracted twice.
 
-## 3. المعرّفات والوحدات ورقم الإصدار
-- `erp_item_id` و`erp_branch_id` نصوص يحددها ERP، ويجب أن تكون ثابتة ولا يُعاد استخدامها.
-- جدولا الربط `erp_item_map` (صنف ERP ← منتج الموقع، `unit_code`، `units_per_pack`) و`erp_branch_map` (فرع ERP ← مخزن الموقع) **موجودان لكنهما فارغان**. مسار `/stock` حاليًا **لا يتحقق** من وجود الصنف أو الفرع في جدول الربط، ويخزن اللقطة كما هي. الربط والتحقق **غير محسومين** حتى تصل قائمة المعرّفات من ERP.
-- الكمية تُخزَّن بالوحدة المرسلة في `unit_code` دون تحويل. توجد دالة تحويل مختبرة (`toBaseUnits`): تضرب في `units_per_pack` وترفض أي وحدة غير معروفة. **لكنها غير مستخدمة في المسار بعد**. الوحدة الأساسية للمتجر (علبة أم حبة) **غير محسومة**.
-- `source_version`: عدد صحيح متزايد **لكل زوج (صنف، فرع)**، من 0 حتى 9007199254740991. تُطبَّق اللقطة فقط إذا كان إصدارها **أكبر تمامًا** من آخر إصدار مطبَّق. الإصدار المساوي أو الأقدم يُرفض كـ `stale`. مصدر هذا الرقم في ERP (عدّاد تسلسلي أو وقت تعديل) **غير محسوم**.
+The original ERP counterpart uses muslly_bridge_apply/projection, native reservations and its authoritative POS snapshot under the organization lock. It rejects altered events/version gaps, persists inbox results and excludes controlled/prescription products. The original manual worker persists inbox/outbox/cursor in SQLite and supports restart after ERP commit before ACK. It is loopback-only with a public test-signing fixture, not an installed production service.
 
-## 4. الحجوزات ومنع البيع المزدوج
-**المنفّذ الآن:**
-- تطبيق اللقطة يكتب فقط في `erp_stock_snapshots`. **لا يلمس** دفعات المخزون ولا الحجوزات ولا الحركات في الموقع، فلا يمكن أن يعيد كمية مبيعة إلى دفتر الموقع.
-- اللقطة الأقدم لا تستبدل الأحدث، مع قفل استشاري لكل (صنف، فرع) أثناء التطبيق.
-- الحجز عند الشراء في الموقع (دالة الدفع الحالية) يقفل الدفعة أثناء الخصم.
+## Review checkout and catalog
 
-**غير منفّذ (غير محسوم، مقترح):**
-- الكمية المعروضة للعميل = `qty_available` من آخر لقطة − الحجوزات المحلية المفتوحة التي **لم يعترف بها ERP** في تلك اللقطة.
-- لمنع خصم الحجز مرتين يحتاج ERP أن يُرسل مع كل لقطة أحد أمرين: إما (أ) قائمة معرّفات طلبات الموقع المحتسبة فيها، أو (ب) آخر `order_id`/وقت طلب احتسبه. **أي الخيارين غير محسوم.**
-- انتهاء الحجز والإلغاء والمرتجعات تُسجَّل كحركات عكسية جديدة، ولا تُعدَّل حركات سابقة. **ربطها بـ ERP لم يُنفّذ.**
-- اختبار طلبين متزامنين على آخر قطعة مقابل لقطات ERP **لم يُنفّذ**.
+Managed checkout quotes bind server prices, units, quantities, product presentation and source epoch. Submission atomically records a request/event and clears the cart. Replay is stable; changed cart/price requires requoting. Status/cancel are user-scoped. Review checkout collects no payment and does not automatically dispense or create a sale.
 
-## 5. النجاح الجزئي وإعادة الإرسال
-- إذا فشل مخطط الدفعة (§1.1) تُرفض الدفعة كلها ولا يُطبَّق شيء.
-- إذا صح المخطط، يُقيَّم كل صف وحده: صف صالح بإصدار أحدث يُطبَّق، وصف بإصدار قديم أو مساوٍ يُعدّ `stale`، وصف غير صالح يُعدّ `invalid`. كل صف مرفوض يُسجَّل في `erp_sync_conflicts` (النوع والمعرّفات فقط، دون محتوى).
-- **الرد حاليًا أعداد فقط، وليس نتيجة لكل صف.** الرد التفصيلي (`rows:[{erp_item_id, erp_branch_id, result: applied|stale|invalid, reason}]`) **غير منفّذ ويُقترح إضافته قبل التفعيل.**
-- إعادة الصفوف الفاشلة: أرسلها في دفعة جديدة **بمفتاح Idempotency جديد** وبالإصدار نفسه أو أحدث. حتى لو أُعيد إرسال صفوف نجحت سابقًا، فلن تُطبَّق مرتين لأن إصدارها لم يعد أحدث (تظهر `stale`).
-- انقطاع الرد بعد الحفظ: أعد الطلب **بنفس المفتاح ونفس المحتوى**، فيرجع الرد المحفوظ مع `replayed: true` دون تنفيذ جديد.
+The catalog receiver limits changes to name_ar/description_ar. It requires mapped distinct editor/reviewer identities, current catalog.write permissions, expected revision and exact before-image. Atomic changes and approval audits are recorded; concurrent edits return a conflict. Price/cost/stock/clinical flags are outside this bridge's patch. HMAC authenticates the ERP sender; it is not two independent reviewer signatures. Upstream approval enforcement remains a separate acceptance boundary. Catalog flow is disabled by default.
 
-## 6. حالات الطلبات
+## Migration order and evidence
 
-| الحالة | المعنى | المنفّذ |
-|---|---|---|
-| `pending_erp_review` | طلب الموقع ينتظر مراجعة ERP | الجدول والحالة موجودان، لكن **إدخال الطلبات تلقائيًا إلى القائمة لم يُنفّذ** |
-| ack `received` | ERP استلم الطلب في قائمة المراجعة | يُسجَّل في `erp_ack_status` فقط |
-| ack `accepted` | الصيدلي قبل الطلب للتجهيز | يُسجَّل فقط. **لا يعني** صرف الدواء ولا موافقة طبية ولا تحصيل المبلغ |
-| ack `rejected` | ERP رفض الطلب | يُسجَّل فقط. فك الحجز وإشعار العميل **لم يُنفّذ** |
+Two migration histories exist. Reconcile deployed history before any remote push. The full isolated historical Supabase/platform schema was followed by Drizzle0000–0005, then:
 
-- `orders/ack` لا يمنع حاليًا الانتقال العكسي (مثلًا من `rejected` إلى `accepted`). قواعد الانتقال **غير محسومة**.
-- حالات الصرف والتحصيل والتوصيل لا تُرسل عبر هذا العقد في v1.
-- محتوى `payload` للطلب (الأصناف، الكميات، الفرع، وسيلة الدفع) **غير محسوم**. المبدأ: لا اسم مريض ولا هاتف ولا عنوان إلا بموافقة صريحة على الحد الأدنى.
+- 20261008001313_erp_v2_atomic_ingest.sql
+- 20261008010608_erp_durable_orders_projection.sql
+- 20261008014136_erp_managed_checkout_review.sql
+- 20261008023913_catalog_atomic_product_update.sql
+- 20261008024930_erp_catalog_review_receiver.sql
 
-## 7. تكلفة الشراء
-- **غير مطلوبة** للمزامنة، والحقل اختياري.
-- إن أُرسلت تُخزَّن في `erp_stock_snapshots.purchase_cost`. لا تظهر في المتجر ولا في `/reconcile`. القراءة مقصورة على حسابات الإدارة عبر سياسة الصلاحيات.
-- **الاقتراح:** لا يرسلها ERP في v1 (ترسل `null` أو يُحذف الحقل). نعيد تقييمها لاحقًا لتقارير الهامش فقط.
+Drizzle0004 must patch the original checkout before the later migration renames it. The forward correction 20261015001118_enforce_bridge_coverage_and_stock_request_identity.sql keeps these files unchanged and rejects unsafe existing coverage/request collisions. The separate 20261014223917 self-update/grant repair remains intact.
 
-## 8. الأمان والسجلات
-- `/api/public/*` لا يحتاج تسجيل دخول، والحماية بالتوقيع والوقت والمفتاح الفريد.
-- السجلات لا تحتوي محتوى الطلبات ولا بيانات مرضى ولا أسرار.
-- كل الجداول الجديدة محمية بسياسات الصلاحيات، والكتابة من الخادم فقط.
+October15 evidence: TypeScript and full Node build passed;308 unit tests passed. Eight DB tests skipped in that unit invocation were then run separately against the full store schema:8 passed,0 skipped. Populated self-update/RLS/grant behavior passed. Bridge regressions cover missing coverage, both ACK arrival orders, commit mismatch, legitimate lifecycle transitions and both request collision directions, including two-session races. The original worker passed native hold/cancel/expiry and process-restart acceptance using an isolated ERP clone and the full store schema. Its ERP HTTP adapter uses explicit synthetic session claims and real authenticated SQL, not fresh provider JWT issuance.
 
-## 9. ملخص المراجعة
-**تحققتُ منه:**
-- قاعدة المتجر الصحيحة هي swyqqlpbjemarzzdxctw.
-- الموقع المنشور حاليًا يشير إلى قاعدة تجريبية خاطئة (ybhrmcdlgyccywpmiucz). الإصلاح جاهز في الكود لكنه **غير منشور**.
-- المسارات الأربعة ترد 503 لأن الربط معطّل.
-- مسار أوراكل القديم مجمّد عن الكتابة.
-- 10/10 اختبارات توقيع ووحدات ناجحة.
-- اختبار قاعدة البيانات ببيانات اصطناعية ناجح: التكرار، والمفتاح بمحتوى مختلف، والإصدار القديم، والنجاح الجزئي.
+Changed-file lint:0errors,18warnings. The first invocation failed because two file paths were wrong; the corrected invocation passed. Build warnings include bundle sizes/plugin timings/import behavior. Neither warnings nor skipped tests constitute production acceptance.
 
-**يحتاج معلومات من ERP:**
-1. واجهة API أم قراءة من القاعدة عبر حساب قراءة فقط؟ مع اسم النظام وإصداره.
-2. قائمة معرّفات الأصناف والفروع والوحدات، وعدد الوحدات في العبوة، والوحدة الأساسية للبيع.
-3. مصدر `source_version` لكل (صنف، فرع).
-4. كيف يحتسب ERP طلبات الموقع المحجوزة داخل اللقطة (§4).
-5. جهاز دائم التشغيل للوكيل، واعتماد إنشاء المفتاح لاحقًا.
-6. حقول `payload` المطلوبة للطلب، وقواعد انتقال الحالات.
+Before activation: confirm deployment/migration identity, complete provider/browser checkout and upstream catalog approval acceptance, establish inventory-writer ownership and operational worker/recovery ownership, add monitoring, and obtain explicit production approval. Wider database-advisor findings remain separately tracked.

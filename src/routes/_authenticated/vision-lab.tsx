@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
@@ -21,7 +22,7 @@ export const Route = createFileRoute('/_authenticated/vision-lab')({
   }),
   component: VisionLab,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">فشل التحميل: {error.message}</div>
+    <div className="p-8 text-center text-red-600">فشل التحميل: {classifyError(error).userMessageAr}</div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })

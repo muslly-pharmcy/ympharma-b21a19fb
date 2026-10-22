@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
@@ -20,7 +21,7 @@ export const Route = createFileRoute('/_authenticated/catalog/$productId')({
   }),
   component: ProductDetail,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">تعذر تحميل المنتج: {error.message}</div>
+    <div className="p-8 text-center text-red-600">تعذر تحميل المنتج: {classifyError(error).userMessageAr}</div>
   ),
   notFoundComponent: () => (
     <div className="p-8 text-center">

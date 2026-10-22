@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -7,7 +8,7 @@ import { listDispenses } from '@/lib/dispenses.functions'
 export const Route = createFileRoute('/_authenticated/dispenses')({
   head: () => ({ meta: [{ title: 'الصرف — MUSLLY AI OS' }] }),
   component: DispensesListPage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{classifyError(error).userMessageAr}</div>,
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })
 

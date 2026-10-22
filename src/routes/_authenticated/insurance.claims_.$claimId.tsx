@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -11,7 +12,7 @@ import {
 export const Route = createFileRoute('/_authenticated/insurance/claims_/$claimId')({
   head: ({ params }) => ({ meta: [{ title: `مطالبة ${params.claimId.slice(0, 8)} — MUSLLY AI OS` }] }),
   component: ClaimDetailPage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{classifyError(error).userMessageAr}</div>,
   notFoundComponent: () => <div className="p-8 text-center">المطالبة غير موجودة</div>,
 })
 

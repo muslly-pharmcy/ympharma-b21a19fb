@@ -1,14 +1,9 @@
 #!/usr/bin/env node
-// ctx7-check.js
-// Attempts a real Context7 resolution for a known library (react) to validate connectivity.
-const { spawn } = require('child_process');
+import { runLocalCli } from './common.js';
+
 if (process.env.CTX7_ALLOW !== '1') {
-  console.error('Blocked: set CTX7_ALLOW=1 to permit Context7 connectivity checks. See docs/TOOLING_INTEGRATION.md');
-  process.exit(2);
+  console.error('Blocked: set CTX7_ALLOW=1 to permit the Context7 connectivity check.');
+  process.exitCode = 2;
+} else {
+  process.exitCode = runLocalCli('ctx7', 'ctx7', ['library', 'react']);
 }
-console.log('Resolving Context7 library id for react (npx ctx7 library react)');
-const proc = spawn('npx', ['ctx7', 'library', 'react'], { stdio: 'inherit', shell: true });
-proc.on('close', code => {
-  if (code !== 0) process.exit(code);
-  console.log('Context7 library resolution completed.');
-});

@@ -235,7 +235,7 @@ function RootNotFound() {
 }
 
 
-function RootError({ error, reset }: { error: Error; reset: () => void }) {
+function RootError({ error, reset }: { error: unknown; reset: () => void }) {
   const router = useRouter()
   const classified = classifyError(error)
   const correlationId = newCorrelationId('root')

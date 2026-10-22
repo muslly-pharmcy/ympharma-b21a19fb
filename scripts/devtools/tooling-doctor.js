@@ -1,46 +1,32 @@
 #!/usr/bin/env node
-// tooling-doctor.js
-// Cross-platform diagnostics for developer tools required by the repository.
-// Exits with non-zero code if critical tooling is missing.
-const { spawnSync } = require('child_process');
-const fs = require('fs');
-function check(cmd, args = ['--version'], name) {
+import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { isMain, root } from './common.js';
+
+export function diagnose(probe = spawnSync, base = root) {
+  const tools = [
+    { name: 'Node', command: process.execPath, required: true },
+    { name: 'Bun', command: 'bun', required: true },
+    { name: 'Git', command: 'git', required: true },
+    { name: 'Docker CLI (optional; engine not checked)', command: 'docker', required: false },
+    { name: 'PowerShell 7 (optional)', command: 'pwsh', required: false },
+  ];
+  const checks = tools.map((tool) => {
+    const result = probe(tool.command, ['--version'], { cwd: base, shell: false, encoding: 'utf8', timeout: 10_000 });
+    return { name: tool.name, required: tool.required, ok: result.status === 0 && !result.error && !result.signal };
+  });
   try {
-    const res = spawnSync(cmd, args, { shell: true, stdio: ['ignore', 'pipe', 'pipe'] });
-    if (res.status === 0) {
-      console.log(`OK  : ${name} -> ${res.stdout.toString().trim().split('\n')[0]}`);
-      return true;
-    }
-    console.warn(`MISS: ${name} -> ${res.stderr.toString().trim().split('\n')[0] || 'not found'}`);
-    return false;
-  } catch (e) {
-    console.warn(`ERR : ${name} -> ${String(e)}`);
-    return false;
+    const pkg = JSON.parse(readFileSync(resolve(base, 'package.json'), 'utf8'));
+    checks.push({ name: '@playwright/test declared', required: true, ok: Boolean(pkg.devDependencies?.['@playwright/test']) });
+  } catch {
+    checks.push({ name: 'Repository package.json readable', required: true, ok: false });
   }
+  return { checks, code: checks.some((check) => check.required && !check.ok) ? 2 : 0 };
 }
-console.log('Running tooling doctor...');
-const checks = [];
-checks.push(check('node', ['-v'], 'Node (node)'));
-checks.push(check('npm', ['-v'], 'npm'));
-checks.push(check('npx', ['-v'], 'npx'));
-checks.push(check('git', ['--version'], 'git'));
-checks.push(check('docker', ['--version'], 'docker (optional for Strix)'));
-checks.push(check('pwsh', ['-v'], 'PowerShell (pwsh) - optional'));
-// check playwright test presence
-try {
-  const pkg = require('../package.json');
-  if (pkg.devDependencies && pkg.devDependencies['@playwright/test']) {
-    console.log('OK  : @playwright/test present in devDependencies');
-  } else {
-    console.warn('MISS: @playwright/test not declared in devDependencies');
-  }
-} catch (e) {
-  // ignore
+
+if (isMain(import.meta.url)) {
+  const result = diagnose();
+  for (const check of result.checks) console.log((check.ok ? 'OK' : check.required ? 'MISSING' : 'OPTIONAL') + ': ' + check.name);
+  process.exitCode = result.code;
 }
-const failures = checks.filter(v => !v).length;
-if (failures) {
-  console.error(`Doctor found ${failures} missing tools. See warnings above.`);
-  process.exit(2);
-}
-console.log('Tooling doctor completed: all required tools appear present (local checks).');
-process.exit(0);

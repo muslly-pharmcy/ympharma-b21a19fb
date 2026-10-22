@@ -1,39 +1,44 @@
-// Pure, runtime-agnostic helpers for the ERP integration contract (v1).
-// Signature = HMAC-SHA256(secret, `${ts}.${METHOD}.${path}.${sha256hex(body)}`)
-import { createHash, createHmac, timingSafeEqual } from 'crypto'
-
+// Protocol 2. Routes remain under /erp/v1 to preserve the existing router surface.
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 export const MAX_SKEW_SECONDS = 300
-
-export const sha256Hex = (s: string) => createHash('sha256').update(s, 'utf8').digest('hex')
-
-export function signRequest(secret: string, ts: string, method: string, path: string, body: string) {
-  return createHmac('sha256', secret)
-    .update(`${ts}.${method.toUpperCase()}.${path}.${sha256Hex(body)}`)
-    .digest('hex')
+export const PROTOCOL = 'ERP-MUSLLY/2'
+export type Identity = { keyId: string; source: string; idempotencyKey: string }
+const token = /^[A-Za-z0-9_-]{1,120}$/
+const encode = (v: string) => encodeURIComponent(v).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase())
+export function canonicalTarget(target: string) {
+  const [path, query, ...extra] = target.split('?')
+  if (extra.length || !/^\/api\/public\/erp\/v1\/(stock|orders\/pending|orders\/ack|reconcile|catalog\/(apply|preview))$/.test(path)) throw Error('invalid_target')
+  const params = new URLSearchParams(query ?? '')
+  const keys = [...params.keys()]
+  if (new Set(keys).size !== keys.length || keys.some(k => !['cursor', 'limit'].includes(k)) || ((path.endsWith('/stock') || path.endsWith('/ack') || path.endsWith('/apply') || path.endsWith('/preview')) && keys.length)) throw Error('invalid_query')
+  const normalized = keys.sort().map(k => `${encode(k)}=${encode(params.get(k)!)}`).join('&')
+  const result = path + (normalized ? '?' + normalized : '')
+  if (result !== target) throw Error('noncanonical_target')
+  return result
 }
-
-export type VerifyResult = { ok: true } | { ok: false; reason: 'stale_timestamp' | 'bad_signature' }
-
-export function verifyRequest(
-  secret: string,
-  headers: { ts: string; sig: string },
-  method: string,
-  path: string,
-  body: string,
-  nowSec = Date.now() / 1000,
-): VerifyResult {
-  const t = Number(headers.ts)
-  if (!Number.isFinite(t) || Math.abs(nowSec - t) > MAX_SKEW_SECONDS) return { ok: false, reason: 'stale_timestamp' }
-  const sig = headers.sig.toLowerCase()
-  if (!/^[a-f0-9]{64}$/.test(sig)) return { ok: false, reason: 'bad_signature' }
-  const exp = signRequest(secret, headers.ts, method, path, body)
-  return timingSafeEqual(Buffer.from(sig), Buffer.from(exp)) ? { ok: true } : { ok: false, reason: 'bad_signature' }
+export const sha256Hex = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex')
+export function canonicalMessage(ts: string, method: string, target: string, bytes: Uint8Array, identity: Identity) {
+  if (!/^(0|[1-9][0-9]{0,10})$/.test(ts) || !['GET', 'POST'].includes(method) || !token.test(identity.keyId) || !token.test(identity.source)) throw Error('invalid_identity')
+  if (method === 'POST' ? !/^[A-Za-z0-9_-]{8,200}$/.test(identity.idempotencyKey) : identity.idempotencyKey !== '' || bytes.length !== 0) throw Error('invalid_request')
+  return [PROTOCOL, identity.keyId, identity.source, ts, method, canonicalTarget(target), identity.idempotencyKey, sha256Hex(bytes)].join('\n')
 }
-
-/** Convert a quantity between ERP pack units. Rejects unknown/mismatched units instead of guessing. */
-export function toBaseUnits(qty: number, unit: string, map: { unit_code: string; units_per_pack: number }) {
-  if (!Number.isFinite(qty) || qty < 0) throw new Error('invalid_qty')
-  if (unit === map.unit_code) return qty * map.units_per_pack
-  if (unit === 'UNIT') return qty
-  throw new Error('unit_mismatch')
+export function signRequest(secret: string, ts: string, method: string, target: string, bytes: Uint8Array, identity: Identity) {
+  return createHmac('sha256', secret).update(canonicalMessage(ts, method, target, bytes, identity), 'utf8').digest('hex')
+}
+export function verifyRequest(secret: string, headers: { ts: string; sig: string }, method: string, target: string, bytes: Uint8Array, identity: Identity, nowSec = Date.now() / 1000) {
+  if (!/^(0|[1-9][0-9]{0,10})$/.test(headers.ts) || Math.abs(nowSec - Number(headers.ts)) > MAX_SKEW_SECONDS) return { ok: false, reason: 'stale_timestamp' } as const
+  if (!/^[a-f0-9]{64}$/.test(headers.sig)) return { ok: false, reason: 'bad_signature' } as const
+  try {
+    const expected = signRequest(secret, headers.ts, method, target, bytes, identity)
+    return timingSafeEqual(Buffer.from(headers.sig, 'hex'), Buffer.from(expected, 'hex')) ? { ok: true } as const : { ok: false, reason: 'bad_signature' } as const
+  } catch { return { ok: false, reason: 'invalid_canonical_request' } as const }
+}
+/** No implicit UNIT alias. Mapping must explicitly verify this exact UOM. */
+export function toBaseUnits(qty: string, unit: string, map: { unit_code: string; units_per_pack: string; verified: boolean }) {
+  if (!map.verified || unit !== map.unit_code) throw Error('unit_mismatch')
+  if (!/^(0|[1-9][0-9]{0,14})(\.[0-9]{1,6})?$/.test(qty) || !/^[1-9][0-9]{0,6}$/.test(map.units_per_pack) || BigInt(map.units_per_pack) > 1000000n) throw Error('invalid_qty')
+  const [whole, fraction = ''] = qty.split('.'), scale = 10n ** BigInt(fraction.length)
+  const base = BigInt(whole + fraction) * BigInt(map.units_per_pack)
+  if (base % scale) throw Error('fractional_base_unit')
+  return (base / scale).toString()
 }

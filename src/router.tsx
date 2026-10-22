@@ -7,7 +7,7 @@ import { newCorrelationId } from '@/lib/errors/correlation'
 import { reportError } from '@/lib/errors/logger'
 
 // Route-level default: classified error screen with retry (invalidate + reset).
-function DefaultRouteError({ error, reset }: { error: Error; reset: () => void }) {
+function DefaultRouteError({ error, reset }: { error: unknown; reset: () => void }) {
   const classified = classifyError(error)
   const correlationId = newCorrelationId('route')
   reportError({ correlationId, classified, boundary: 'route:default' })

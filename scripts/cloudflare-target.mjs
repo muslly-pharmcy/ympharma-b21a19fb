@@ -4,6 +4,12 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const [command, ...args] = process.argv.slice(2);
+// Validate before loading dependencies or building; no argument may override dry-run.
+if (command === "validate" && args.length > 0) {
+  console.error("The validate command does not accept additional arguments.");
+  process.exit(2);
+}
 const require = createRequire(import.meta.url);
 const viteBin = resolve(dirname(require.resolve("vite/package.json")), "bin/vite.js");
 const wranglerBin = resolve(
@@ -39,14 +45,12 @@ function run(args) {
   return true;
 }
 
-const [command, ...args] = process.argv.slice(2);
-
 if (["dev", "build", "preview"].includes(command)) {
   run([viteBin, command, ...args]);
 } else if (command === "validate") {
   if (run([viteBin, "build"])) {
-    // This is a local bundle validation only; --dry-run never publishes a Worker.
-    run([wranglerBin, "deploy", "--dry-run", ...args]);
+    // Keep validation arguments fixed so callers cannot change targets or disable dry-run.
+    run([wranglerBin, "deploy", "--dry-run"]);
   }
 } else {
   console.error(

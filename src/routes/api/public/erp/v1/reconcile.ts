@@ -1,20 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { erpHandle } from '@/lib/erp/handler.server'
-
-// Returns item/branch/version/qty so ERP can verify the website copy matches. No costs exposed.
-export const Route = createFileRoute('/api/public/erp/v1/reconcile')({
-  server: {
-    handlers: {
-      GET: ({ request }) =>
-        erpHandle(request, '/api/public/erp/v1/reconcile', async (_b, db) => {
-          const { data, error } = await db
-            .from('erp_stock_snapshots')
-            .select('erp_item_id,erp_branch_id,source_version,qty_available,unit_code,selling_price,currency')
-            .order('erp_item_id')
-            .limit(5000)
-          if (error) return { status: 500, body: { error: 'read_failed' } }
-          return { status: 200, body: { rows: data } }
-        }),
-    },
-  },
-})
+import { decodeCursor, encodeCursor, type StockCursor } from '@/lib/erp/cursor'
+export const Route = createFileRoute('/api/public/erp/v1/reconcile')({ server: { handlers: { GET: ({ request }) =>
+  erpHandle(request, '/api/public/erp/v1/reconcile', async (_body, db, context) => {
+    const params = new URL(request.url).searchParams
+    let cursor: StockCursor | null
+    try { cursor = decodeCursor<StockCursor>(params.get('cursor'), 'stock') } catch { return { status: 400, body: { error: 'invalid_cursor' } } }
+    const size = params.get('limit') ?? '100'
+    if (!/^[1-9][0-9]{0,2}$/.test(size) || Number(size) > 100) return { status: 400, body: { error: 'invalid_limit' } }
+    const { data, error } = await db.rpc('erp_v2_reconcile', { p_source: context.source, p_item: cursor?.item ?? '', p_branch: cursor?.branch ?? '', p_limit: Number(size) })
+    if (error || !Array.isArray(data)) return { status: 503, body: { error: 'read_failed' } }
+    const more = data.length > Number(size), rows = data.slice(0, Number(size)), last = rows.at(-1)
+    return { status: 200, body: { rows, next: more && last ? encodeCursor({ item: last.erp_item_id, branch: last.erp_branch_id }) : null, staging_only: true } }
+  })
+} } })

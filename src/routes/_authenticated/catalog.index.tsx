@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useDeferredValue, useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -32,7 +33,7 @@ export const Route = createFileRoute('/_authenticated/catalog/')({
   }),
   component: CatalogPage,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">فشل تحميل الكتالوج: {error.message}</div>
+    <div className="p-8 text-center text-red-600">فشل تحميل الكتالوج: {classifyError(error).userMessageAr}</div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })

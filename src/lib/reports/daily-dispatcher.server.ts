@@ -1,142 +1,54 @@
-// Daily executive report — compiled at 21:00 Asia/Aden and emailed to the owner,
-// with a 1-click WhatsApp summary payload.
+import {readAllReportRows,acknowledgedQueueId,completeRows,exactCount,exactOrderTotal,reportRecipient,configuredWhatsAppLink} from './report-source'
 
 export interface DailyReport {
-  dateLabel: string
-  visitors: { sessions: number; newVisitors: number; avgDwellMinutes: number; topPages: Array<{ path: string; views: number }> }
-  crm: { newCustomers: number; syncSynced: number; syncPending: number; syncFailed: number }
-  sales: { orders: number; revenue: number; pendingPurchaseOrders: number; safetyStockAlerts: number }
-  content: { generated: number; published: number; pending: number }
-  storefront: { prescriptions: number; refills: number; bundleOrders: number; assistantMessages: number }
-  health: { errors: number; degradedModules: string[] }
-
+ dateLabel:string
+ source:{from:string;to:string;generatedAt:string;window:'rolling_24_hours';consistency:'independent_source_reads';salesBasis:'order_face_values_not_accounting_revenue';currency:'unverified';visitorsBasis:'recently_seen_records_clipped_span_not_active_dwell';pagesBasis:'lifetime_pages_of_selected_records'}
+ visitors:{sessions:number;newVisitors:number;avgDwellMinutes:number;topPages:Array<{path:string;views:number}>}
+ crm:{newCustomers:number;syncSynced:number;syncPending:number;syncFailed:number}
+ sales:{orders:number;orderTotal:string;pendingPurchaseOrders:number;safetyStockAlerts:number}
+ content:{generated:number;published:number;pending:number}
+ storefront:{prescriptions:number;refills:number;bundleOrders:number;assistantMessages:number}
+ health:{errors:number;degradedModules:string[];unobservedModules:string[]}
 }
 
-const REPORT_EMAIL = process.env['EXEC_REPORT_EMAIL'] ?? 'dr-mohmed@muslly.com'
-const REPORT_WHATSAPP = process.env['EXEC_REPORT_WHATSAPP'] ?? '967782878280'
-
-function dayWindow(): { fromIso: string; toIso: string; label: string } {
-  const now = new Date()
-  const from = new Date(now.getTime() - 24 * 3600_000)
-  const label = new Intl.DateTimeFormat('ar-YE', { timeZone: 'Asia/Aden', dateStyle: 'full' }).format(now)
-  return { fromIso: from.toISOString(), toIso: now.toISOString(), label }
-}
-
-async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
-  try {
-    return await fn()
-  } catch (e) {
-    console.warn('[daily-report] section failed', (e as Error).message)
-    return fallback
-  }
-}
-
-export async function buildDailyReport(): Promise<DailyReport> {
-  const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-  const { planetaryStatus } = await import('@/lib/ai/runtime/telemetry.server')
-  const { fromIso, label } = dayWindow()
-
-  const visitors = await safe(async () => {
-    const { data } = await supabaseAdmin
-      .from('visitor_sessions')
-      .select('pages_viewed, first_visit, created_at, last_seen_at')
-      .gte('last_seen_at', fromIso)
-      .limit(5000)
-    const rows = data ?? []
-    const pageCount = new Map<string, number>()
-    let dwellTotal = 0
-    for (const r of rows) {
-      const pages = Array.isArray(r.pages_viewed) ? (r.pages_viewed as unknown[]) : []
-      for (const p of pages) {
-        const path = typeof p === 'string' ? p : ((p as Record<string, unknown>)?.path as string) ?? null
-        if (path) pageCount.set(path, (pageCount.get(path) ?? 0) + 1)
-      }
-      const start = new Date(r.created_at as string).getTime()
-      const end = new Date(r.last_seen_at as string).getTime()
-      if (end > start) dwellTotal += end - start
-    }
-    const topPages = Array.from(pageCount.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([path, views]) => ({ path, views }))
-    return {
-      sessions: rows.length,
-      newVisitors: rows.filter((r) => r.first_visit).length,
-      avgDwellMinutes: rows.length ? Math.round((dwellTotal / rows.length / 60000) * 10) / 10 : 0,
-      topPages,
-    }
-  }, { sessions: 0, newVisitors: 0, avgDwellMinutes: 0, topPages: [] as Array<{ path: string; views: number }> })
-
-  const crm = await safe(async () => {
-    const [{ count: newCustomers }, synced, pending, failed] = await Promise.all([
-      supabaseAdmin.from('crm_customers').select('id', { count: 'exact', head: true }).gte('created_at', fromIso),
-      supabaseAdmin.from('crm_sync_log').select('id', { count: 'exact', head: true }).eq('status', 'synced').gte('created_at', fromIso),
-      supabaseAdmin.from('crm_sync_log').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-      supabaseAdmin.from('crm_sync_log').select('id', { count: 'exact', head: true }).eq('status', 'failed'),
-    ])
-    return {
-      newCustomers: newCustomers ?? 0,
-      syncSynced: synced.count ?? 0,
-      syncPending: pending.count ?? 0,
-      syncFailed: failed.count ?? 0,
-    }
-  }, { newCustomers: 0, syncSynced: 0, syncPending: 0, syncFailed: 0 })
-
-  const sales = await safe(async () => {
-    const { data: orders } = await supabaseAdmin
-      .from('orders')
-      .select('total, created_at')
-      .gte('created_at', fromIso)
-      .limit(5000)
-    const revenue = (orders ?? []).reduce((s, o) => s + Number(o.total ?? 0), 0)
-    const [po, alerts] = await Promise.all([
-      supabaseAdmin.from('invoice_uploads').select('id', { count: 'exact', head: true }).in('status', ['uploaded', 'extracting', 'extracted']),
-      supabaseAdmin.from('inv_reorder_suggestions').select('id', { count: 'exact', head: true }).gte('created_at', fromIso),
-    ])
-    return {
-      orders: orders?.length ?? 0,
-      revenue: Math.round(revenue),
-      pendingPurchaseOrders: po.count ?? 0,
-      safetyStockAlerts: alerts.count ?? 0,
-    }
-  }, { orders: 0, revenue: 0, pendingPurchaseOrders: 0, safetyStockAlerts: 0 })
-
-  const content = await safe(async () => {
-    const { data } = await supabaseAdmin.from('social_posts').select('status').gte('created_at', fromIso).limit(500)
-    const rows = data ?? []
-    return {
-      generated: rows.length,
-      published: rows.filter((r) => r.status === 'published').length,
-      pending: rows.filter((r) => r.status === 'pending').length,
-    }
-  }, { generated: 0, published: 0, pending: 0 })
-
-  const storefront = await safe(async () => {
-    const [rx, refills, bundles, events] = await Promise.all([
-      supabaseAdmin.from('store_prescription_uploads').select('id', { count: 'exact', head: true }).gte('created_at', fromIso),
-      supabaseAdmin.from('store_refill_subscriptions').select('id', { count: 'exact', head: true }).gte('created_at', fromIso),
-      supabaseAdmin.from('store_bundle_orders').select('id', { count: 'exact', head: true }).gte('created_at', fromIso),
-      supabaseAdmin.from('ai_widget_events').select('id', { count: 'exact', head: true }).eq('kind', 'assistant_message').gte('created_at', fromIso),
-    ])
-    return {
-      prescriptions: rx.count ?? 0,
-      refills: refills.count ?? 0,
-      bundleOrders: bundles.count ?? 0,
-      assistantMessages: events.count ?? 0,
-    }
-  }, { prescriptions: 0, refills: 0, bundleOrders: 0, assistantMessages: 0 })
-
-  const health = await safe(async () => {
-    const { count } = await supabaseAdmin.from('error_logs').select('id', { count: 'exact', head: true }).gte('created_at', fromIso)
-    const modules = await planetaryStatus(24)
-    return {
-      errors: count ?? 0,
-      degradedModules: modules.filter((m) => m.status === 'degraded' || m.status === 'critical').map((m) => m.moduleKey),
-    }
-  }, { errors: 0, degradedModules: [] as string[] })
-
-  return { dateLabel: label, visitors, crm, sales, content, storefront, health }
-
+/** Read-only report. A failed/truncated source rejects the report rather than fabricating zeros. */
+export async function buildDailyReport():Promise<DailyReport>{
+ const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server')
+ const {planetaryStatus}=await import('@/lib/ai/runtime/telemetry.server')
+ const end=new Date(),to=end.toISOString(),from=new Date(end.getTime()-24*3600_000).toISOString()
+ const dateLabel=new Intl.DateTimeFormat('ar-YE',{timeZone:'Asia/Aden',dateStyle:'full'}).format(end)
+ const [visitorResult,customers,synced,pending,failed,ordersResult,purchases,alerts,postsResult,rx,refills,bundles,messages,errors,modules]=await Promise.all([
+  readAllReportRows((start,finish)=>db.from('visitor_sessions').select('id, pages_viewed, first_visit, created_at, last_seen_at',{count:'exact'}).gte('last_seen_at',from).lt('last_seen_at',to).order('id',{ascending:true}).range(start,finish)),
+  db.from('crm_customers').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
+  db.from('crm_sync_log').select('id',{count:'exact',head:true}).eq('status','synced').gte('created_at',from).lt('created_at',to),
+  db.from('crm_sync_log').select('id',{count:'exact',head:true}).eq('status','pending').lt('created_at',to),
+  db.from('crm_sync_log').select('id',{count:'exact',head:true}).eq('status','failed').lt('created_at',to),
+  readAllReportRows((start,finish)=>db.from('orders').select('id, total, created_at',{count:'exact'}).gte('created_at',from).lt('created_at',to).order('id',{ascending:true}).range(start,finish)),
+  db.from('invoice_uploads').select('id',{count:'exact',head:true}).in('status',['uploaded','extracting','extracted']).lt('created_at',to),
+  db.from('inv_reorder_suggestions').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
+  readAllReportRows((start,finish)=>db.from('social_posts').select('id, status',{count:'exact'}).gte('created_at',from).lt('created_at',to).order('id',{ascending:true}).range(start,finish)),
+  db.from('store_prescription_uploads').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
+  db.from('store_refill_subscriptions').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
+  db.from('store_bundle_orders').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
+  db.from('ai_widget_events').select('id',{count:'exact',head:true}).eq('kind','assistant_message').gte('created_at',from).lt('created_at',to),
+  db.from('error_logs').select('id',{count:'exact',head:true}).gte('created_at',from).lt('created_at',to),
+  planetaryStatus(24,end),
+ ])
+ const visitors=completeRows(visitorResult),orders=completeRows(ordersResult),posts=completeRows(postsResult)
+ const pageCount=new Map<string,number>();let dwell=0
+ for(const r of visitors){
+  if(!Array.isArray(r.pages_viewed)||typeof r.first_visit!=='boolean')throw Error('REPORT_INVALID_VISITOR_SOURCE');
+  for(const value of r.pages_viewed){const page=typeof value==='string'?value:value&&typeof value==='object'&&!Array.isArray(value)?value.path:null;if(typeof page!=='string'||!page)throw Error('REPORT_INVALID_VISITOR_SOURCE');pageCount.set(page,(pageCount.get(page)??0)+1)}
+  const start=typeof r.created_at==='string'?Date.parse(r.created_at):NaN,last=typeof r.last_seen_at==='string'?Date.parse(r.last_seen_at):NaN;if(!Number.isFinite(start)||!Number.isFinite(last)||last<start||last<Date.parse(from)||last>=end.getTime())throw Error('REPORT_INVALID_SOURCE_DATE');dwell+=last-Math.max(start,Date.parse(from))
+ }
+ return {dateLabel,source:{from,to,generatedAt:new Date().toISOString(),window:'rolling_24_hours',consistency:'independent_source_reads',salesBasis:'order_face_values_not_accounting_revenue',currency:'unverified',visitorsBasis:'recently_seen_records_clipped_span_not_active_dwell',pagesBasis:'lifetime_pages_of_selected_records'},
+  visitors:{sessions:visitors.length,newVisitors:visitors.filter(r=>r.first_visit&&Date.parse(r.created_at)>=Date.parse(from)).length,avgDwellMinutes:visitors.length?Math.round(dwell/visitors.length/6000)/10:0,topPages:[...pageCount].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([path,views])=>({path,views}))},
+  crm:{newCustomers:exactCount(customers),syncSynced:exactCount(synced),syncPending:exactCount(pending),syncFailed:exactCount(failed)},
+  sales:{orders:orders.length,orderTotal:exactOrderTotal(orders.map(o=>o.total)),pendingPurchaseOrders:exactCount(purchases),safetyStockAlerts:exactCount(alerts)},
+  content:{generated:posts.length,published:posts.filter(p=>p.status==='published').length,pending:posts.filter(p=>p.status==='pending').length},
+  storefront:{prescriptions:exactCount(rx),refills:exactCount(refills),bundleOrders:exactCount(bundles),assistantMessages:exactCount(messages)},
+  health:{errors:exactCount(errors),degradedModules:modules.filter(m=>m.status==='degraded'||m.status==='critical').map(m=>m.moduleKey),unobservedModules:modules.filter(m=>m.status==='idle'||!m.lastSeen).map(m=>m.moduleKey)},
+ }
 }
 
 const CARD = 'background:#ffffff;border:1px solid #e2eeec;border-radius:16px;padding:16px;margin:0 0 12px'
@@ -151,22 +63,22 @@ export function renderReportHtml(r: DailyReport): string {
   const pages = r.visitors.topPages.length
     ? r.visitors.topPages.map((p) => `<li style="margin:2px 0">${escapeHtml(p.path)} — ${p.views}</li>`).join('')
     : '<li>لا توجد بيانات</li>'
-  const degraded = r.health.degradedModules.length ? r.health.degradedModules.join('، ') : 'كل الوحدات سليمة'
+  const degraded = r.health.degradedModules.length ? r.health.degradedModules.join('، ') : r.health.unobservedModules.length ? 'لا توجد قياسات كافية لكل الوحدات' : 'لم تظهر وحدات متدهورة ضمن القياسات المتاحة'
 
   return `<!doctype html><html dir="rtl" lang="ar"><body style="margin:0;background:#ffffff;font-family:system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif">
   <div style="max-width:640px;margin:0 auto;padding:24px">
     <div style="background:#D9EEEB;border-radius:20px;padding:20px;margin-bottom:16px">
       <h1 style="margin:0;font-size:20px;color:#0f3b36">التقرير التنفيذي اليومي</h1>
-      <p style="margin:6px 0 0;color:#3c605b;font-size:14px">صيدلية المصلي · ${escapeHtml(r.dateLabel)}</p>
+      <p style="margin:6px 0 0;color:#3c605b;font-size:14px">صيدلية المصلي · ${escapeHtml(r.dateLabel)}</p><p>آخر24ساعة: ${escapeHtml(r.source.from)} إلى ${escapeHtml(r.source.to)}. قراءة مصادر مستقلة وليست لقطة محاسبية واحدة. عملة قيم الطلبات غير موثقة في هذا المصدر. مدة الزائر هي الفاصل المرصود داخل الفترة وليست زمن التفاعل الفعلي.</p>
     </div>
 
     <h2 style="font-size:15px;color:#0f3b36;margin:16px 0 6px">الزوار والتفاعل</h2>
     <table width="100%" cellspacing="0" cellpadding="0"><tr>
-      ${metric('الجلسات', String(r.visitors.sessions))}
+      ${metric('سجلات زوار نشطة', String(r.visitors.sessions))}
       ${metric('زوار جدد', String(r.visitors.newVisitors))}
-      ${metric('متوسط المكوث (د)', String(r.visitors.avgDwellMinutes))}
+      ${metric('متوسط المدة المرصودة داخل الفترة (د)', String(r.visitors.avgDwellMinutes))}
     </tr></table>
-    <div style="${CARD}"><p style="${LABEL}">أكثر الصفحات زيارة</p><ul style="margin:6px 0 0;padding-inline-start:18px;color:#0f3b36;font-size:14px">${pages}</ul></div>
+    <div style="${CARD}"><p style="${LABEL}">صفحات محفوظة في سجلات الزوار — قد تشمل زيارات أقدم</p><ul style="margin:6px 0 0;padding-inline-start:18px;color:#0f3b36;font-size:14px">${pages}</ul></div>
 
     <h2 style="font-size:15px;color:#0f3b36;margin:16px 0 6px">العملاء ومزامنة Google Sheets</h2>
     <table width="100%" cellspacing="0" cellpadding="0"><tr>
@@ -178,7 +90,7 @@ export function renderReportHtml(r: DailyReport): string {
     <h2 style="font-size:15px;color:#0f3b36;margin:16px 0 6px">المبيعات والمخزون</h2>
     <table width="100%" cellspacing="0" cellpadding="0"><tr>
       ${metric('الطلبات', String(r.sales.orders))}
-      ${metric('الإيراد', `${r.sales.revenue.toLocaleString('ar-YE')} ر.ي`)}
+      ${metric('مجموع قيم الطلبات — ليس إيرادًا محاسبيًا', escapeHtml(r.sales.orderTotal))}
     </tr><tr>
       ${metric('فواتير شراء قيد المعالجة', String(r.sales.pendingPurchaseOrders))}
       ${metric('تنبيهات مخزون الأمان', String(r.sales.safetyStockAlerts))}
@@ -207,21 +119,21 @@ export function renderReportHtml(r: DailyReport): string {
 export function renderWhatsAppSummary(r: DailyReport): string {
   const lines = [
     `📊 التقرير اليومي — صيدلية المصلي`,
-    `🗓 ${r.dateLabel}`,
-    `👥 جلسات: ${r.visitors.sessions} (جدد ${r.visitors.newVisitors}) — مكوث ${r.visitors.avgDwellMinutes} د`,
-    `🧾 طلبات: ${r.sales.orders} — إيراد ${r.sales.revenue.toLocaleString('ar-YE')} ر.ي`,
+    `🗓 ${r.dateLabel} — آخر24ساعة: ${r.source.from} إلى ${r.source.to}`,
+    `👥 سجلات زوار: ${r.visitors.sessions} (جدد ${r.visitors.newVisitors}) — مدة مرصودة ${r.visitors.avgDwellMinutes} د (ليست زمن تفاعل فعلي)`,
+    `🧾 طلبات: ${r.sales.orders} — مجموع قيمها: ${r.sales.orderTotal} (ليس إيرادًا محاسبيًا؛ العملة غير موثقة في هذا المصدر)`,
     `🧑‍⚕️ عملاء جدد: ${r.crm.newCustomers} — مزامنة Sheets: ${r.crm.syncSynced}`,
     `📦 تنبيهات مخزون: ${r.sales.safetyStockAlerts} — فواتير قيد المعالجة: ${r.sales.pendingPurchaseOrders}`,
     `📝 منشورات صحية: ${r.content.generated}`,
     `💊 وصفات: ${r.storefront.prescriptions} — تعبئة: ${r.storefront.refills} — باقات: ${r.storefront.bundleOrders}`,
 
-    `⚙️ أخطاء: ${r.health.errors}`,
+    `⚙️ أخطاء: ${r.health.errors} — وحدات بلا قياسات: ${r.health.unobservedModules.length}`,
   ]
   return lines.join('\n')
 }
 
-export function whatsappLink(summary: string, phone = REPORT_WHATSAPP): string {
-  return `https://wa.me/${phone}?text=${encodeURIComponent(summary)}`
+export function whatsappLink(summary: string, phone = process.env['EXEC_REPORT_WHATSAPP']): string {
+  return configuredWhatsAppLink(summary,phone)
 }
 
 /** Build + enqueue the executive email. Returns the report and WhatsApp link. */
@@ -230,26 +142,28 @@ export async function dispatchDailyReport(): Promise<{
   emailQueued: boolean
   whatsappUrl: string
 }> {
+  const recipient=reportRecipient(process.env)
   const report = await buildDailyReport()
   const html = renderReportHtml(report)
   const summary = renderWhatsAppSummary(report)
+  const whatsappUrl = whatsappLink(summary)
 
   let emailQueued = false
   try {
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const { error } = await supabaseAdmin.rpc('enqueue_email', {
+    const { data, error } = await supabaseAdmin.rpc('enqueue_email', {
       queue_name: 'transactional_emails',
       payload: {
-        to: REPORT_EMAIL,
+        to: recipient,
         subject: `التقرير التنفيذي اليومي — ${report.dateLabel}`,
         html,
         template_name: 'daily_executive_report',
       },
     })
-    emailQueued = !error
-    if (error) console.error('[daily-report] enqueue failed', error.message)
-  } catch (e) {
-    console.error('[daily-report] enqueue threw', (e as Error).message)
+    emailQueued = !error && acknowledgedQueueId(data)
+    if (!emailQueued) console.error('[daily-report] queue acknowledgment unconfirmed')
+  } catch {
+    console.error('[daily-report] queue acknowledgment unavailable')
   }
 
   try {
@@ -259,7 +173,7 @@ export async function dispatchDailyReport(): Promise<{
     /* optional archive */
   }
 
-  return { report, emailQueued, whatsappUrl: whatsappLink(summary) }
+  return { report, emailQueued, whatsappUrl }
 }
 
 function escapeHtml(s: string): string {

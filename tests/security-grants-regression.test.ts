@@ -20,15 +20,15 @@ function psql(sql: string): string {
   }).trim()
 }
 
-// PGHOST alone is not enough: sandboxes export PG* without a usable tenant.
-// Probe a trivial query so unreachable databases skip instead of failing.
+// An explicitly configured database must be reachable. Otherwise a failed
+// acceptance environment would silently become an apparently green skipped suite.
 function databaseReachable(): boolean {
   if (!process.env.PGHOST) return false
   try {
     psql('SELECT 1')
     return true
   } catch {
-    return false
+    throw new Error('PGHOST is configured but the security-test database is unreachable')
   }
 }
 
@@ -40,6 +40,16 @@ d('SECURITY DEFINER grant baseline', () => {
   it('registry table exists and is populated', () => {
     const count = Number(psql('SELECT count(*) FROM public.privileged_definer_functions'))
     expect(count).toBeGreaterThan(0)
+    expect(psql(`
+      SELECT function_signature FROM public.privileged_definer_functions
+      WHERE to_regprocedure(function_signature) IS NULL
+    `)).toBe('')
+    const covered = Number(psql(`
+      SELECT count(*) FROM public.privileged_definer_functions r
+      JOIN public.v_privileged_definer_grants g
+        ON r.function_signature = g.function_signature
+    `))
+    expect(covered).toBe(count)
   })
 
   it('no privileged function in the registry is anon-callable', () => {

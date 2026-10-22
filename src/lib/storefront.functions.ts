@@ -159,6 +159,9 @@ export const placeOrder = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
   .validator((raw: unknown) => placeOrderInput.parse(raw))
   .handler(async ({ data, context }): Promise<PlacedOrder> => {
+    const {data: checkoutMode,error: modeError}=await context.supabase.rpc('erp_checkout_mode' as never)
+    if(modeError)throw new Error(modeError.message)
+    if((checkoutMode as {mode?:string}|null)?.mode!=='legacy')throw new Error('ERP_MANAGED_CHECKOUT_REQUIRED')
     // Delegates to the atomic FEFO checkout RPC (deducts stock,
     // records movements, creates order + history, clears cart).
     const { data: result, error } = await context.supabase.rpc(

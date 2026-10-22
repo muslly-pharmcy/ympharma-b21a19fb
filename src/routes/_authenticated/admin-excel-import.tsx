@@ -1,3 +1,4 @@
+import { classifyError } from '@/lib/errors/classify'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
@@ -19,7 +20,7 @@ export const Route = createFileRoute('/_authenticated/admin-excel-import')({
   }),
   component: AdminExcelImport,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-red-600" dir="rtl">فشل: {error.message}</div>
+    <div className="p-8 text-red-600" dir="rtl">فشل: {classifyError(error).userMessageAr}</div>
   ),
   notFoundComponent: () => <div className="p-8" dir="rtl">غير موجود</div>,
 })
