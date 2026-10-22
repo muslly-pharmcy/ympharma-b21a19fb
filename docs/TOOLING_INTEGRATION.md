@@ -13,7 +13,7 @@ Files and scripts added
 - scripts/devtools/strix-allowlist.json     - allowlist of permitted SCAN_TARGET values
 
 Safe defaults and gating
-- Strix: gated and pinned to ghcr.io/usestrix/strix-sandbox:1.3.0 by default. Requires SECURITY_STRIX_DOCKER=1 and a matching entry in scripts/devtools/strix-allowlist.json. Output is written to ./artifacts/strix-report.json and must be sanitized before sharing.
+- Strix: gated and pinned to ghcr.io/usestrix/strix-sandbox:1.3.0. The package command delegates to the same runner. Requires SECURITY_STRIX_DOCKER=1 and an exact entry in the `allowedTargets` array in scripts/devtools/strix-allowlist.json. Targets must exist inside this repository, excluding its root; wildcards and image overrides are rejected. Docker receives argument arrays without a shell. Output is written to ./artifacts/strix-report.json and must be sanitized before sharing.
 - SkillUI: gated via SKILLUI_ALLOW=1 and outputs into ./artifacts/skillui
 - Context7 (ctx7): gated via CTX7_ALLOW=1
 
@@ -31,5 +31,12 @@ Windows notes
 
 Artifacts
 - All generated artifacts are written under ./artifacts and .gitignored by the project (see .gitignore update).
+
+Offline entrypoint checks: run each of `strix-scan.js`, `skillui-extract.js`, and
+`ctx7-check.js` with `--help`. Successful help validates loading only, not a scan,
+extraction, or provider connection. Strix also accepts `--dry-run` after opt-in and
+target validation; this prints Docker arguments without launching Docker. The
+other two wrappers still require separately verified optional provider packages
+for real execution. `bun x` is equivalent to `bunx` when the latter alias is absent.
 
 See docs/TOOLING_INTEGRATION.md and SETUP.md for step-by-step installation and safety checklist.
