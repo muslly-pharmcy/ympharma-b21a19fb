@@ -80,6 +80,23 @@ describe('check-no-secrets', () => {
     expect(strict.output).toContain('service-role-identifier-in-client')
   })
 
+  it('ignores a bare PEM header used in library error messages', () => {
+    const dir = probe({
+      'lib.js': "if (value.indexOf('-----BEGIN PRIVATE KEY-----') !== 0) throw new Error('bad')",
+    })
+    expect(run(dir).status).toBe(0)
+  })
+
+  it('fails on an embedded private key block', () => {
+    const body = 'MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj'
+    const dir = probe({
+      'leak.js': `const pem = "-----BEGIN PRIVATE KEY-----\n${body}\n-----END PRIVATE KEY-----"`,
+    })
+    const result = run(dir)
+    expect(result.status).toBe(1)
+    expect(result.output).toContain('private-key')
+  })
+
   it('fails when the target directory does not exist', () => {
     const result = run(join(tmpdir(), 'dsh-secret-scan-does-not-exist'))
     expect(result.status).toBe(1)
