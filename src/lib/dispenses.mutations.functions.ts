@@ -77,7 +77,7 @@ export const createDispense = createServerFn({ method: 'POST' })
     requirePermission(actor, 'dispense.write')
     const correlation = data.correlationId ?? newCorrelationId('dsp')
 
-    return withIdempotency(data.idempotencyKey, actor.userId, 'createDispense', async () => {
+    const result = await withIdempotency(data.idempotencyKey, actor.userId, 'createDispense', async () => {
       // Prescription must be approved
       const { data: rx, error: rxErr } = await supabaseAdmin
         .from('hc_prescriptions')
@@ -124,6 +124,20 @@ export const createDispense = createServerFn({ method: 'POST' })
       await audit(actor, { action: 'dispense.create', resourceType: 'dispense', resourceId: dspId, payload: { prescription_id: data.prescriptionId, items: rows.length } })
       return { id: dspId, correlationId: correlation }
     })
+
+    // Advisory screening: a failure here must never undo a created dispense.
+    try {
+      const { runDispenseScreening } = await import('./clinical-screening.server')
+      await runDispenseScreening({
+        actor,
+        dispenseId: result.id,
+        flow: 'dispense',
+        correlationId: result.correlationId,
+      })
+    } catch (error) {
+      console.error('[clinical-screening] create advisory failed', error)
+    }
+    return result
   })
 
 // -------------------- prepare (reserve inventory via FEFO) --------------------
@@ -245,10 +259,23 @@ export const verifyDispense = createServerFn({ method: 'POST' })
       if (it.product_id && !it.barcode_verified) throw new Error(`Item ${it.id} missing barcode verification`)
     }
 
+    const { runDispenseScreening } = await import('./clinical-screening.server')
+    const screening = await runDispenseScreening({
+      actor,
+      dispenseId: dsp.id,
+      flow: 'dispense',
+      correlationId: correlation,
+    })
+
     await writeStatus(dsp.id, dsp.status, 'verified', actor.userId, null, { verified_by: actor.userId })
     await emit('DispenseVerified', { dispense_id: dsp.id }, correlation)
     await audit(actor, { action: 'dispense.verify', resourceType: 'dispense', resourceId: dsp.id })
-    return { id: dsp.id, status: 'verified' as const, correlationId: correlation }
+    return {
+      id: dsp.id,
+      status: 'verified' as const,
+      correlationId: correlation,
+      screening: screening.data,
+    }
   })
 
 // -------------------- dispense (consume reservations) --------------------
@@ -263,6 +290,19 @@ export const dispensePrescription = createServerFn({ method: 'POST' })
     return withIdempotency(data.idempotencyKey, actor.userId, 'dispensePrescription', async () => {
       const dsp = await loadDispense(data.dispenseId, actor.organizationId)
       if (dsp.status !== 'verified') throw new Error(`Cannot dispense when status is "${dsp.status}"`)
+
+      // Clinical gate: a critical screening requires a recorded pharmacist
+      // override before stock is consumed. Infra failures fail closed.
+      const { getBlockingDispenseScreening } = await import('./clinical-screening.server')
+      const blocking = await getBlockingDispenseScreening({ actor, dispenseId: dsp.id })
+      if (blocking.error) {
+        throw new Error(`Clinical screening unavailable: ${blocking.error.message}`)
+      }
+      if (blocking.data) {
+        throw new Error(
+          'Screening override required: critical warning(s) must be reviewed and overridden by a pharmacist',
+        )
+      }
 
       const { data: items } = await supabaseAdmin
         .from('hc_dispense_items').select('id, product_id, reservation_id, qty_requested').eq('dispense_id', dsp.id)
