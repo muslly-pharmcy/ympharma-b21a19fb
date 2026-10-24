@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { ArrowLeft, ShieldCheck, Truck, XCircle, CheckCircle2, RotateCcw, ScanLine } from 'lucide-react'
 import { getDispense } from '@/lib/dispenses.functions'
+import { DispenseScreeningPanel } from '@/components/clinical/DispenseScreeningPanel'
 import {
   prepareDispense, verifyDispense, dispensePrescription, completeDispense,
   cancelDispense, returnDispense, verifyDispenseItemBarcode,
@@ -139,6 +140,8 @@ function DispenseDetailPage() {
           </div>
         )}
       </div>
+
+      <DispenseScreeningPanel dispenseId={dispenseId} status={status} />
 
       <div className="bg-white rounded-xl shadow p-6">
         <h2 className="text-lg font-bold mb-3">أصناف الصرف</h2>

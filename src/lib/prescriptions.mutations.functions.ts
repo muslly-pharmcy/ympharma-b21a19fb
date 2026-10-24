@@ -202,6 +202,21 @@ export const transitionPrescription = createServerFn({ method: 'POST' })
       'PrescriptionCancelled'
     await emit(eventName, { prescription_id: data.prescriptionId, from: rx.status, to: data.to }, correlation)
     await audit(actor, { action: `prescription.${data.to}`, resourceType: 'prescription', resourceId: data.prescriptionId, payload: { from: rx.status, to: data.to, reason: data.reason ?? null } })
+
+    if (data.to === 'approved') {
+      // Advisory: record approval evidence; screening failures never block approval.
+      try {
+        const { runPrescriptionScreening } = await import('./clinical-screening.server')
+        await runPrescriptionScreening({
+          actor,
+          prescriptionId: data.prescriptionId,
+          correlationId: correlation,
+        })
+      } catch (error) {
+        console.error('[clinical-screening] approval advisory failed', error)
+      }
+    }
+
     return { id: data.prescriptionId, status: data.to, correlationId: correlation }
   })
 

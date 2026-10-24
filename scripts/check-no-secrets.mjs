@@ -129,7 +129,9 @@ const RULES = [
   {
     id: "private-key",
     severity: "error",
-    re: /-----BEGIN (?:RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----/g,
+    // Require real key material (the header alone appears in library error
+    // strings, e.g. jose's "-----BEGIN PRIVATE KEY-----" format check).
+    re: /-----BEGIN (?:RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----[\sA-Za-z0-9+/=]{64,}/g,
   },
   {
     id: "openai-or-stripe-key",
