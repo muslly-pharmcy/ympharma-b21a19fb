@@ -30,6 +30,10 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,
+  // Four cold Vite route compilations can saturate a Windows workstation and
+  // create false one-minute timeouts. Keep the full suite parallel, but cap
+  // local Windows runs at two workers; CI and other platforms keep defaults.
+  workers: !process.env['CI'] && process.platform === 'win32' ? 2 : undefined,
   forbidOnly: Boolean(process.env['CI']),
   retries: process.env['CI'] ? 1 : 0,
   reporter: process.env['CI'] ? [['list'], ['html', { open: 'never' }]] : 'list',
