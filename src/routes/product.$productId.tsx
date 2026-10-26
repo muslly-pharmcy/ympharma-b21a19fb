@@ -24,7 +24,7 @@ export const Route = createFileRoute('/product/$productId')({
   parseParams: (p) => ({ productId: z.string().uuid().parse(p.productId) }),
   loader: async ({ params }) => {
     const res = await getProduct({ data: { id: params.productId } })
-    return { product: res?.product ?? null }
+    return { product: res?.product ?? null, detail: res }
   },
   head: ({ params, loaderData }) => {
     const product = loaderData?.product
@@ -34,6 +34,10 @@ export const Route = createFileRoute('/product/$productId')({
         meta: [
           { title: 'تفاصيل المنتج — صيدلية المصلي' },
           { name: 'description', content: 'تفاصيل المنتج، السعر، والسياسات.' },
+          { property: 'og:title', content: 'تفاصيل المنتج — صيدلية المصلي' },
+          { property: 'og:description', content: 'تفاصيل المنتج، السعر، والسياسات.' },
+          { property: 'og:type', content: 'website' },
+          { name: 'twitter:card', content: 'summary' },
         ],
         links: [{ rel: 'canonical', href: url }],
       }
@@ -111,6 +115,7 @@ export const Route = createFileRoute('/product/$productId')({
 })
 
 function ProductDetailPage() {
+  const initial = Route.useLoaderData()
   const { productId } = Route.useParams()
   const navigate = useNavigate()
   const qc = useQueryClient()
@@ -133,6 +138,7 @@ function ProductDetailPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['storefront', 'product', productId],
     queryFn: () => getProduct({ data: { id: productId } }),
+    initialData: initial.detail,
   })
   const { data: images = [] } = useQuery({
     queryKey: ['storefront', 'product', productId, 'images'],
