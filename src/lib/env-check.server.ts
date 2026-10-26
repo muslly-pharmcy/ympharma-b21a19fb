@@ -5,6 +5,7 @@
  */
 
 import { getPublicSupabaseConfig } from '@/integrations/supabase/public-config'
+import { isSupabaseAdminConfigured } from '@/lib/backend/admin.server'
 
 let validated = false
 
@@ -18,7 +19,7 @@ export function validateCloudEnv(): void {
   validated = true
 
   const { url, publishableKey } = getPublicSupabaseConfig()
-  const hasServiceRole = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim())
+  const hasServiceRole = isSupabaseAdminConfigured()
 
   if (!url || !publishableKey) {
     const missing = [

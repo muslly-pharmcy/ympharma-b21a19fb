@@ -152,6 +152,10 @@ export default defineConfig({
       // entities@4.5.0 ships those under `lib/esm/`, so point the aliases there
       // (v6+ `dist/esm/` paths do not exist in this install).
       alias: {
+        '@/integrations/supabase/client': path.resolve(__dirname, 'src/lib/backend/client.ts'),
+        '@/integrations/supabase/client.server': path.resolve(__dirname, 'src/lib/backend/admin.server.ts'),
+        // The generated bearer attacher imports its sibling via a relative path.
+        './client': path.resolve(__dirname, 'src/lib/backend/client.ts'),
         "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/esm/decode.js"),
         "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/esm/encode.js"),
       },
