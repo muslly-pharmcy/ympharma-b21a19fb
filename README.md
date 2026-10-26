@@ -47,6 +47,8 @@
 
 ## 🚀 التشغيل
 
+إرشادات الإصدار والربط: [المشروع المختار](docs/deployment/SELECTED-SUPABASE-CONNECTION.md). المميزات المقترحة وآلية التطوير ومنع تكرار الأعطال: [خطة تطوير المتجر](docs/engineering/STOREFRONT-DEVELOPMENT-ROADMAP.md).
+
 يتطلب Node.js 22.12 أو أحدث وBun 1.4.3. مدير الحزم المعتمد هو Bun، وملف القفل الوحيد هو `bun.lock`؛ تستخدم بيئات التطوير وCI وDocker التثبيت المجمد نفسه.
 
 ```bash

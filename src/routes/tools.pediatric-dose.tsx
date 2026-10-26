@@ -83,7 +83,8 @@ function PediatricDose() {
   const age = Number(ageMonths)
 
   const result = useMemo(() => {
-    if (!Number.isFinite(weightKg) || weightKg <= 0) return null
+    if (!Number.isFinite(weightKg) || weightKg <= 0 || weightKg >= 120 ||
+        !ageMonths.trim() || !Number.isFinite(age) || age < drug.minAgeMonths) return null
     const conc = drug.concentrations[concIndex] ?? drug.concentrations[0]
     const perDoseMg = Math.min(weightKg * drug.mgPerKg, drug.maxMgPerDay / drug.dosesPerDay)
     const perDoseMl = (perDoseMg / conc.mg) * conc.ml
@@ -97,14 +98,14 @@ function PediatricDose() {
       intervalHours: Math.round(24 / drug.dosesPerDay),
       cappedByMax,
     }
-  }, [drug, concIndex, weightKg])
+  }, [drug, concIndex, weightKg, age, ageMonths])
 
   const tooYoung = Number.isFinite(age) && age > 0 && age < drug.minAgeMonths
   const heavyWeightFlag = Number.isFinite(weightKg) && weightKg > 40
   const canNext =
     step === 0 ||
-    (step === 1 && weightKg > 0 && weightKg < 120) ||
-    step === 2
+    (step === 1 && result !== null) ||
+    (step === 2 && result !== null)
 
   const reset = () => {
     setStep(0)

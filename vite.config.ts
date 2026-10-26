@@ -14,7 +14,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isCapacitorBuild = process.argv.some((arg, index, args) =>
   arg === "--mode" ? args[index + 1] === "capacitor" : arg === "capacitor",
 );
-const isCloudflareBuild = process.env.CLOUDFLARE_BUILD === "1";
+// Workers Builds supplies WORKERS_CI automatically even when its dashboard
+// uses the ordinary build command. Keep Node/Lovable builds on Nitro.
+const isCloudflareBuild = process.env.CLOUDFLARE_BUILD === "1" || process.env.WORKERS_CI === "1";
 
 // Server-only env vars (no VITE_ prefix) needed by server routes such as
 // the auth email webhook (SUPABASE_SERVICE_ROLE_KEY, LOVABLE_API_KEY).
