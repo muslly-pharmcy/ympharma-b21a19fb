@@ -28,6 +28,7 @@ import { newCorrelationId } from '@/lib/errors/correlation'
 import { reportError } from '@/lib/errors/logger'
 import almoslyLogo from '@/assets/almosly-logo-optimized.webp'
 import appCss from '@/index.css?url'
+import { getPublicSupabaseConfig, PUBLIC_CONFIG_ELEMENT_ID, serializePublicConfig } from '@/integrations/supabase/public-config'
 
 
 export const Route = createRootRoute({
@@ -126,6 +127,7 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <script id={PUBLIC_CONFIG_ELEMENT_ID} type="application/json" dangerouslySetInnerHTML={{ __html: serializePublicConfig(getPublicSupabaseConfig()) }} />
         <Scripts />
       </body>
     </html>

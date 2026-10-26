@@ -5,6 +5,7 @@
 // docs/engineering/WAVE-C-SECURITY-HARDENING.md § "Nonce deferral rationale".
 import { createMiddleware } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
+import { getPublicSupabaseConfig } from '@/integrations/supabase/public-config'
 
 // Explicit third-party allowlist. Every entry is documented in the security
 // doc under "Third-party inventory". Add new hosts here — never widen to `https:`.
@@ -67,7 +68,7 @@ function reportToHeader(reportPath: string): string {
 
 export const securityHeadersMiddleware = createMiddleware({ type: 'request' }).server(async ({ next }) => {
   const reportPath = '/api/public/csp-report'
-  const csp = buildCsp(process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL, reportPath)
+  const csp = buildCsp(getPublicSupabaseConfig().url, reportPath)
   const headers: Record<string, string> = {
     // CSP in Report-Only mode: no enforcement, only violation reports.
     'Content-Security-Policy-Report-Only': csp,

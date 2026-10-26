@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { PUBLIC_BACKEND } from '../../../config/public-backend'
 
 /**
  * Wraps the app in QueryClientProvider, and additionally persists a
@@ -12,10 +13,8 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
  * SSR-safe: on server / before mount uses plain QueryClientProvider.
  */
 const PERSIST_KEYS = new Set([
-  'cart',
   'storefront',
   'catalog',
-  'my-orders',
   'store', // /store list + /store/$code product detail
 ])
 
@@ -36,7 +35,7 @@ export function AppQueryProvider({
       setPersister(
         createSyncStoragePersister({
           storage: window.localStorage,
-          key: 'almosly-query-cache-v1',
+          key: `almosly-query-cache-v2-${PUBLIC_BACKEND.projectId}`,
           throttleTime: 1500,
         }),
       )

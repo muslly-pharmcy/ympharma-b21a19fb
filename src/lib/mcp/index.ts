@@ -4,12 +4,13 @@ import searchCatalogTool from "./tools/search-catalog";
 import checkStockTool from "./tools/check-stock";
 import askKernelTool from "./tools/ask-kernel";
 import clinicalCheckTool from "./tools/clinical-check";
+import { PUBLIC_BACKEND } from '../../../config/public-backend';
 
 
 // OAuth issuer MUST be the direct supabase.co host (RFC 8414 issuer match).
 // Read the project ref from a Vite-inlined literal — not process.env — so the
 // value survives publish and the Workers runtime.
-const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unset";
+const projectRef = PUBLIC_BACKEND.projectId;
 
 export default defineMcp({
   name: "muslly-ai-os-mcp",
