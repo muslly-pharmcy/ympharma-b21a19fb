@@ -1,36 +1,19 @@
-# Stage 1: Build static assets and server output
-FROM node:22-alpine AS builder
+# Use the same frozen Bun lockfile as CI and local development.
+FROM oven/bun:1.4.3 AS bun
+FROM node:22-bookworm-slim AS builder
 WORKDIR /app
-
-# Cache dependencies
-COPY package*.json ./
-RUN npm ci --only=production=false
-
-# Copy code and build
+COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
+COPY package.json bun.lock bunfig.toml ./
+RUN bun install --frozen-lockfile
 COPY . .
-RUN npm run build
+# Only the selected public backend configuration is bundled. Privileged
+# credentials must be supplied securely at runtime, never as build arguments.
+RUN bun run build
 
-# Stage 2: Serve with lightweight Node (Non-root)
-FROM node:22-alpine AS runner
+FROM node:22-bookworm-slim AS runner
 WORKDIR /app
-
-# Create a non-root group and user
-RUN addgroup -S nodeuser && adduser -S nodeuser -G nodeuser
-
-# Copy build artifacts and package configs
-COPY --from=builder /app/.output ./.output
-COPY --from=builder /app/package*.json ./
-
-# Secure runtime privileges
-USER nodeuser
-
-# Expose default port
+COPY --from=builder --chown=node:node /app/.output ./.output
+USER node
 EXPOSE 8080
-
-# Configure production server environment
-ENV PORT=8080
-ENV HOST=0.0.0.0
-ENV NODE_ENV=production
-
-# Run the TanStack Start (Nitro) entrypoint server
+ENV PORT=8080 HOST=0.0.0.0 NODE_ENV=production
 CMD ["node", ".output/server/index.mjs"]

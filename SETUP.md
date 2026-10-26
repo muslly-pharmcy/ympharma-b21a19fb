@@ -1,13 +1,16 @@
 # YMPharma / صيدلية المصلي — Setup & Run
 
 ## Requirements
-- Node.js 20+ (or Bun 1.1+)
+- Node.js 22.12+ and Bun 1.4.3
 - A Supabase project (backend: DB, Auth, Storage)
 
 ## Install
 ```bash
-bun install     # or: npm install
+bun install --frozen-lockfile
 ```
+Use Bun as the sole package manager. Commit `bun.lock`; do not regenerate
+`package-lock.json` or mix npm dependency installation with the Bun lockfile.
+CI and Docker install from the same frozen lockfile.
 
 ## Environment
 Copy `.env.example` to `.env.local` and fill in values:
@@ -28,7 +31,7 @@ bun run dev     # http://localhost:8080
 
 ## Quality gates
 ```bash
-bunx tsgo --noEmit      # typecheck
+bunx tsc --noEmit       # typecheck
 bunx vitest run         # unit tests
 bunx playwright test    # e2e (needs dev server)
 bun run lint
@@ -46,5 +49,5 @@ bun run preview
 Apply with the Supabase CLI: `supabase db push`
 
 ## Stack
-TanStack Start v1 (React 19 + Vite 7), Tailwind CSS v4, Supabase, TanStack Query.
+TanStack Start v1 (React 19 + Vite 8), Tailwind CSS v4, Supabase, TanStack Query.
 Routing is file-based in `src/routes/`; `src/routeTree.gen.ts` is generated.
