@@ -54,11 +54,13 @@ async function resolveEntities(
   const resolved = new Map<string, { entityId: string; label: string }>()
   if (names.length === 0) return resolved
 
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from('medical_entities')
     .select('id, name_ar, name_en')
     .eq('entity_type', 'drug')
     .limit(5000)
+
+  if (error) throw new Error('CLINICAL_KNOWLEDGE_UNAVAILABLE')
 
   const rows = (data ?? []) as EntityRow[]
   const index = new Map<string, { entityId: string; label: string }>()
@@ -97,7 +99,7 @@ async function interactionCheck(input: ClinicalCheckInput): Promise<ClinicalWarn
   if (drugs.length < 2) return []
 
   const resolved = await resolveEntities(drugs.map((d) => d.name))
-  if (resolved.size < 2) return []
+  if (drugs.some((drug) => !resolved.has(drug.name))) throw new Error('CLINICAL_INGREDIENT_NOT_RECOGNIZED')
 
   const byEntity = new Map<string, { itemIds: string[]; label: string }>()
   for (const drug of drugs) {
@@ -112,11 +114,13 @@ async function interactionCheck(input: ClinicalCheckInput): Promise<ClinicalWarn
   if (ids.length < 2) return []
 
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from('drug_interactions')
     .select('drug_a_id, drug_b_id, severity, mechanism, clinical_effect_ar, recommendation_ar, evidence_source')
     .in('drug_a_id', ids)
     .in('drug_b_id', ids)
+
+  if (error) throw new Error('CLINICAL_KNOWLEDGE_UNAVAILABLE')
 
   const warnings: ClinicalWarning[] = []
   for (const raw of (data ?? []) as InteractionRow[]) {

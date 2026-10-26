@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test'
 import { PUBLIC_BACKEND } from '../config/public-backend'
 
+test('a bound www host redirects to HTTPS canonical with its path and query', async ({ request }) => {
+  const response = await request.get('/shop?q=synthetic&page=2', { headers: { Host: 'www.muslly.com' }, maxRedirects: 0 })
+  expect(response.status()).toBe(308)
+  expect(response.headers().location).toBe('https://muslly.com/shop?q=synthetic&page=2')
+})
+
 test('selected backend hydrates and opens the actual assistant', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))

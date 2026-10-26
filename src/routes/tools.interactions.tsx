@@ -189,7 +189,7 @@ function InteractionsTool() {
 
       {mutation.isError && (
         <p className="mt-4 rounded-xl bg-red-50 p-3 text-center text-xs text-red-700">
-          تعذّر إجراء الفحص الآن. حاول مرة أخرى بعد قليل.
+          تعذّر التحقق من التداخلات أو التعرف على جميع المواد. لا تعتبر ذلك تأكيدًا للأمان؛ راجع الصيدلي.
         </p>
       )}
     </div>

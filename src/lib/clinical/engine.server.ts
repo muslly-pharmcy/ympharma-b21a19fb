@@ -9,6 +9,7 @@ export interface ClinicalCheckResult {
   providerName: string
   warnings: ClinicalWarning[]
   ranAt: string
+  status: 'complete' | 'incomplete'
 }
 
 export async function runClinicalCheck(
@@ -29,6 +30,12 @@ export async function runClinicalCheck(
 
   const warnings: ClinicalWarning[] = []
   for (const r of results) if (r.status === 'fulfilled') warnings.push(...r.value)
+  const incomplete = results.some((r) => r.status === 'rejected')
+  if (incomplete) warnings.push({
+    category: 'interaction', severity: 'high', code: 'clinical-check-incomplete',
+    message: 'تعذّر إكمال بعض الفحوص الدوائية. لا تعتبر غياب التحذيرات تأكيدًا للأمان؛ راجع الصيدلي.',
+    source: provider.id,
+  })
 
   const rank: Record<ClinicalWarning['severity'], number> = {
     critical: 0, high: 1, moderate: 2, low: 3, info: 4,
@@ -40,5 +47,6 @@ export async function runClinicalCheck(
     providerName: provider.displayName,
     warnings,
     ranAt: new Date().toISOString(),
+    status: incomplete ? 'incomplete' : 'complete',
   }
 }

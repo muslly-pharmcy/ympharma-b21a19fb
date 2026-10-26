@@ -49,3 +49,18 @@ describe('Clinical framework', () => {
     expect(r.warnings.map((w) => w.severity)).toEqual(['critical', 'moderate', 'low'])
   })
 })
+
+describe('Clinical provider outages', () => {
+  it('marks partial checks incomplete and displays a warning instead of a clean result', async () => {
+    registerProvider({
+      ...nullProvider,
+      id: 'unavailable-test',
+      interaction: { async check() { throw new Error('synthetic database outage') } },
+    })
+    const result = await runClinicalCheck({
+      patient: { patientId: 'synthetic', knownAllergies: [], activeConditions: [] }, drugs: [],
+    }, 'unavailable-test')
+    expect(result.status).toBe('incomplete')
+    expect(result.warnings.some((warning) => warning.code === 'clinical-check-incomplete')).toBe(true)
+  })
+})

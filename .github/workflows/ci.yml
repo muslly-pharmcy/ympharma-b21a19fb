@@ -48,7 +48,9 @@ jobs:
         run: bunx playwright install --with-deps chromium
 
       - name: Connection and offline browser regression tests
-        run: E2E_MOCK_SERVER=1 bunx playwright test e2e/connection-repair.e2e.ts
+        run: E2E_MOCK_SERVER=1 bunx playwright test e2e/connection-repair.e2e.ts e2e/clinical-safety.e2e.ts
 
       - name: Validate Cloudflare Worker bundle (no deployment)
-        run: bun run validate:cloudflare
+        run: |
+          WORKERS_CI=1 bun run build
+          bunx wrangler deploy --dry-run

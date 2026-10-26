@@ -36,7 +36,7 @@ export interface IngredientWarning {
 }
 
 const interactionsInput = z.object({
-  ingredients: z.array(z.string()).max(12),
+  ingredients: z.array(z.string().trim().min(1).max(120)).min(2).max(12),
 })
 
 /** Check curated drug-drug interactions between free-text active ingredients. */
@@ -69,9 +69,9 @@ export const checkIngredientInteractions = createServerFn({ method: 'POST' })
         })),
         checked: names.length,
       }
-    } catch (err) {
-      console.error('[checkIngredientInteractions]', err)
-      return { warnings: [], checked: names.length }
+    } catch {
+      console.error('[checkIngredientInteractions] clinical lookup unavailable')
+      throw new Error('تعذّر التحقق من التداخلات أو التعرف على جميع المواد. راجع الصيدلي؛ لا تعتبر غياب النتيجة تأكيدًا للأمان.')
     }
   })
 
