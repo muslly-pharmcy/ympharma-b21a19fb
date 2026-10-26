@@ -1,8 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import Storefront from '@/pages/Storefront'
 import { PHARMACY } from '@/shared/branding'
+import { listProducts, listCategories } from '@/lib/catalog.functions'
 
 export const Route = createFileRoute('/')({
+  loader: async () => {
+    const [products, categories] = await Promise.all([
+      listProducts({ data: { page: 1, pageSize: 24 } }), listCategories(),
+    ])
+    return { products, categories }
+  },
   head: () => ({
     meta: [
       { title: 'صيدلية المصلي — توصيل أدوية في عدن' },

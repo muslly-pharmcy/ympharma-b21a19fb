@@ -14,6 +14,7 @@ import { ProductCard, type StoreProduct } from '@/components/store/ProductCard'
 import { Skeleton } from '@/components/skeletons/Skeleton'
 import { GlassHero } from '@/shared/components/home/GlassHero'
 import CategoriesGrid from '@/shared/components/home/CategoriesGrid'
+import { Route } from '@/routes/index'
 
 const gridVariants = {
   hidden: { opacity: 0 },
@@ -21,6 +22,7 @@ const gridVariants = {
 }
 
 export default function Storefront() {
+  const initial = Route.useLoaderData()
   const [rawSearch, setRawSearch] = useState('')
   const [rxOpen, setRxOpen] = useState(false)
   const [categoryId, setCategoryId] = useState<string | undefined>(undefined)
@@ -35,6 +37,7 @@ export default function Storefront() {
     queryKey: ['storefront', 'categories'],
     queryFn: () => categoriesFn(),
     staleTime: 10 * 60_000,
+    initialData: initial.categories,
   })
 
   const { data, isLoading } = useQuery({
@@ -44,6 +47,7 @@ export default function Storefront() {
         data: { search: search || undefined, categoryId, page: 1, pageSize: 24 },
       }),
     staleTime: 60_000,
+    initialData: !search && !categoryId ? initial.products : undefined,
   })
 
   const products = useMemo(() => (data?.items ?? []) as unknown as StoreProduct[], [data])
@@ -116,7 +120,7 @@ export default function Storefront() {
           ) : (
             <motion.div
               variants={gridVariants}
-              initial="hidden"
+              initial={false}
               animate="show"
               className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
             >

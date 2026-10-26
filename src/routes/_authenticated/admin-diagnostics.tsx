@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { createPublicClient } from '@/lib/backend/client'
 import { supabase } from '@/integrations/supabase/client'
 import { getDiagnosticsActor, type DiagnosticsActor } from '@/lib/diagnostics.functions'
 import {
@@ -21,11 +22,13 @@ export const Route = createFileRoute('/_authenticated/admin-diagnostics')({
 })
 
 // ---------- Anon client (no session, publishable key only) ----------
-const anonSupabase = createClient<Database>(
-  import.meta.env.VITE_SUPABASE_URL as string,
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
-  { auth: { persistSession: false, autoRefreshToken: false, storage: undefined } },
-)
+const anonSupabase = new Proxy({} as ReturnType<typeof createPublicClient>, {
+  get(_, prop) {
+    const instance = createPublicClient()
+    const value = Reflect.get(instance, prop)
+    return typeof value === 'function' ? value.bind(instance) : value
+  },
+})
 
 type Row = {
   name: string

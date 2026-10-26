@@ -26,15 +26,11 @@
     "cap:add:android": "cap add android",
     "cap:open:ios": "cap open ios",
     "cap:open:android": "cap open android",
-
     "playwright:install": "npx playwright install --with-deps",
-
     "security:strix:docker": "docker run --rm -v \"$PWD\":/work -w /work ghcr.io/usestrix/strix-sandbox:latest strix --target /work",
     "security:strix:help": "echo 'Strix is provided as a Python/Docker tool (ghcr.io/usestrix/strix-sandbox). Run the docker command in security:strix:docker locally for a test scan. Do NOT run this in production without review.'",
-
     "skillui:help": "npx skillui --help",
     "skillui:extract:help": "echo 'skillui (npm package `skillui`) is an optional design-system extractor. Use npx skillui url <site> or npx skillui dir <path> locally. Do not run on production sites without authorization.'",
-
     "ctx7:help": "npx ctx7 --help"
   },
   "dependencies": {
@@ -129,7 +125,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.63.1",
     "@eslint/js": "^9.32.0",
-    "@lovable.dev/vite-tanstack-config": "2.25.3",
+    "@lovable.dev/vite-tanstack-config": "2.26.5",
     "@playwright/test": "^1.61.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

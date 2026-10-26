@@ -1,16 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { resolvePublicSupabaseConfig } from '@/integrations/supabase/public-config'
+import { resolvePublicSupabaseConfig, validatePublicConfig, serializePublicConfig, matchingServerCredential } from '@/integrations/supabase/public-config'
+import { PUBLIC_BACKEND } from '../config/public-backend'
 
 describe('public Supabase configuration', () => {
-  it('prefers server runtime values when Lovable provides them', () => {
+  it('never lets the stale managed runtime override the owner-selected project', () => {
     expect(
       resolvePublicSupabaseConfig({
-        SUPABASE_URL: 'https://server.example.supabase.co',
+        SUPABASE_URL: 'https://swyqqlpbjemarzzdxctw.supabase.co',
         SUPABASE_PUBLISHABLE_KEY: 'server-publishable',
       }),
     ).toEqual({
-      url: 'https://server.example.supabase.co',
-      publishableKey: 'server-publishable',
+      url: 'https://ybhrmcdlgyccywpmiucz.supabase.co',
+      publishableKey: PUBLIC_BACKEND.publishableKey,
     })
   })
 
@@ -24,8 +25,8 @@ describe('public Supabase configuration', () => {
         },
       ),
     ).toEqual({
-      url: 'https://vite.example.supabase.co',
-      publishableKey: 'vite-publishable',
+      url: PUBLIC_BACKEND.url,
+      publishableKey: PUBLIC_BACKEND.publishableKey,
     })
   })
 
@@ -37,8 +38,26 @@ describe('public Supabase configuration', () => {
         SUPABASE_SERVICE_ROLE_KEY: 'must-not-be-selected',
       }),
     ).toEqual({
-      url: 'https://legacy.example.supabase.co',
-      publishableKey: 'legacy-anon',
+      url: PUBLIC_BACKEND.url,
+      publishableKey: PUBLIC_BACKEND.publishableKey,
     })
+  })
+  it('rejects missing bootstrap values', () => {
+    expect(() => validatePublicConfig({ url: undefined, publishableKey: undefined })).toThrow('missing')
+  })
+  it('rejects mismatched bootstrap configuration', () => {
+    expect(() => validatePublicConfig({ url: 'https://swyqqlpbjemarzzdxctw.supabase.co', publishableKey: PUBLIC_BACKEND.publishableKey })).toThrow('match')
+  })
+  it('serializes only two public fields and escapes script terminators', () => {
+    const json = serializePublicConfig({ url: '</script>', publishableKey: 'example-only', privateField: 'excluded' } as never)
+    expect(json).not.toContain('<')
+    expect(JSON.parse(json)).toEqual({ url: '</script>', publishableKey: 'example-only' })
+  })
+  it('blocks any privileged credential from a mismatched binding', () => {
+    expect(matchingServerCredential({ SUPABASE_URL: 'https://swyqqlpbjemarzzdxctw.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'synthetic-only' })).toBeUndefined()
+  })
+  it('requires securely bound project identity even for a matching URL', () => {
+    expect(matchingServerCredential({ SUPABASE_URL: PUBLIC_BACKEND.url, SUPABASE_SERVICE_ROLE_KEY: 'synthetic-only' })).toBeUndefined()
+    expect(matchingServerCredential({ SUPABASE_URL: PUBLIC_BACKEND.url, SUPABASE_PROJECT_ID: PUBLIC_BACKEND.projectId, SUPABASE_SERVICE_ROLE_KEY: 'synthetic-only' })).toBe('synthetic-only')
   })
 })

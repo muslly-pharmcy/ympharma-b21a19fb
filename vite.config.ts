@@ -8,6 +8,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { PUBLIC_BACKEND } from './config/public-backend';
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -39,7 +40,7 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    ssr: false,
+    ssr: true,
     ...(isCapacitorBuild
       ? {
           // Capacitor needs a real local index.html. TanStack's SPA shell keeps
@@ -55,6 +56,20 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      {
+        name: 'selected-backend-clients',
+        enforce: 'pre',
+        resolveId(source, importer) {
+          // Preserve generated files; redirect all consumers to app-owned adapters.
+          if (source === '@/integrations/supabase/client' ||
+              (source === './client' && importer?.includes('/integrations/supabase/'))) {
+            return path.resolve(__dirname, 'src/lib/backend/client.ts');
+          }
+          if (source === '@/integrations/supabase/client.server') {
+            return path.resolve(__dirname, 'src/lib/backend/admin.server.ts');
+          }
+        },
+      },
       // @lovable.dev/mcp-js currently compares Vite's slash-normalized root
       // with Node's backslash-resolved routes path on Windows.  That makes the
       // plugin fail before Vitest or a local production build can start.  The
@@ -86,7 +101,7 @@ export default defineConfig({
               urlPattern: ({ request }: { request: Request }) => request.mode === "navigate",
               handler: "NetworkFirst",
               options: {
-                cacheName: "html-navigations",
+                cacheName: `html-navigations-${PUBLIC_BACKEND.projectId}`,
                 networkTimeoutSeconds: 4,
                 expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 },
               },
@@ -103,10 +118,10 @@ export default defineConfig({
               },
             },
             {
-              // API reads: network-first so data is fresh, cached copy when offline.
+              // Never persist authenticated API responses across sessions/projects.
               urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
                 sameOrigin && url.pathname.startsWith("/api/") && !url.pathname.startsWith("/api/public/"),
-              handler: "NetworkFirst",
+              handler: "NetworkOnly",
               options: {
                 cacheName: "api-cache",
                 networkTimeoutSeconds: 6,
@@ -117,6 +132,12 @@ export default defineConfig({
         },
       }),
     ],
+    define: {
+      'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify(PUBLIC_BACKEND.projectId),
+      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(PUBLIC_BACKEND.url),
+      'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(PUBLIC_BACKEND.publishableKey),
+      'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(PUBLIC_BACKEND.publishableKey),
+    },
 
     build: {
       // Android 11 WebView and newer reliably support the ES2020 output used
@@ -131,6 +152,10 @@ export default defineConfig({
       // entities@4.5.0 ships those under `lib/esm/`, so point the aliases there
       // (v6+ `dist/esm/` paths do not exist in this install).
       alias: {
+        '@/integrations/supabase/client': path.resolve(__dirname, 'src/lib/backend/client.ts'),
+        '@/integrations/supabase/client.server': path.resolve(__dirname, 'src/lib/backend/admin.server.ts'),
+        // The generated bearer attacher imports its sibling via a relative path.
+        './client': path.resolve(__dirname, 'src/lib/backend/client.ts'),
         "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/esm/decode.js"),
         "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/esm/encode.js"),
       },

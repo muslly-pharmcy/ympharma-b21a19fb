@@ -4,7 +4,7 @@
   "path": "/mcp",
   "auth": {
     "type": "oauth",
-    "issuer": "https://swyqqlpbjemarzzdxctw.supabase.co/auth/v1",
+    "issuer": "https://ybhrmcdlgyccywpmiucz.supabase.co/auth/v1",
     "accepted_audiences": [
       "authenticated"
     ]
@@ -107,15 +107,11 @@
               "description": "The question to ask the kernel."
             },
             "agent_key": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Agent to route to; null uses the general pharmacist agent."
+              "description": "Agent to route to; null uses the general pharmacist agent.",
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "client_id": {
               "anyOf": [

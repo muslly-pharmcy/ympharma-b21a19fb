@@ -30,8 +30,18 @@ export const Route = createFileRoute('/shop')({
       },
       { property: 'og:title', content: 'متجر صيدلية المصلي' },
       { property: 'og:description', content: 'كتالوج شفاف بأسعار محدّثة وخيارات دفع مرنة.' },
+      { property: 'og:type', content: 'website' },
+      { name: 'twitter:card', content: 'summary_large_image' },
     ],
   }),
+  loader: async ({ location }) => {
+    const search = searchSchema.parse(location.search)
+    const [products, categories] = await Promise.all([
+      listProducts({ data: { search: search.q, categoryId: search.cat, page: search.page, pageSize: 24, publicOnly: true } }),
+      listCategories(),
+    ])
+    return { products, categories }
+  },
   component: ShopPage,
 })
 
@@ -39,6 +49,7 @@ const PAGE_SIZE = 24
 
 function ShopPage() {
   const search = Route.useSearch()
+  const initial = Route.useLoaderData()
   const navigate = useNavigate()
   const [q, setQ] = useState(search.q ?? '')
 
@@ -55,12 +66,14 @@ function ShopPage() {
         },
       }),
     staleTime: 30_000,
+    initialData: initial.products,
   })
 
   const { data: categories = [] } = useQuery({
     queryKey: ['storefront', 'categories'],
     queryFn: () => listCategories(),
     staleTime: 5 * 60_000,
+    initialData: initial.categories,
   })
 
   const products = data?.items ?? []

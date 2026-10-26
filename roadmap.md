@@ -1,5 +1,10 @@
 # خارطة العمل — إكمال موقع صيدلية المصلي
 
+## Connection/boot repair — owner review, no deployment
+- [ ] Pin the existing selected public connection for SSR, browser, CSP and MCP.
+- [ ] Validate hydration, catalog, product and auth connectivity without writes.
+- [ ] Report secure credential and checkout blockers; do not migrate or deploy.
+
 ## مكتمل
 - [x] إعادة تشغيل قاعدة بيانات الموقع (كانت متوقفة)
 - [x] فحص أمان قاعدة البيانات — لا توجد ملاحظات
