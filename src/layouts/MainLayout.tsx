@@ -9,14 +9,12 @@ import { ExitIntentModal } from '@/shared/components/engage/ExitIntentModal'
 import { ScrollDepthPrompt } from '@/shared/components/engage/ScrollDepthPrompt'
 import { AuthenticityBadge } from '@/components/store/AuthenticityBadge'
 import { SystemBanner } from '@/shared/components/SystemBanner'
-import { useShopifyCartSync } from '@/hooks/useShopifyCartSync'
 
 interface MainLayoutProps {
   children?: ReactNode
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
-  useShopifyCartSync()
   const [chatOpen, setChatOpen] = useState(false)
 
   return (

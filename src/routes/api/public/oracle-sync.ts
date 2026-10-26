@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { z } from 'zod'
@@ -70,10 +71,7 @@ export const Route = createFileRoute('/api/public/oracle-sync')({
         }
 
         const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-        const db = supabaseAdmin as unknown as {
-          from: (t: string) => any
-          rpc: (n: string, a: unknown) => Promise<{ data: unknown; error: { message: string } | null }>
-        }
+        const db = supabaseAdmin as SupabaseClient
 
         const { error: runErr } = await db.from('oracle_sync_runs').upsert(
           { batch_id: env.batchId, source_system: env.sourceSystem, mode: env.mode, status: 'receiving', received_rows: env.rows.length },

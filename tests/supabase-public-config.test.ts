@@ -58,6 +58,22 @@ describe('public Supabase configuration', () => {
   })
   it('requires securely bound project identity even for a matching URL', () => {
     expect(matchingServerCredential({ SUPABASE_URL: PUBLIC_BACKEND.url, SUPABASE_SERVICE_ROLE_KEY: 'synthetic-only' })).toBeUndefined()
-    expect(matchingServerCredential({ SUPABASE_URL: PUBLIC_BACKEND.url, SUPABASE_PROJECT_ID: PUBLIC_BACKEND.projectId, SUPABASE_SERVICE_ROLE_KEY: 'synthetic-only' })).toBe('synthetic-only')
+    expect(matchingServerCredential({ SUPABASE_URL: PUBLIC_BACKEND.url, SUPABASE_PROJECT_ID: PUBLIC_BACKEND.projectId, SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_synthetic_only' })).toBe('sb_secret_synthetic_only')
+  })
+  it('accepts the explicitly bound custom server key while the managed project is old', () => {
+    expect(matchingServerCredential({
+      SUPABASE_URL: 'https://swyqqlpbjemarzzdxctw.supabase.co',
+      MUSLLY_SUPABASE_PROJECT_ID: PUBLIC_BACKEND.projectId,
+      MUSLLY_SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_synthetic_only',
+    })).toBe('sb_secret_synthetic_only')
+  })
+  it('rejects public keys and old legacy server keys from the selected server binding', () => {
+    const oldServerKey = `header.${btoa(JSON.stringify({ role: 'service_role', ref: 'swyqqlpbjemarzzdxctw' }))}.signature`
+    for (const key of ['sb_publishable_synthetic_only', oldServerKey]) {
+      expect(matchingServerCredential({ MUSLLY_SUPABASE_PROJECT_ID: PUBLIC_BACKEND.projectId, MUSLLY_SUPABASE_SERVICE_ROLE_KEY: key })).toBeUndefined()
+    }
+  })
+  it('rejects a custom credential without a matching project binding', () => {
+    expect(matchingServerCredential({ MUSLLY_SUPABASE_PROJECT_ID: 'other', MUSLLY_SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_synthetic_only' })).toBeUndefined()
   })
 })

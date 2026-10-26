@@ -47,29 +47,31 @@
 
 ## 🚀 التشغيل
 
+يتطلب Node.js 22.12 أو أحدث وBun 1.4.3. مدير الحزم المعتمد هو Bun، وملف القفل الوحيد هو `bun.lock`؛ تستخدم بيئات التطوير وCI وDocker التثبيت المجمد نفسه.
+
 ```bash
 # تثبيت التبعيات
-npm install
+bun install --frozen-lockfile
 
 # تشغيل في وضع التطوير
-npm run dev
+bun run dev
 
 # بناء للإنتاج
-npm run build
+bun run build
 
 # معاينة الإنتاج
-npm run preview
+bun run preview
 ```
 
 ---
 
 ## 🔧 التقنيات المستخدمة
 
-- **React 18** + **TypeScript**
-- **Vite 5** — Bundler
-- **Tailwind CSS 3** — Styling
+- **React 19** + **TypeScript**
+- **Vite 8** — Bundler
+- **Tailwind CSS 4** — Styling
 - **Framer Motion** — Animations
-- **React Router DOM 6** — Routing
+- **TanStack Start / Router** — SSR and file-based routing
 - **Zustand** — State Management
 - **TanStack Query** — Data Fetching
 - **Supabase** — Backend + Database

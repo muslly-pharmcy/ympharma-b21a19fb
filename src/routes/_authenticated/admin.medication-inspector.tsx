@@ -25,7 +25,7 @@ export const Route = createFileRoute('/_authenticated/admin/medication-inspector
 
   errorComponent: ({ error }) => (
     <div className="p-8 text-center text-red-600" dir="rtl">
-      {error.message}
+      {(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}
     </div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">الصفحة غير موجودة</div>,

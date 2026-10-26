@@ -7,7 +7,7 @@ import { listInsuranceClaims } from '@/lib/insurance.functions'
 export const Route = createFileRoute('/_authenticated/insurance/claims')({
   head: () => ({ meta: [{ title: 'مطالبات التأمين — MUSLLY AI OS' }] }),
   component: ClaimsListPage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>,
 })
 
 const STATUS_LABEL: Record<string, string> = {

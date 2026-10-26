@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext'
 export const Route = createFileRoute('/_authenticated/insurance/coverage')({
   head: () => ({ meta: [{ title: 'التحقق من التغطية التأمينية — MUSLLY AI OS' }] }),
   component: CoveragePage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>,
 })
 
 function CoveragePage() {

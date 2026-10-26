@@ -7,13 +7,10 @@ import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
-import { VitePWA } from "vite-plugin-pwa";
 import { PUBLIC_BACKEND } from './config/public-backend';
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const isLovableSandbox =
-  process.env.LOVABLE_SANDBOX === "1" || Boolean(process.env.DEV_SERVER__PROJECT_PATH);
 const isCapacitorBuild = process.argv.some((arg, index, args) =>
   arg === "--mode" ? args[index + 1] === "capacitor" : arg === "capacitor",
 );
@@ -61,11 +58,13 @@ export default defineConfig({
         enforce: 'pre',
         resolveId(source, importer) {
           // Preserve generated files; redirect all consumers to app-owned adapters.
-          if (source === '@/integrations/supabase/client' ||
-              (source === './client' && importer?.includes('/integrations/supabase/'))) {
+          const canonical = source.split('?')[0].replaceAll('\\', '/');
+          const generated = path.resolve(__dirname, 'src/integrations/supabase').replaceAll('\\', '/');
+          if (source === '@/integrations/supabase/client' || canonical === `${generated}/client` || canonical === `${generated}/client.ts` ||
+              (source === './client' && importer?.split('?')[0].replaceAll('\\', '/').endsWith('/src/integrations/supabase/auth-attacher.ts'))) {
             return path.resolve(__dirname, 'src/lib/backend/client.ts');
           }
-          if (source === '@/integrations/supabase/client.server') {
+          if (source === '@/integrations/supabase/client.server' || canonical === `${generated}/client.server` || canonical === `${generated}/client.server.ts`) {
             return path.resolve(__dirname, 'src/lib/backend/admin.server.ts');
           }
         },
@@ -76,61 +75,6 @@ export default defineConfig({
       // deployed target is Linux, where MCP generation stays enabled; Windows
       // uses the checked-in generated routes for local validation.
       ...(process.platform === "win32" ? [] : [mcpPlugin()]),
-      VitePWA({
-        registerType: "autoUpdate",
-        injectRegister: null,
-        filename: "sw.js",
-        // Lovable emits to dist/client; exported Node builds emit to
-        // .output/public. Keep the service worker beside the deployed assets.
-        outDir:
-          isLovableSandbox || isCapacitorBuild || isCloudflareBuild
-            ? "dist/client"
-            : ".output/public",
-        devOptions: { enabled: false },
-        manifest: false,
-        workbox: {
-          globPatterns: ["**/*.{js,css,woff2,png,svg,webp,ico}"],
-          navigateFallback: "/offline",
-          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/\.mcp/, /^\/\.well-known/],
-          cleanupOutdatedCaches: true,
-          clientsClaim: true,
-          skipWaiting: true,
-          runtimeCaching: [
-            {
-              // HTML navigations: always try the network first, fall back to cache.
-              urlPattern: ({ request }: { request: Request }) => request.mode === "navigate",
-              handler: "NetworkFirst",
-              options: {
-                cacheName: `html-navigations-${PUBLIC_BACKEND.projectId}`,
-                networkTimeoutSeconds: 4,
-                expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 },
-              },
-            },
-            {
-              // Static assets: instant from cache, refreshed in the background.
-              urlPattern: ({ request, sameOrigin }: { request: Request; sameOrigin: boolean }) =>
-                sameOrigin &&
-                ["style", "script", "worker", "image", "font"].includes(request.destination),
-              handler: "StaleWhileRevalidate",
-              options: {
-                cacheName: "static-assets",
-                expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              },
-            },
-            {
-              // Never persist authenticated API responses across sessions/projects.
-              urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
-                sameOrigin && url.pathname.startsWith("/api/") && !url.pathname.startsWith("/api/public/"),
-              handler: "NetworkOnly",
-              options: {
-                cacheName: "api-cache",
-                networkTimeoutSeconds: 6,
-                expiration: { maxEntries: 60, maxAgeSeconds: 60 * 30 },
-              },
-            },
-          ],
-        },
-      }),
     ],
     define: {
       'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify(PUBLIC_BACKEND.projectId),
@@ -154,8 +98,6 @@ export default defineConfig({
       alias: {
         '@/integrations/supabase/client': path.resolve(__dirname, 'src/lib/backend/client.ts'),
         '@/integrations/supabase/client.server': path.resolve(__dirname, 'src/lib/backend/admin.server.ts'),
-        // The generated bearer attacher imports its sibling via a relative path.
-        './client': path.resolve(__dirname, 'src/lib/backend/client.ts'),
         "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/esm/decode.js"),
         "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/esm/encode.js"),
       },

@@ -1,22 +1,15 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { PUBLIC_BACKEND } from '../../../config/public-backend'
 
 /**
- * Wraps the app in QueryClientProvider, and additionally persists a
- * whitelisted subset of query cache (cart, checkout metadata, catalog) to
- * localStorage after mount. This keeps cart/checkout viewable on flaky
- * networks or transient offline periods without a Service Worker.
- *
- * SSR-safe: on server / before mount uses plain QueryClientProvider.
+ * Persist only public storefront reads, scoped to the selected project.
+ * Keep one provider type throughout hydration so storage setup never
+ * remounts route forms or resets input entered while the page is loading.
  */
-const PERSIST_KEYS = new Set([
-  'storefront',
-  'catalog',
-  'store', // /store list + /store/$code product detail
-])
+const PERSIST_KEYS = new Set(['storefront'])
 
 export function AppQueryProvider({
   client,
@@ -25,17 +18,20 @@ export function AppQueryProvider({
   client: QueryClient
   children: ReactNode
 }) {
-  const [persister, setPersister] = useState<ReturnType<
-    typeof createSyncStoragePersister
-  > | null>(null)
+  const [persister, setPersister] = useState(() =>
+    createSyncStoragePersister({ storage: undefined }),
+  )
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     try {
+      // Older caches included private cart, order and inventory queries.
+      window.localStorage.removeItem('almosly-query-cache-v1')
+      window.localStorage.removeItem(`almosly-query-cache-v2-${PUBLIC_BACKEND.projectId}`)
       setPersister(
         createSyncStoragePersister({
           storage: window.localStorage,
-          key: `almosly-query-cache-v2-${PUBLIC_BACKEND.projectId}`,
+          key: `almosly-public-cache-v3-${PUBLIC_BACKEND.projectId}`,
           throttleTime: 1500,
         }),
       )
@@ -43,10 +39,6 @@ export function AppQueryProvider({
       /* localStorage unavailable (private mode) — fall back silently */
     }
   }, [])
-
-  if (!persister) {
-    return <QueryClientProvider client={client}>{children}</QueryClientProvider>
-  }
 
   return (
     <PersistQueryClientProvider

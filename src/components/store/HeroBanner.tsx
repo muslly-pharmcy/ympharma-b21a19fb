@@ -36,7 +36,7 @@ export function HeroBanner({
     <section dir="rtl" className="relative px-4 pb-8 pt-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 120, damping: 18 }}
           className="relative isolate overflow-hidden rounded-[2rem] border border-white/30 bg-gradient-to-r from-emerald-600/10 via-teal-500/10 to-cyan-500/10 p-6 shadow-2xl backdrop-blur-xl sm:p-10 dark:border-white/10"
@@ -143,7 +143,7 @@ export function HeroBanner({
             {TRUST_BADGES.map((b, i) => (
               <motion.span
                 key={b}
-                initial={{ opacity: 0, y: 10 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 + i * 0.08, type: 'spring', stiffness: 200, damping: 18 }}
                 whileHover={{ y: -3 }}

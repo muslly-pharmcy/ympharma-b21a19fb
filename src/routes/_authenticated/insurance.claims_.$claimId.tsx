@@ -11,7 +11,7 @@ import {
 export const Route = createFileRoute('/_authenticated/insurance/claims_/$claimId')({
   head: ({ params }) => ({ meta: [{ title: `مطالبة ${params.claimId.slice(0, 8)} — MUSLLY AI OS` }] }),
   component: ClaimDetailPage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>,
   notFoundComponent: () => <div className="p-8 text-center">المطالبة غير موجودة</div>,
 })
 

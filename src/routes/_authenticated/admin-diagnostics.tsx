@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { useEffect, useMemo, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { createPublicClient } from '@/lib/backend/client'
 import { supabase } from '@/integrations/supabase/client'
 import { getDiagnosticsActor, type DiagnosticsActor } from '@/lib/diagnostics.functions'
@@ -11,7 +10,6 @@ import {
   type VisibilityExpectation,
 } from '@/lib/admin/rls-diagnostics'
 import { RouteLoadError } from '@/shared/components/RouteLoadError'
-import type { Database } from '@/integrations/supabase/types'
 
 export const Route = createFileRoute('/_authenticated/admin-diagnostics')({
   component: DiagnosticsPage,

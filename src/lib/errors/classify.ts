@@ -58,8 +58,8 @@ function extractMessage(err: unknown): string {
     const m = (err as { message?: unknown }).message
     if (typeof m === 'string' && m.trim()) return m
     // check nested cause.message safely
-    const c = (err as any)?.cause
-    if (c && typeof c.message === 'string' && c.message.trim()) return c.message
+    const c = (err as { cause?: unknown }).cause
+    if (c && typeof c === 'object' && 'message' in c && typeof c.message === 'string' && c.message.trim()) return c.message
   }
   try { return String(err); } 
   catch { return 'Unknown error'; }

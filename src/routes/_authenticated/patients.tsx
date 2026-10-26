@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_authenticated/patients')({
   }),
   component: PatientsPage,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">فشل التحميل: {error.message}</div>
+    <div className="p-8 text-center text-red-600">فشل التحميل: {(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })

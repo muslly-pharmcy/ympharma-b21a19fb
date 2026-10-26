@@ -18,9 +18,8 @@ export function validatePublicConfig(config: PublicSupabaseConfig): PublicSupaba
 }
 
 /**
- * Resolve the public Supabase connection from either server runtime variables
- * or Vite's build-time variables. Lovable Cloud may expose the public values
- * through either source depending on whether code runs in a worker or browser.
+ * Use the owner's selected existing backend for both build and runtime.
+ * Reserved managed bindings for a different project must not override it.
  */
 export function resolvePublicSupabaseConfig(
   _runtimeEnv: PublicSupabaseEnv = {},
@@ -45,8 +44,23 @@ export function serializePublicConfig(config: PublicSupabaseConfig): string {
 }
 
 export function matchingServerCredential(env: PublicSupabaseEnv): string | undefined {
-  // Opaque privileged keys cannot prove their project. Require the secure
-  // connection facility to bind both project identity and credential together.
-  if (env.SUPABASE_URL !== PUBLIC_BACKEND.url || env.SUPABASE_PROJECT_ID !== PUBLIC_BACKEND.projectId) return undefined
-  return env.SUPABASE_SERVICE_ROLE_KEY || undefined
+  // Custom server-only bindings let the selected existing project work without
+  // reusing reserved Lovable Cloud credentials for another project.
+  const custom = env.MUSLLY_SUPABASE_SERVICE_ROLE_KEY?.trim()
+  const customBinding = env.MUSLLY_SUPABASE_PROJECT_ID?.trim()
+  let key: string | undefined
+  if (custom) {
+    if (customBinding !== PUBLIC_BACKEND.projectId) return undefined
+    key = custom
+  } else {
+    if (env.SUPABASE_URL?.trim() !== PUBLIC_BACKEND.url || env.SUPABASE_PROJECT_ID?.trim() !== PUBLIC_BACKEND.projectId) return undefined
+    key = env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+  }
+  if (key?.startsWith('sb_secret_')) return key
+  if (key?.split('.').length !== 3) return undefined
+  try {
+    const payload = key.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    const claims = JSON.parse(atob(payload)) as { role?: string; ref?: string }
+    return claims.role === 'service_role' && claims.ref === PUBLIC_BACKEND.projectId ? key : undefined
+  } catch { return undefined }
 }

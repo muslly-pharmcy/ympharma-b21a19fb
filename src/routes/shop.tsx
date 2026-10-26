@@ -34,8 +34,8 @@ export const Route = createFileRoute('/shop')({
       { name: 'twitter:card', content: 'summary_large_image' },
     ],
   }),
-  loader: async ({ location }) => {
-    const search = searchSchema.parse(location.search)
+  loaderDeps: ({ search }) => ({ q: search.q, cat: search.cat, page: search.page }),
+  loader: async ({ deps: search }) => {
     const [products, categories] = await Promise.all([
       listProducts({ data: { search: search.q, categoryId: search.cat, page: search.page, pageSize: 24, publicOnly: true } }),
       listCategories(),

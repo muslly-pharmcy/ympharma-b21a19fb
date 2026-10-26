@@ -18,7 +18,7 @@ export function GlassHero() {
 
       <motion.div
         className="glass-hero relative px-6 py-10 md:px-12 md:py-14"
-        initial={reduce ? false : { opacity: 0, y: -18 }}
+        initial={false}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 110, damping: 20 }}
       >

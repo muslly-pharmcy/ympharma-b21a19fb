@@ -3,7 +3,6 @@
 // Cross-platform diagnostics for developer tools required by the repository.
 // Exits with non-zero code if critical tooling is missing.
 const { spawnSync } = require('child_process');
-const fs = require('fs');
 function check(cmd, args = ['--version'], name) {
   try {
     const res = spawnSync(cmd, args, { shell: true, stdio: ['ignore', 'pipe', 'pipe'] });
