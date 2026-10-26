@@ -5,7 +5,6 @@ import { useTheme } from '@/context/ThemeContext'
 import { supabase } from '@/integrations/supabase/client'
 import { listCart } from '@/lib/cart.functions'
 import { isCurrentUserAdmin } from '@/lib/admin-orders.functions'
-import { ShopifyCartDrawer } from '@/components/shopify/CartDrawer'
 import almoslyLogo from '@/assets/almosly-logo-optimized.webp'
 import { GlassLogo } from '@/shared/components/GlassLogo'
 import {
@@ -78,7 +77,7 @@ export default function Navbar() {
             <span>الدليل الطبي</span>
           </Link>
           <Link
-            to="/store"
+            to="/shop" search={{ page: 1 }}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors"
           >
             <Store className="w-4 h-4" />
@@ -132,7 +131,10 @@ export default function Navbar() {
           )}
 
           <div className="relative" title="سلة المتجر">
-            <ShopifyCartDrawer />
+          <Link to="/cart" aria-label="سلة المتجر" className="relative rounded-xl p-2.5 hover:bg-gray-100">
+            <ShoppingCart className="h-5 w-5 text-gray-700" />
+            {cartCount > 0 && <span className="absolute -top-1 -right-1 rounded-full bg-primary px-1.5 text-xs text-white">{cartCount}</span>}
+          </Link>
           </div>
 
           {isAuthenticated ? (

@@ -28,6 +28,7 @@ import { newCorrelationId } from '@/lib/errors/correlation'
 import { reportError } from '@/lib/errors/logger'
 import almoslyLogo from '@/assets/almosly-logo-optimized.webp'
 import appCss from '@/index.css?url'
+import { Toaster } from 'sonner'
 import { resolvePublicSupabaseConfig, PUBLIC_CONFIG_ELEMENT_ID, serializePublicConfig } from '@/integrations/supabase/public-config'
 
 
@@ -142,6 +143,7 @@ function RootComponent() {
       }),
   )
   useEffect(() => {
+    document.documentElement.dataset.hydrated = 'true'
     // Fire-and-forget: both are no-ops when their env vars are missing.
     void import('@/lib/observability/sentry').then((m) => m.initSentry()).catch(() => {})
     void import('@/lib/analytics').then((m) => m.initAnalytics()).catch(() => {})
@@ -167,6 +169,7 @@ function RootComponent() {
       <ReadingProgress />
       <ThemeProvider>
         <AuthProvider>
+          <Toaster richColors position="top-center" />
           <AIProvider>
             <MainLayout>
               <ModuleErrorBoundary boundary="root:outlet" variant="page">
@@ -190,10 +193,18 @@ function AuthStateSync() {
   const router = useRouter()
   const queryClient = useQueryClient()
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== 'SIGNED_IN' && event !== 'SIGNED_OUT' && event !== 'USER_UPDATED') return
+    let userId: string | null | undefined
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      const nextUserId = session?.user.id ?? null
+      const identityChanged = userId !== undefined && userId !== nextUserId
+      userId = nextUserId
+      if (!identityChanged && event !== 'SIGNED_IN' && event !== 'SIGNED_OUT' && event !== 'USER_UPDATED') return
+      if (identityChanged || event === 'SIGNED_OUT') {
+        void queryClient.cancelQueries()
+        queryClient.clear()
+      }
       void router.invalidate()
-      if (event !== 'SIGNED_OUT') void queryClient.invalidateQueries()
+      if (!identityChanged && event !== 'SIGNED_OUT') void queryClient.invalidateQueries()
     })
     return () => sub.subscription.unsubscribe()
   }, [router, queryClient])
@@ -237,7 +248,7 @@ function RootNotFound() {
 }
 
 
-function RootError({ error, reset }: { error: Error; reset: () => void }) {
+function RootError({ error, reset }: { error: unknown; reset: () => void }) {
   const router = useRouter()
   const classified = classifyError(error)
   const correlationId = newCorrelationId('root')

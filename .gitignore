@@ -3,3 +3,17 @@
 # Keep developer-generated artifacts out of commits
 artifacts/
 artifacts/**
+node_modules/
+.output/
+dist/
+.wrangler/
+.nitro/
+.tanstack/
+coverage/
+playwright-report/
+test-results/
+.env
+.env.*
+!.env.example
+*.log
+supabase/.temp/

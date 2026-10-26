@@ -38,9 +38,11 @@ export function registerServiceWorker() {
     void unregisterAppWorkers()
     return
   }
-  window.addEventListener('load', () => {
+  const register = () => {
     navigator.serviceWorker.register(SW_URL, { scope: '/' }).catch(() => {
-      /* offline support is best-effort */
+      console.warn('[pwa] Offline support could not be registered')
     })
-  })
+  }
+  if (document.readyState === 'complete') register()
+  else window.addEventListener('load', register, { once: true })
 }

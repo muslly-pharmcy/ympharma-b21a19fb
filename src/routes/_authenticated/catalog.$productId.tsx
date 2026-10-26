@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_authenticated/catalog/$productId')({
   }),
   component: ProductDetail,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">تعذر تحميل المنتج: {error.message}</div>
+    <div className="p-8 text-center text-red-600">تعذر تحميل المنتج: {(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>
   ),
   notFoundComponent: () => (
     <div className="p-8 text-center">

@@ -49,12 +49,12 @@ export const addToCart = createServerFn({ method: 'POST' })
     // Verify product exists and is OTC before insert (better error than the DB trigger).
     const { data: product, error: pErr } = await supabase
       .from('catalog_products')
-      .select('id, name_ar, requires_prescription, status')
+      .select('id, name_ar, requires_prescription, status, is_public')
       .eq('id', data.productId)
       .maybeSingle()
     if (pErr) throw new Error(pErr.message)
     if (!product) throw new Error('المنتج غير موجود')
-    if ((product as { status: string }).status !== 'active') {
+    if (product.status !== 'approved' || !product.is_public) {
       throw new Error('هذا المنتج غير متاح حاليًا')
     }
     if ((product as { requires_prescription: boolean }).requires_prescription) {

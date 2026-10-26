@@ -10,7 +10,7 @@ export const Route = createFileRoute('/_authenticated/insurance/')({
     { name: 'description', content: 'إدارة شركات التأمين والخطط الطبية' },
   ] }),
   component: InsuranceHomePage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>,
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })
 

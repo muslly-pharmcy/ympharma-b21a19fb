@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
 import { toast } from 'sonner'
 import { ShoppingCart, Loader2 } from 'lucide-react'
@@ -47,11 +47,15 @@ function usageSummary(p: StoreProduct): string {
 export function ProductCard({ product, index = 0, featured = false }: ProductCardProps) {
   const [ripple, setRipple] = useState(0)
   const addFn = useServerFn(addToCart)
+  const queryClient = useQueryClient()
   const name = product.name_ar ?? product.name_en ?? 'منتج'
 
   const mutation = useMutation({
     mutationFn: () => addFn({ data: { productId: product.id, quantity: 1 } }),
-    onSuccess: () => toast.success(`تمت إضافة ${name} إلى السلة 🛒`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['cart'] })
+      toast.success(`تمت إضافة ${name} إلى السلة 🛒`)
+    },
     onError: (e: unknown) => {
       const msg = e instanceof Error ? e.message : 'تعذّر إضافة المنتج'
       toast.error(/unauthor|401/i.test(msg) ? 'سجّل الدخول لإتمام الطلب' : msg)
@@ -106,6 +110,7 @@ export function ProductCard({ product, index = 0, featured = false }: ProductCar
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           <span className="rounded-2xl border border-primary/20 bg-primary/10 px-3 py-1.5 text-sm font-black text-primary">
+            <span className="block text-[10px] font-normal">السعر المرجعي الرسمي</span>
             {typeof price === 'number' && price > 0
               ? `${price.toLocaleString('ar-EG')} ر.ي`
               : 'اسأل عن السعر'}
@@ -114,7 +119,7 @@ export function ProductCard({ product, index = 0, featured = false }: ProductCar
           <motion.button
             type="button"
             whileTap={{ scale: 0.92 }}
-            disabled={mutation.isPending}
+            disabled={mutation.isPending || Boolean(product.requires_prescription)}
             onClick={() => {
               setRipple((r) => r + 1)
               mutation.mutate()
@@ -132,7 +137,7 @@ export function ProductCard({ product, index = 0, featured = false }: ProductCar
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <span className="flex items-center gap-1">
-                <ShoppingCart className="h-3.5 w-3.5" /> إضافة 🛒
+                <ShoppingCart className="h-3.5 w-3.5" /> {product.requires_prescription ? 'يتطلب وصفة' : 'إضافة 🛒'}
               </span>
             )}
           </motion.button>

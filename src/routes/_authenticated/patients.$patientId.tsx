@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_authenticated/patients/$patientId')({
   }),
   component: PatientProfilePage,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">{error.message}</div>
+    <div className="p-8 text-center text-red-600">{(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">المريض غير موجود</div>,
 })

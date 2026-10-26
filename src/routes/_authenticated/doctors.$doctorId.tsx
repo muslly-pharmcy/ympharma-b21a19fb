@@ -8,7 +8,7 @@ import { addLicense } from '@/lib/doctors.mutations.functions'
 export const Route = createFileRoute('/_authenticated/doctors/$doctorId')({
   head: () => ({ meta: [{ title: 'ملف الطبيب — MUSLLY AI OS' }] }),
   component: DoctorProfilePage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>,
   notFoundComponent: () => <div className="p-8 text-center">الطبيب غير موجود</div>,
 })
 

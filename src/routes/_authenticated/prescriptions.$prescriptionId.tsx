@@ -13,7 +13,7 @@ import { ClinicalWarningsPanel } from '@/components/clinical/ClinicalWarningsPan
 export const Route = createFileRoute('/_authenticated/prescriptions/$prescriptionId')({
   head: () => ({ meta: [{ title: 'ملف الوصفة — MUSLLY AI OS' }] }),
   component: PrescriptionDetailPage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>,
   notFoundComponent: () => <div className="p-8 text-center">الوصفة غير موجودة</div>,
 })
 

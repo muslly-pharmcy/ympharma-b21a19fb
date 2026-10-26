@@ -29,7 +29,7 @@ export default function CategoriesGrid() {
   return (
     <motion.section
       className="mb-10"
-      initial={{ opacity: 0, y: 20 }}
+      initial={false}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}

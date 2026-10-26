@@ -7,7 +7,7 @@ import { listDispenses } from '@/lib/dispenses.functions'
 export const Route = createFileRoute('/_authenticated/dispenses')({
   head: () => ({ meta: [{ title: 'الصرف — MUSLLY AI OS' }] }),
   component: DispensesListPage,
-  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-8 text-center text-red-600">{(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>,
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })
 

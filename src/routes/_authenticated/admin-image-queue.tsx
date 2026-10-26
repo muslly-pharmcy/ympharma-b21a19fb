@@ -18,7 +18,7 @@ export const Route = createFileRoute('/_authenticated/admin-image-queue')({
   }),
   component: AdminImageQueue,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-red-600" dir="rtl">فشل: {error.message}</div>
+    <div className="p-8 text-red-600" dir="rtl">فشل: {(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>
   ),
   notFoundComponent: () => <div className="p-8" dir="rtl">غير موجود</div>,
 })

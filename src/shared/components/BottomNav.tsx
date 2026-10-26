@@ -9,7 +9,7 @@ const ITEMS = [
   { to: '/shop', label: 'المتجر', icon: Store },
   { to: '/cart', label: 'السلة', icon: ShoppingCart },
   { to: '/request', label: 'طلب دواء', icon: FileImage },
-  { to: '/customers', label: 'حسابي', icon: User },
+  { to: '/patient-profile', label: 'حسابي', icon: User },
 ] as const
 
 /**

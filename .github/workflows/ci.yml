@@ -18,6 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
@@ -29,13 +33,22 @@ jobs:
         run: bunx tsc --noEmit
 
       - name: Lint
-        run: bunx eslint . --max-warnings=-1
+        run: bunx eslint . --max-warnings=0
 
       - name: Unit tests
         run: bunx vitest run
 
+      - name: Audit locked dependencies
+        run: bun audit --audit-level=high
+
       - name: Build Node server target
         run: bun run build
+
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+
+      - name: Connection and offline browser regression tests
+        run: E2E_MOCK_SERVER=1 bunx playwright test e2e/connection-repair.e2e.ts
 
       - name: Validate Cloudflare Worker bundle (no deployment)
         run: bun run validate:cloudflare

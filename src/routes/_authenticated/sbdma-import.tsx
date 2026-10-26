@@ -33,7 +33,7 @@ export const Route = createFileRoute('/_authenticated/sbdma-import')({
   }),
   component: SbdmaImportPage,
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-red-600">فشل تحميل الصفحة: {error.message}</div>
+    <div className="p-8 text-center text-red-600">فشل تحميل الصفحة: {(error instanceof Error ? error.message : 'حدث خطأ غير متوقع')}</div>
   ),
   notFoundComponent: () => <div className="p-8 text-center">غير موجود</div>,
 })

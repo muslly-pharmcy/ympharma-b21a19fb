@@ -20,7 +20,7 @@ export function Reveal({
   children,
   className,
   delay = 0,
-  y = 24,
+  y: _y = 24,
   once = true,
   as = 'div',
 }: RevealProps) {
@@ -35,7 +35,7 @@ export function Reveal({
   return (
     <MotionTag
       className={className}
-      initial={{ opacity: 0, y }}
+      initial={false}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once, amount: 0.15, margin: '0px 0px -80px 0px' }}
       transition={{ type: 'spring', stiffness: 120, damping: 20, mass: 0.6, delay }}
@@ -61,7 +61,7 @@ export function Stagger({ children, className, step = 0.07, delay = 0 }: Stagger
   return (
     <motion.div
       className={className}
-      initial="hidden"
+      initial={false}
       whileInView="show"
       viewport={{ once: true, amount: 0.1, margin: '0px 0px -60px 0px' }}
       variants={{
@@ -82,6 +82,7 @@ export function RevealItem({ children, className }: { children: ReactNode; class
   return (
     <motion.div
       className={className}
+      initial={false}
       variants={{
         hidden: { opacity: 0, y: 22 },
         show: {

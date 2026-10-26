@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { sha256Hex, verifyRequest } from './signature'
 
@@ -11,7 +12,7 @@ const json = (status: number, body: unknown) =>
 export async function erpHandle(
   request: Request,
   path: string,
-  run: (body: unknown, db: any) => Promise<{ status: number; body: unknown }>,
+  run: (body: unknown, db: SupabaseClient) => Promise<{ status: number; body: unknown }>,
 ) {
   if (process.env['ERP_SYNC_ENABLED'] !== 'true') return json(503, { error: 'erp_sync_disabled' })
   const secret = process.env['ERP_SYNC_HMAC_SECRET']
@@ -29,7 +30,7 @@ export async function erpHandle(
   if (!v.ok) return json(401, { error: v.reason })
 
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-  const db = supabaseAdmin as any
+  const db = supabaseAdmin as SupabaseClient
   const parsed = body ? safeJson(body) : null
   if (body && parsed === undefined) return json(400, { error: 'invalid_json' })
 
