@@ -67,11 +67,11 @@ bun run preview
 
 ## 🔧 التقنيات المستخدمة
 
-- **React 18** + **TypeScript**
-- **Vite 5** — Bundler
-- **Tailwind CSS 3** — Styling
+- **React 19** + **TypeScript**
+- **Vite 8** — Bundler
+- **Tailwind CSS 4** — Styling
 - **Framer Motion** — Animations
-- **React Router DOM 6** — Routing
+- **TanStack Start / Router** — SSR and file-based routing
 - **Zustand** — State Management
 - **TanStack Query** — Data Fetching
 - **Supabase** — Backend + Database
