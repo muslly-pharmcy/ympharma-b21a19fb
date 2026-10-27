@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { getProduct } from '@/lib/catalog.functions'
 import { listProductImageUrls } from '@/lib/storefront.functions'
+import { PRODUCT_IMAGE_REFRESH_MS } from '@/lib/public-query-cache'
 import { addToCart } from '@/lib/cart.functions'
 import { supabase } from '@/integrations/supabase/client'
 import { useEffect, useState } from 'react'
@@ -144,6 +145,7 @@ function ProductDetailPage() {
     queryKey: ['storefront', 'product', productId, 'images'],
     queryFn: () => listProductImageUrls({ data: { productId } }),
     staleTime: 5 * 60_000,
+    refetchInterval: PRODUCT_IMAGE_REFRESH_MS,
   })
 
   const addFn = useServerFn(addToCart)

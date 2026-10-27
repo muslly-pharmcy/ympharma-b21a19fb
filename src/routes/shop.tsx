@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Search, ShoppingCart, Lock, PackageSearch } from 'lucide-react'
 import { z } from 'zod'
 import { listProducts, listCategories } from '@/lib/catalog.functions'
+import { PRODUCT_IMAGE_REFRESH_MS } from '@/lib/public-query-cache'
 import type { CatalogProduct } from '@/domain/catalog/schemas'
 import {
   EmptyState as SharedEmptyState,
@@ -66,6 +67,7 @@ function ShopPage() {
         },
       }),
     staleTime: 30_000,
+    refetchInterval: PRODUCT_IMAGE_REFRESH_MS,
     initialData: initial.products,
   })
 

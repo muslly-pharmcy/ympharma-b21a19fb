@@ -3,11 +3,12 @@
 // Public API is unchanged from the demo bridge; the internals now:
 //   1. read the bearer token attached by `attachSupabaseAuth` (client middleware)
 //   2. validate it via Supabase Auth (`auth.getUser(token)`)
-//   3. look up the user's active org membership + app roles via the service role
+//   3. read the caller's own active org membership + app roles under RLS
 //   4. attach request metadata (IP, UA, correlation ID) for audit
 import { getRequest, getRequestHeader } from '@tanstack/react-start/server'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/integrations/supabase/types'
+import { createCallerSupabaseClient } from '@/lib/supabase-user.server'
 
 export interface Actor {
   userId: string
@@ -96,13 +97,15 @@ export async function getActorFromSupabase(
  */
 export async function getActor(): Promise<Actor> {
   const token = readBearer()
-  const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+  const supabase = createCallerSupabaseClient(token)
 
-  const { data: userRes, error: userErr } = await supabaseAdmin.auth.getUser(token)
+  // This validates against the selected project's Auth server, rather than
+  // trusting decoded token claims. No session is installed on a shared client.
+  const { data: userRes, error: userErr } = await supabase.auth.getUser(token)
   if (userErr || !userRes?.user) {
     throw new UnauthorizedError('Invalid session')
   }
-  return getActorFromSupabase(supabaseAdmin, userRes.user.id)
+  return getActorFromSupabase(supabase, userRes.user.id)
 }
 
 export function requireOrg(actor: Actor, organizationId: string) {

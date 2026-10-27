@@ -2,7 +2,6 @@ import * as React from 'react'
 import { render } from '@react-email/render'
 import { parseEmailWebhookPayload } from '@lovable.dev/email-js'
 import { WebhookError, verifyWebhookRequest } from '@lovable.dev/webhooks-js'
-import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 import { SignupEmail } from '@/lib/email-templates/signup'
 import { InviteEmail } from '@/lib/email-templates/invite'
@@ -163,7 +162,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
 
         // Enqueue email for async processing by the dispatcher (process-email-queue).
         const { getPublicSupabaseConfig } = await import('@/integrations/supabase/public-config')
-        const { getMatchingServerCredential } = await import('@/lib/backend/admin.server')
+        const { getMatchingServerCredential, createSelectedAdminClient } = await import('@/lib/backend/admin.server')
         const { url: supabaseUrl } = getPublicSupabaseConfig()
         const supabaseServiceKey = getMatchingServerCredential()
 
@@ -175,7 +174,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           )
         }
 
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
+        const supabase = createSelectedAdminClient(supabaseServiceKey)
         const messageId = crypto.randomUUID()
 
         // Log pending BEFORE enqueue so we have a record even if enqueue crashes

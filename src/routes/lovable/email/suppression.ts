@@ -1,6 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
 import { WebhookError, verifyWebhookRequest } from '@lovable.dev/webhooks-js'
 import { createFileRoute } from '@tanstack/react-router'
+import type { Json } from '@/integrations/supabase/types'
 
 // Suppression event payload sent by the Go API when Mailgun reports
 // a bounce, complaint, or unsubscribe.
@@ -8,7 +8,7 @@ interface SuppressionPayload {
   email: string
   reason: 'bounce' | 'complaint' | 'unsubscribe'
   message_id?: string
-  metadata?: Record<string, unknown>
+  metadata?: Json
   is_retry: boolean
   retry_count: number
 }
@@ -57,7 +57,7 @@ export const Route = createFileRoute("/lovable/email/suppression")({
       POST: async ({ request }) => {
         const apiKey = process.env['LOVABLE_API_KEY']
         const { getPublicSupabaseConfig } = await import('@/integrations/supabase/public-config')
-        const { getMatchingServerCredential } = await import('@/lib/backend/admin.server')
+        const { getMatchingServerCredential, createSelectedAdminClient } = await import('@/lib/backend/admin.server')
         const { url: supabaseUrl } = getPublicSupabaseConfig()
         const supabaseServiceKey = getMatchingServerCredential()
 
@@ -100,7 +100,7 @@ export const Route = createFileRoute("/lovable/email/suppression")({
           return Response.json({ error: 'Internal error' }, { status: 500 })
         }
 
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
+        const supabase = createSelectedAdminClient(supabaseServiceKey)
         const normalizedEmail = payload.email.toLowerCase()
 
         // 1. Upsert to suppressed_emails (idempotent — safe for retries)

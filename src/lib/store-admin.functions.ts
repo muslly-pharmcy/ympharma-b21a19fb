@@ -1,5 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { signPrimaryCatalogImages, type CatalogMediaReference } from './catalog-media-policy'
 
 const uuid = z.string().uuid()
 
@@ -40,68 +42,17 @@ export const updateProductPrice = createServerFn({ method: 'POST' })
     return { ok: true }
   })
 
-// ---------- Update product image URL (path in product-images bucket) ----------
+// Compatibility for existing image-registration callers. Store the canonical
+// media reference; expiring signed URLs never belong in catalog_products.
 export const updateProductImage = createServerFn({ method: 'POST' })
-  .validator((raw: unknown) =>
-    z
-      .object({
-        productId: uuid,
-        storagePath: z.string().min(1).max(500),
-        bucket: z.string().default('product-images'),
-      })
-      .parse(raw),
-  )
-  .handler(async ({ data }) => {
-    const { getActor, requirePermission } = await import('./session.server')
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const { audit } = await import('./audit.server')
-    const actor = await getActor()
-    requirePermission(actor, 'catalog.write')
-
-    const { data: existing, error: fetchErr } = await supabaseAdmin
-      .from('catalog_products')
-      .select('organization_id')
-      .eq('id', data.productId)
-      .single()
-    if (fetchErr) throw new Error(fetchErr.message)
-    if (existing.organization_id !== actor.organizationId) {
-      throw new Error('Forbidden: cross-org update')
-    }
-
-    const { data: signed } = await supabaseAdmin.storage
-      .from(data.bucket)
-      .createSignedUrl(data.storagePath, 60 * 60 * 24 * 365)
-
-    const image_url = signed?.signedUrl ?? data.storagePath
-
-    const { error } = await supabaseAdmin
-      .from('catalog_products')
-      .update({ image_url })
-      .eq('id', data.productId)
-    if (error) throw new Error(error.message)
-
-    // Register in media table too (best-effort).
-    try {
-      await (supabaseAdmin.from('catalog_product_media') as unknown as {
-        insert: (row: unknown) => Promise<unknown>
-      }).insert({
-        product_id: data.productId,
-        organization_id: existing.organization_id,
-        storage_bucket: data.bucket,
-        storage_path: data.storagePath,
-        kind: 'image',
-        status: 'approved',
-        sort_order: 0,
-      })
-    } catch { /* ignore duplicate/media noise */ }
-
-    await audit(actor, {
-      action: 'catalog.product.image',
-      resourceType: 'catalog_product',
-      resourceId: data.productId,
-      payload: { storagePath: data.storagePath, bucket: data.bucket },
-    })
-    return { ok: true, image_url }
+  .middleware([requireSupabaseAuth])
+  .validator((raw: unknown) => z.object({
+    productId: uuid, storagePath: z.string().min(1).max(500),
+    bucket: z.enum(['product-images', 'catalog-media']).default('product-images'),
+  }).parse(raw))
+  .handler(async ({ data, context }) => {
+    const { registerCatalogImage } = await import('./catalog-media-service.server')
+    return registerCatalogImage(context, { ...data, kind: 'primary' })
   })
 
 // ---------- Set absolute stock balance (creates single adjustment batch) ----------
@@ -249,7 +200,27 @@ export const listStoreProductsAdmin = createServerFn({ method: 'GET' })
 
     const { data: items, error, count } = await q
     if (error) throw new Error(error.message)
-    return { items: items ?? [], total: count ?? 0 }
+    const rows = items ?? []
+    const ids = rows.flatMap((row) => row.id ? [row.id] : [])
+    const imageUrls = new Map<string, string>()
+    if (ids.length) {
+      // Verify ownership from the base table before issuing private previews;
+      // a public view row or a visible product alone never grants this access.
+      const ownProducts = await supabaseAdmin.from('catalog_products').select('id')
+        .in('id', ids).eq('organization_id', actor.organizationId)
+      if (ownProducts.error) throw new Error(ownProducts.error.message)
+      const ownIds = (ownProducts.data ?? []).map((product) => product.id)
+      if (ownIds.length) {
+        const media = await supabaseAdmin.from('catalog_product_media')
+          .select('product_id, storage_bucket, storage_path, kind, status, sort_order')
+          .in('product_id', ownIds).in('status', ['approved', 'pending'])
+          .order('sort_order', { ascending: true }).order('created_at', { ascending: false })
+        if (media.error) throw new Error(media.error.message)
+        const signed = await signPrimaryCatalogImages(supabaseAdmin.storage, ownIds, (media.data ?? []) as CatalogMediaReference[], true)
+        for (const [id, url] of signed) imageUrls.set(id, url)
+      }
+    }
+    return { items: rows.map((row) => ({ ...row, primary_image_url: row.id ? imageUrls.get(row.id) ?? null : null })), total: count ?? 0 }
   })
 
 // ---------- Create product (manual, before/alongside Oracle sync) ----------

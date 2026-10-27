@@ -5,6 +5,7 @@ import { useServerFn } from '@tanstack/react-start'
 import { motion } from 'framer-motion'
 import { Package, MessageCircle, Sparkles } from 'lucide-react'
 import { listProducts, listCategories } from '@/lib/catalog.functions'
+import { PRODUCT_IMAGE_REFRESH_MS } from '@/lib/public-query-cache'
 import { useDebounce } from '@/shared/hooks/useDebounce'
 import { HealthBundles } from '@/components/store/HealthBundles'
 import { PrescriptionUploadModal } from '@/components/store/PrescriptionUploadModal'
@@ -47,6 +48,7 @@ export default function Storefront() {
         data: { search: search || undefined, categoryId, page: 1, pageSize: 24 },
       }),
     staleTime: 60_000,
+    refetchInterval: PRODUCT_IMAGE_REFRESH_MS,
     initialData: !search && !categoryId ? initial.products : undefined,
   })
 

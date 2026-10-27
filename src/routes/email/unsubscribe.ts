@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 
 function redactEmail(email: string | null | undefined): string {
@@ -21,14 +20,14 @@ export const Route = createFileRoute("/email/unsubscribe")({
         }
 
         const { getPublicSupabaseConfig } = await import('@/integrations/supabase/public-config')
-        const { getMatchingServerCredential } = await import('@/lib/backend/admin.server')
+        const { getMatchingServerCredential, createSelectedAdminClient } = await import('@/lib/backend/admin.server')
         const { url: supabaseUrl } = getPublicSupabaseConfig()
         const supabaseServiceKey = getMatchingServerCredential()
         if (!supabaseUrl || !supabaseServiceKey) {
           return Response.json({ error: 'Server configuration error' }, { status: 503 })
         }
 
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
+        const supabase = createSelectedAdminClient(supabaseServiceKey)
 
         // Look up the token
         const { data: tokenRecord, error: lookupError } = await supabase
@@ -85,14 +84,14 @@ export const Route = createFileRoute("/email/unsubscribe")({
         }
 
         const { getPublicSupabaseConfig } = await import('@/integrations/supabase/public-config')
-        const { getMatchingServerCredential } = await import('@/lib/backend/admin.server')
+        const { getMatchingServerCredential, createSelectedAdminClient } = await import('@/lib/backend/admin.server')
         const { url: supabaseUrl } = getPublicSupabaseConfig()
         const supabaseServiceKey = getMatchingServerCredential()
         if (!supabaseUrl || !supabaseServiceKey) {
           return Response.json({ error: 'Server configuration error' }, { status: 503 })
         }
 
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
+        const supabase = createSelectedAdminClient(supabaseServiceKey)
 
         // Look up the token
         const { data: tokenRecord, error: lookupError } = await supabase

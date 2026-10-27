@@ -3,14 +3,13 @@ import { QueryClient } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { PUBLIC_BACKEND } from '../../../config/public-backend'
+import { shouldPersistPublicQuery } from '@/lib/public-query-cache'
 
 /**
  * Persist only public storefront reads, scoped to the selected project.
  * Keep one provider type throughout hydration so storage setup never
  * remounts route forms or resets input entered while the page is loading.
  */
-const PERSIST_KEYS = new Set(['storefront'])
-
 export function AppQueryProvider({
   client,
   children,
@@ -28,10 +27,11 @@ export function AppQueryProvider({
       // Older caches included private cart, order and inventory queries.
       window.localStorage.removeItem('almosly-query-cache-v1')
       window.localStorage.removeItem(`almosly-query-cache-v2-${PUBLIC_BACKEND.projectId}`)
+      window.localStorage.removeItem(`almosly-public-cache-v3-${PUBLIC_BACKEND.projectId}`)
       setPersister(
         createSyncStoragePersister({
           storage: window.localStorage,
-          key: `almosly-public-cache-v3-${PUBLIC_BACKEND.projectId}`,
+          key: `almosly-public-cache-v4-${PUBLIC_BACKEND.projectId}`,
           throttleTime: 1500,
         }),
       )
@@ -47,10 +47,7 @@ export function AppQueryProvider({
         persister,
         maxAge: 24 * 60 * 60 * 1000, // 24h
         dehydrateOptions: {
-          shouldDehydrateQuery: (q) => {
-            const root = Array.isArray(q.queryKey) ? String(q.queryKey[0]) : ''
-            return PERSIST_KEYS.has(root) && q.state.status === 'success'
-          },
+          shouldDehydrateQuery: shouldPersistPublicQuery,
         },
       }}
     >

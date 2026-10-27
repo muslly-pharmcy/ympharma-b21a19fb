@@ -7,6 +7,7 @@ import {
   type ListProductsResult,
 } from '@/domain/catalog/schemas'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { signCatalogMedia, type CatalogMediaReference } from './catalog-media-policy'
 
 
 // Escape PostgREST `.or()` reserved chars in user search input.
@@ -97,40 +98,17 @@ export const listProducts = createServerFn({ method: 'GET' })
             .in('product_id', ids)
             .eq('status', 'approved')
             .order('sort_order', { ascending: true })
+            .order('created_at', { ascending: false })
           if (mediaError) throw mediaError
-          const byProduct = new Map<string, { bucket: string; path: string }>()
-          for (const m of (media ?? []) as Array<{
-            product_id: string
-            storage_bucket: string | null
-            storage_path: string
-            kind: string
-          }>) {
-            if (!byProduct.has(m.product_id)) {
-              byProduct.set(m.product_id, {
-                bucket: m.storage_bucket || 'product-images',
-                path: m.storage_path,
-              })
+          const candidates = (media ?? []) as CatalogMediaReference[]
+          await Promise.all(items.map(async (product) => {
+            const rows = candidates.filter((m) => m.product_id === product.id)
+              .sort((a, b) => Number(b.kind === 'primary') - Number(a.kind === 'primary'))
+            for (const mediaRow of rows) {
+              const url = await signCatalogMedia(supabaseAdmin.storage, product.id, mediaRow)
+              if (url) { product.primary_image_url = url; break }
             }
-          }
-          await Promise.all(
-            Array.from(byProduct.entries()).map(async ([pid, ref]) => {
-              const { data: signed, error: signingError } = await supabaseAdmin.storage
-                .from(ref.bucket)
-                .createSignedUrl(ref.path, 60 * 60 * 6)
-              if (signingError) {
-                console.error('[listProducts:image-signing]', {
-                  code: signingError.name,
-                  message: signingError.message,
-                  productId: pid,
-                })
-                return
-              }
-              if (signed?.signedUrl) {
-                const p = items.find((x) => x.id === pid)
-                if (p) p.primary_image_url = signed.signedUrl
-              }
-            }),
-          )
+          }))
         }
       } catch (e) {
         console.warn('[listProducts] image signing skipped:', (e as Error).message)
@@ -192,20 +170,31 @@ export const getProduct = createServerFn({ method: 'GET' })
 
     if (error || !product) return null
 
-    const [{ data: barcodes }, { data: media }] = await Promise.all([
-      supabase.from('catalog_barcodes').select(sel('*')).eq('product_id', data.id),
-      supabase
-        .from('catalog_product_media')
-        .select(sel('*'))
-        .eq('product_id', data.id)
-        .order('sort_order', { ascending: true }),
-    ])
+    const { data: barcodes } = await supabase.from('catalog_barcodes')
+      .select('id, product_id, barcode, symbology, is_primary').eq('product_id', data.id)
+    return { product: product as unknown as CatalogProduct, barcodes: barcodes ?? [] }
+  })
 
-    return {
-      product: product as unknown as CatalogProduct,
-      barcodes: barcodes ?? [],
-      media: media ?? [],
-    }
+// Authenticated catalog detail can read its own drafts. Shared public products
+// remain readable without silently acquiring an organization owner.
+export const getAdminProductDetail = createServerFn({ method: 'GET' })
+  .middleware([requireSupabaseAuth])
+  .validator((raw: unknown) => z.object({ id: z.string().uuid() }).parse(raw))
+  .handler(async ({ data, context }) => {
+    const { getActorFromSupabase, requirePermission, hasPermission } = await import('./session.server')
+    const actor = await getActorFromSupabase(context.supabase, context.userId)
+    requirePermission(actor, 'catalog.read')
+    const result = await context.supabase.from('catalog_products')
+      .select(`${PUBLIC_PRODUCT_COLUMNS},organization_id`).eq('id', data.id).maybeSingle()
+    if (result.error) throw new Error(result.error.message)
+    const product = result.data as unknown as (CatalogProduct & { organization_id: string | null }) | null
+    if (!product) return null
+    const ownOrg = product.organization_id === actor.organizationId
+    if (!ownOrg && !(product.is_public && product.status === 'approved')) return null
+    const { data: barcodes, error } = await context.supabase.from('catalog_barcodes')
+      .select('id, product_id, barcode, symbology, is_primary').eq('product_id', data.id)
+    if (error) throw new Error(error.message)
+    return { product, barcodes: barcodes ?? [], canManageImages: ownOrg && hasPermission(actor, 'catalog.write') }
   })
 
 export const listCategories = createServerFn({ method: 'GET' }).handler(
