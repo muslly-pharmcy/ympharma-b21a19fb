@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { mediaAlt, signCatalogMedia, type CatalogMediaReference } from './catalog-media-policy'
 
 // ---------- Public: shipping zones ----------
 export interface ShippingZone {
@@ -89,10 +90,11 @@ export const listProductImageUrls = createServerFn({ method: 'GET' })
     if (!isSupabaseAdminConfigured()) return []
     const { data: media, error: mediaError } = await supabaseAdmin
       .from('catalog_product_media')
-      .select('storage_bucket, storage_path, kind, metadata, sort_order, status')
+      .select('product_id, storage_bucket, storage_path, kind, metadata, sort_order, status')
       .eq('product_id', data.productId)
       .eq('status', 'approved')
       .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false })
 
     if (mediaError) {
       console.error('[listProductImageUrls]', {
@@ -102,38 +104,12 @@ export const listProductImageUrls = createServerFn({ method: 'GET' })
       return []
     }
 
-    const rows = (media ?? []) as Array<{
-      storage_bucket: string
-      storage_path: string
-      kind: string
-      metadata: unknown
-    }>
-    if (rows.length === 0) return []
-
     const out: { url: string; alt: string | null; kind: string }[] = []
-    for (const m of rows) {
-      const bucket = m.storage_bucket || 'product-images'
-      const { data: signed, error: signingError } = await supabaseAdmin.storage
-        .from(bucket)
-        .createSignedUrl(m.storage_path, 60 * 60 * 24) // 24h
-      if (signingError) {
-        console.error('[listProductImageUrls:signing]', {
-          name: signingError.name,
-          message: signingError.message,
-          productId: data.productId,
-        })
-        continue
-      }
-      if (signed?.signedUrl) {
-        const alt =
-          m.metadata &&
-          typeof m.metadata === 'object' &&
-          'alt_text' in m.metadata &&
-          typeof m.metadata.alt_text === 'string'
-            ? m.metadata.alt_text
-            : null
-        out.push({ url: signed.signedUrl, alt, kind: m.kind })
-      }
+    const candidates = (media ?? []) as CatalogMediaReference[]
+    candidates.sort((a, b) => Number(b.kind === 'primary') - Number(a.kind === 'primary'))
+    for (const mediaRow of candidates) {
+      const url = await signCatalogMedia(supabaseAdmin.storage, data.productId, mediaRow)
+      if (url) out.push({ url, alt: mediaAlt(mediaRow.metadata), kind: mediaRow.kind })
     }
     return out
   })

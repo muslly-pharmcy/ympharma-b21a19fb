@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolvePublicSupabaseConfig, validatePublicConfig, serializePublicConfig, matchingServerCredential } from '@/integrations/supabase/public-config'
+import { resolvePublicSupabaseConfig, validatePublicConfig, serializePublicConfig } from '@/integrations/supabase/public-config'
 import { PUBLIC_BACKEND } from '../config/public-backend'
 
 describe('public Supabase configuration', () => {
@@ -52,28 +52,5 @@ describe('public Supabase configuration', () => {
     const json = serializePublicConfig({ url: '</script>', publishableKey: 'example-only', privateField: 'excluded' } as never)
     expect(json).not.toContain('<')
     expect(JSON.parse(json)).toEqual({ url: '</script>', publishableKey: 'example-only' })
-  })
-  it('blocks any privileged credential from a mismatched binding', () => {
-    expect(matchingServerCredential({ SUPABASE_URL: 'https://swyqqlpbjemarzzdxctw.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'synthetic-only' })).toBeUndefined()
-  })
-  it('requires securely bound project identity even for a matching URL', () => {
-    expect(matchingServerCredential({ SUPABASE_URL: PUBLIC_BACKEND.url, SUPABASE_SERVICE_ROLE_KEY: 'synthetic-only' })).toBeUndefined()
-    expect(matchingServerCredential({ SUPABASE_URL: PUBLIC_BACKEND.url, SUPABASE_PROJECT_ID: PUBLIC_BACKEND.projectId, SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_synthetic_only' })).toBe('sb_secret_synthetic_only')
-  })
-  it('accepts the explicitly bound custom server key while the managed project is old', () => {
-    expect(matchingServerCredential({
-      SUPABASE_URL: 'https://swyqqlpbjemarzzdxctw.supabase.co',
-      MUSLLY_SUPABASE_PROJECT_ID: PUBLIC_BACKEND.projectId,
-      MUSLLY_SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_synthetic_only',
-    })).toBe('sb_secret_synthetic_only')
-  })
-  it('rejects public keys and old legacy server keys from the selected server binding', () => {
-    const oldServerKey = `header.${btoa(JSON.stringify({ role: 'service_role', ref: 'swyqqlpbjemarzzdxctw' }))}.signature`
-    for (const key of ['sb_publishable_synthetic_only', oldServerKey]) {
-      expect(matchingServerCredential({ MUSLLY_SUPABASE_PROJECT_ID: PUBLIC_BACKEND.projectId, MUSLLY_SUPABASE_SERVICE_ROLE_KEY: key })).toBeUndefined()
-    }
-  })
-  it('rejects a custom credential without a matching project binding', () => {
-    expect(matchingServerCredential({ MUSLLY_SUPABASE_PROJECT_ID: 'other', MUSLLY_SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_synthetic_only' })).toBeUndefined()
   })
 })

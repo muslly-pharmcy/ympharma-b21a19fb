@@ -3,11 +3,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { getProduct, getProductAiSummary } from '@/lib/catalog.functions'
+import { getAdminProductDetail, getProductAiSummary } from '@/lib/catalog.functions'
 import { getStockSummary } from '@/lib/inventory.functions'
 import { listProductImageUrls } from '@/lib/storefront.functions'
-import { registerProductImage, deleteProductImage } from '@/lib/catalog-media.functions'
-import { supabase } from '@/integrations/supabase/client'
+import {
+  listAdminProductImages,
+  uploadProductImage,
+  deleteProductImage,
+  approveProductImage,
+} from '@/lib/catalog-media.functions'
 import { ArrowRight, Package, Upload, Trash2, Loader2 } from 'lucide-react'
 import type { CatalogBarcode } from '@/domain/catalog/schemas'
 
@@ -34,9 +38,10 @@ export const Route = createFileRoute('/_authenticated/catalog/$productId')({
 
 function ProductDetail() {
   const params = Route.useParams()
-  const { data, isLoading } = useQuery({
+  const getDetail = useServerFn(getAdminProductDetail)
+  const { data, isLoading, error } = useQuery({
     queryKey: ['catalog', 'product', params.productId],
-    queryFn: () => getProduct({ data: { id: params.productId } }),
+    queryFn: () => getDetail({ data: { id: params.productId } }),
   })
   const { data: stock } = useQuery({
     queryKey: ['inventory', 'stock-summary', params.productId],
@@ -51,6 +56,7 @@ function ProductDetail() {
   })
 
   if (isLoading) return <div className="p-8 text-center">جاري التحميل...</div>
+  if (error) return <div role="alert" className="p-8 text-center text-red-600">تعذر تحميل المنتج: {error.message}</div>
   if (!data) {
     return (
       <div className="p-8 text-center">
@@ -158,133 +164,167 @@ function ProductDetail() {
         )}
       </section>
 
-      <MediaSection productId={params.productId} />
+      {data.canManageImages ? (
+        <MediaSection productId={params.productId} />
+      ) : (
+        <ReadOnlyProductImages productId={params.productId} />
+      )}
     </div>
+  )
+}
+
+function ReadOnlyProductImages({ productId }: { productId: string }) {
+  const getImages = useServerFn(listProductImageUrls)
+  const { data: images = [], error } = useQuery({
+    queryKey: ['storefront', 'product', productId, 'images'],
+    queryFn: () => getImages({ data: { productId } }),
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 10 * 60 * 1000,
+  })
+  return (
+    <section className="glass-panel rounded-2xl p-6">
+      <h2 className="mb-3 text-lg font-semibold">صور المنتج</h2>
+      <p className="mb-3 text-sm text-muted-foreground">هذا المنتج متاح للعرض. إدارة الصور تتطلب صلاحية تعديل المنتج داخل مؤسستك.</p>
+      {error ? (
+        <p role="alert" className="text-sm text-red-600">تعذر تحميل الصور: {error.message}</p>
+      ) : images.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {images.map((image, index) => (
+            <img key={index} src={image.url} alt={image.alt ?? ''} className="aspect-square w-full rounded-xl border object-contain" />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">لا توجد صور منشورة لهذا المنتج.</p>
+      )}
+    </section>
   )
 }
 
 function MediaSection({ productId }: { productId: string }) {
   const qc = useQueryClient()
-  const [uploading, setUploading] = useState(false)
-  const { data: images = [] } = useQuery({
-    queryKey: ['storefront', 'product', productId, 'images'],
-    queryFn: () => listProductImageUrls({ data: { productId } }),
-  })
-  const registerFn = useServerFn(registerProductImage)
+  const getImages = useServerFn(listAdminProductImages)
+  const uploadFn = useServerFn(uploadProductImage)
   const deleteFn = useServerFn(deleteProductImage)
-  const register = useMutation({
-    mutationFn: (v: { storagePath: string; kind: 'primary' | 'gallery' }) =>
-      registerFn({ data: { productId, ...v } }),
-    onSuccess: () => {
-      toast.success('تم رفع الصورة')
-      void qc.invalidateQueries({ queryKey: ['storefront', 'product', productId, 'images'] })
-      void qc.invalidateQueries({ queryKey: ['catalog', 'product', productId] })
+  const approveFn = useServerFn(approveProductImage)
+  const { data: images = [], error, isLoading } = useQuery({
+    queryKey: ['catalog', 'product-media', productId],
+    queryFn: () => getImages({ data: { productId } }),
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 10 * 60 * 1000,
+  })
+
+  function refreshImages() {
+    void qc.invalidateQueries({ queryKey: ['catalog', 'product-media', productId] })
+    void qc.invalidateQueries({ queryKey: ['catalog', 'product', productId] })
+    void qc.invalidateQueries({ queryKey: ['catalog'] })
+    void qc.invalidateQueries({ queryKey: ['admin-inventory'] })
+    void qc.invalidateQueries({ queryKey: ['storefront'] })
+  }
+
+  const upload = useMutation({
+    mutationFn: (file: File) => {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        throw new Error('اختر صورة JPEG أو PNG أو WebP')
+      }
+      if (file.size === 0 || file.size > 5 * 1024 * 1024) {
+        throw new Error('حجم الصورة يجب أن يكون بين 1 بايت و5 ميغابايت')
+      }
+      const form = new FormData()
+      form.set('productId', productId)
+      form.set('kind', images.length === 0 ? 'primary' : 'gallery')
+      form.set('file', file)
+      return uploadFn({ data: form })
+    },
+    onSuccess: (result) => {
+      toast.success(result.status === 'approved' ? 'تم رفع الصورة واعتمادها' : 'تم رفع الصورة وهي بانتظار المراجعة')
+      refreshImages()
     },
     onError: (e: Error) => toast.error(e.message),
   })
   const remove = useMutation({
     mutationFn: (mediaId: string) => deleteFn({ data: { mediaId } }),
     onSuccess: () => {
-      toast.success('تم الحذف')
-      void qc.invalidateQueries({ queryKey: ['storefront', 'product', productId, 'images'] })
+      toast.success('تم حذف الصورة')
+      refreshImages()
     },
     onError: (e: Error) => toast.error(e.message),
   })
 
-  async function onUpload(file: File) {
-    setUploading(true)
-    try {
-      const ext = file.name.split('.').pop() || 'jpg'
-      const path = `${productId}/${crypto.randomUUID()}.${ext}`
-      const up = await supabase.storage
-        .from('product-images')
-        .upload(path, file, { upsert: false, contentType: file.type })
-      if (up.error) throw new Error(up.error.message)
-      const kind = images.length === 0 ? 'primary' : 'gallery'
-      await register.mutateAsync({ storagePath: path, kind })
-    } catch (e) {
-      toast.error((e as Error).message)
-    } finally {
-      setUploading(false)
-    }
-  }
+  const approve = useMutation({
+    mutationFn: (mediaId: string) => approveFn({ data: { mediaId } }),
+    onSuccess: () => {
+      toast.success('تم اعتماد الصورة ونشرها')
+      refreshImages()
+    },
+    onError: (e: Error) => toast.error(e.message),
+  })
 
   return (
     <section className="glass-panel rounded-2xl p-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold">صور المنتج</h2>
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-90">
-          {uploading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Upload className="h-4 w-4" />
-          )}
-          {uploading ? 'جارٍ الرفع…' : 'رفع صورة'}
+          {upload.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+          {upload.isPending ? 'جارٍ الرفع…' : 'رفع صورة'}
           <input
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={upload.isPending || isLoading || Boolean(error)}
             className="hidden"
             onChange={(e) => {
-              const f = e.target.files?.[0]
-              if (f) void onUpload(f)
+              const file = e.target.files?.[0]
+              if (file) upload.mutate(file)
               e.target.value = ''
             }}
           />
         </label>
       </div>
-      {images.length === 0 ? (
+      <p className="mb-3 text-xs text-muted-foreground">JPEG أو PNG أو WebP، حتى 5 ميغابايت. تظهر الصور للزوار بعد اعتمادها.</p>
+      {error ? (
+        <p role="alert" className="text-sm text-red-600">تعذر تحميل الصور: {error.message}</p>
+      ) : isLoading ? (
+        <p className="text-sm text-muted-foreground">جاري تحميل الصور…</p>
+      ) : images.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           لم يتم رفع صور بعد. الصورة الأولى تصبح تلقائياً الصورة الرئيسية.
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {images.map((img, i) => (
-            <div key={i} className="group relative rounded-xl border border-gray-200 bg-gray-50">
-              <img src={img.url} alt="" className="aspect-square w-full rounded-xl object-contain" />
-              <span className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] text-gray-700">
-                {img.kind}
-              </span>
+          {images.map((image) => (
+            <div key={image.id} className="rounded-xl border border-gray-200 bg-gray-50 p-2">
+              {image.url ? (
+                <img src={image.url} alt={image.alt ?? ''} className="aspect-square w-full rounded-lg object-contain" />
+              ) : (
+                <div className="flex aspect-square items-center justify-center rounded-lg bg-gray-100 text-xs text-muted-foreground">المعاينة غير متاحة</div>
+              )}
+              <div className="mt-2 flex items-center justify-between gap-1">
+                <span className="text-xs text-gray-700">
+                  {image.kind === 'primary' ? 'رئيسية' : image.kind === 'thumbnail' ? 'مصغرة' : 'إضافية'}
+                  {' · '}{image.status === 'approved' ? 'معتمدة' : image.status === 'pending' ? 'بانتظار المراجعة' : 'غير منشورة'}
+                </span>
+                {image.status === 'pending' && image.canApprove && (
+                  <button
+                    onClick={() => approve.mutate(image.id)}
+                    disabled={approve.isPending || remove.isPending}
+                    className="rounded-lg px-2 py-1 text-xs text-primary hover:bg-primary/10 disabled:opacity-50"
+                  >
+                    {approve.isPending && approve.variables === image.id ? 'جارٍ الاعتماد…' : 'اعتماد'}
+                  </button>
+                )}
+                <button
+                  onClick={() => remove.mutate(image.id)}
+                  disabled={remove.isPending || approve.isPending}
+                  className="rounded-lg p-1.5 text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  aria-label="حذف الصورة"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
-      {/* Media list for delete (uses ordered admin list) */}
-      <AdminMediaDeleteList productId={productId} onDelete={(id) => remove.mutate(id)} />
     </section>
-  )
-}
-
-function AdminMediaDeleteList({
-  productId,
-  onDelete,
-}: {
-  productId: string
-  onDelete: (mediaId: string) => void
-}) {
-  const { data } = useQuery({
-    queryKey: ['catalog', 'product', productId],
-    queryFn: () => getProduct({ data: { id: productId } }),
-  })
-  const rows =
-    (data?.media as unknown as Array<{ id: string; storage_path: string; kind: string }>) ?? []
-  if (rows.length === 0) return null
-  return (
-    <ul className="mt-4 divide-y divide-gray-100 text-sm">
-      {rows.map((m) => (
-        <li key={m.id} className="flex items-center justify-between py-2">
-          <span className="truncate text-gray-700">
-            <span className="font-mono text-xs text-gray-500">{m.kind}</span> · {m.storage_path}
-          </span>
-          <button
-            onClick={() => onDelete(m.id)}
-            className="rounded-lg p-1.5 text-red-600 hover:bg-red-50"
-            aria-label="حذف"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </li>
-      ))}
-    </ul>
   )
 }
 

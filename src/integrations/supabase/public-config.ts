@@ -42,25 +42,3 @@ export function serializePublicConfig(config: PublicSupabaseConfig): string {
   const { url, publishableKey } = config
   return JSON.stringify({ url, publishableKey }).replace(/</g, '\\u003c')
 }
-
-export function matchingServerCredential(env: PublicSupabaseEnv): string | undefined {
-  // Custom server-only bindings let the selected existing project work without
-  // reusing reserved Lovable Cloud credentials for another project.
-  const custom = env.MUSLLY_SUPABASE_SERVICE_ROLE_KEY?.trim()
-  const customBinding = env.MUSLLY_SUPABASE_PROJECT_ID?.trim()
-  let key: string | undefined
-  if (custom) {
-    if (customBinding !== PUBLIC_BACKEND.projectId) return undefined
-    key = custom
-  } else {
-    if (env.SUPABASE_URL?.trim() !== PUBLIC_BACKEND.url || env.SUPABASE_PROJECT_ID?.trim() !== PUBLIC_BACKEND.projectId) return undefined
-    key = env.SUPABASE_SERVICE_ROLE_KEY?.trim()
-  }
-  if (key?.startsWith('sb_secret_')) return key
-  if (key?.split('.').length !== 3) return undefined
-  try {
-    const payload = key.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
-    const claims = JSON.parse(atob(payload)) as { role?: string; ref?: string }
-    return claims.role === 'service_role' && claims.ref === PUBLIC_BACKEND.projectId ? key : undefined
-  } catch { return undefined }
-}

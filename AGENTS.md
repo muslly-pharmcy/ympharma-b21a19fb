@@ -4,3 +4,5 @@
 - Public backend identity is pinned in config/public-backend.ts; generated clients are redirected by the Vite resolver to app-owned lazy adapters to survive managed regeneration and prevent stale runtime overrides.
 - Privileged access requires a securely bound URL, project ID and matching credential; never reuse a credential from another binding.
 - SSR emits only public URL/key in escaped inert JSON before Scripts; session storage and public query/navigation caches are project-scoped, and private query/API responses are not persisted.
+- Resolve server secrets in server-only modules; use createSelectedAdminClient for opaque secret keys, and never put a server secret in VITE_ variables or client configuration. Ordinary caller authentication uses fresh caller-scoped public-key clients.
+- Private product-image operations require exact product organization and database upload/review permissions before privileged storage. Only canonical product-prefixed objects in product-images/catalog-media may be signed; public signing requires both approved public products and approved media. Keep expiring URLs out of durable records and query persistence.

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
 import { Camera, FileText, Loader2, Sparkles, Package, AlertTriangle, CheckCircle2, Link as LinkIcon } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
@@ -8,7 +8,7 @@ import {
   createVisionUploadUrl,
   analyzePrescriptionImage,
   analyzeInvoiceImage,
-  linkMediaByBarcode,
+  uploadProductImageByBarcode,
 } from '@/lib/vision.functions'
 import { supabase } from '@/integrations/supabase/client'
 
@@ -79,7 +79,7 @@ function VisionLab() {
 
 // ─── shared upload helper ─────────────────────────────────────────────────
 
-function useUploader(bucket: 'prescriptions' | 'invoice-uploads' | 'product-images') {
+function useUploader(bucket: 'prescriptions' | 'invoice-uploads') {
   const createUrl = useServerFn(createVisionUploadUrl)
   return async (file: File): Promise<string> => {
     const { path, token } = await createUrl({ data: { bucket, filename: file.name } })
@@ -254,22 +254,37 @@ function InvoicePanel() {
 // ─── S4: MEDIA LINK PANEL ────────────────────────────────────────────────
 
 function MediaPanel() {
-  const upload = useUploader('product-images')
-  const link = useServerFn(linkMediaByBarcode)
+  const upload = useServerFn(uploadProductImageByBarcode)
+  const qc = useQueryClient()
   const [file, setFile] = useState<File | null>(null)
   const [barcode, setBarcode] = useState('')
 
   const mut = useMutation({
     mutationFn: async () => {
       if (!file) throw new Error('اختر ملف صورة')
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        throw new Error('اختر صورة JPEG أو PNG أو WebP')
+      }
+      if (file.size === 0 || file.size > 5 * 1024 * 1024) {
+        throw new Error('حجم الصورة يجب أن يكون بين 1 بايت و5 ميغابايت')
+      }
       let bc = barcode.trim()
       if (!bc) {
         // Derive barcode from filename: "6221234567890.jpg" → "6221234567890"
         bc = file.name.replace(/\.[^.]+$/, '').replace(/[^0-9]/g, '')
       }
       if (!bc) throw new Error('لم يتم العثور على باركود')
-      const path = await upload(file)
-      return link({ data: { barcode: bc, storagePath: path, kind: 'primary' } })
+      const form = new FormData()
+      form.set('barcode', bc)
+      form.set('kind', 'primary')
+      form.set('file', file)
+      return upload({ data: form })
+    },
+    onSuccess: (result) => {
+      if (!result.ok) return
+      void qc.invalidateQueries({ queryKey: ['catalog'] })
+      void qc.invalidateQueries({ queryKey: ['admin-inventory'] })
+      void qc.invalidateQueries({ queryKey: ['storefront'] })
     },
   })
 
@@ -279,6 +294,7 @@ function MediaPanel() {
         ارفع صورة المنتج — يتم ربطها تلقائيًا بالباركود. إذا سُميت الصورة برقم الباركود
         (مثلاً <code className="bg-slate-800 px-1 rounded">6221234567890.jpg</code>) فلا حاجة لإدخال الباركود يدويًا.
       </p>
+      <p className="text-xs text-slate-400">JPEG أو PNG أو WebP، حتى 5 ميغابايت. تظهر الصورة للزوار بعد اعتمادها.</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <input
           type="text"
@@ -289,7 +305,7 @@ function MediaPanel() {
         />
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           className="text-sm text-slate-300"
         />
@@ -311,7 +327,11 @@ function MediaPanel() {
 
       {mut.data && mut.data.ok && (
         <div className="p-3 rounded-lg bg-emerald-950/40 text-emerald-200 text-sm flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4" /> تم الربط بالمنتج: {mut.data.product_name}
+          <CheckCircle2 className="w-4 h-4" />
+          <span>
+            تم رفع الصورة وربطها بالمنتج: {mut.data.product_name}
+            {' · '}{mut.data.status === 'approved' ? 'الصورة معتمدة' : 'بانتظار المراجعة والاعتماد'}
+          </span>
         </div>
       )}
       {mut.data && !mut.data.ok && (

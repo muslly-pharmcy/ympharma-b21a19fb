@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { render } from '@react-email/render'
-import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 import { TEMPLATES } from '@/lib/email-templates/registry'
 
@@ -34,7 +33,7 @@ export const Route = createFileRoute("/lovable/email/transactional/send")({
     handlers: {
       POST: async ({ request }) => {
         const { getPublicSupabaseConfig } = await import('@/integrations/supabase/public-config')
-        const { getMatchingServerCredential } = await import('@/lib/backend/admin.server')
+        const { getMatchingServerCredential, createSelectedAdminClient } = await import('@/lib/backend/admin.server')
         const { url: supabaseUrl } = getPublicSupabaseConfig()
         const supabaseServiceKey = getMatchingServerCredential()
 
@@ -54,7 +53,7 @@ export const Route = createFileRoute("/lovable/email/transactional/send")({
         }
 
         const token = authHeader.slice('Bearer '.length).trim()
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
+        const supabase = createSelectedAdminClient(supabaseServiceKey)
         const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
         if (authError || !user) {

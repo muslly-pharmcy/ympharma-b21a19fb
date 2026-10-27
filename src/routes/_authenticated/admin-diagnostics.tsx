@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPublicClient } from '@/lib/backend/client'
 import { supabase } from '@/integrations/supabase/client'
 import { getDiagnosticsActor, type DiagnosticsActor } from '@/lib/diagnostics.functions'
+import { getServerBackendReadiness } from '@/lib/backend/readiness.functions'
+import type { ServerBackendReadiness } from '@/lib/backend/server-credentials.server'
 import {
   didRlsProbePass,
   type RlsProbeResult,
@@ -63,10 +65,12 @@ function DiagnosticsPage() {
   const [actorErr, setActorErr] = useState<string | null>(null)
   const [rlsRows, setRlsRows] = useState<Row[]>([])
   const [rlsBusy, setRlsBusy] = useState(false)
-  const [storageLog, setStorageLog] = useState<Array<{ step: string; ok: boolean; msg: string }>>([])
-  const [storageBusy, setStorageBusy] = useState(false)
+  const [backend, setBackend] = useState<ServerBackendReadiness | null>(null)
+  const [backendBusy, setBackendBusy] = useState(false)
+  const [backendError, setBackendError] = useState(false)
 
   const fetchActor = useServerFn(getDiagnosticsActor)
+  const fetchBackend = useServerFn(getServerBackendReadiness)
 
   useEffect(() => {
     fetchActor()
@@ -104,39 +108,16 @@ function DiagnosticsPage() {
     setRlsBusy(false)
   }
 
-  async function runStorageTest() {
-    setStorageBusy(true)
-    setStorageLog([])
-    const log: typeof storageLog = []
-    const push = (step: string, ok: boolean, msg: string) => {
-      log.push({ step, ok, msg })
-      setStorageLog([...log])
-    }
-
-    const bucket = 'product-images'
-    const path = `diagnostics/${Date.now()}-test.txt`
-    const body = new Blob([`diagnostic upload @ ${new Date().toISOString()}`], { type: 'text/plain' })
-
+  async function runBackendCheck() {
+    setBackendBusy(true)
+    setBackendError(false)
     try {
-      const up = await supabase.storage.from(bucket).upload(path, body, { upsert: true, contentType: 'text/plain' })
-      if (up.error) return push('upload', false, up.error.message)
-      push('upload', true, `path=${up.data.path}`)
-
-      const signed = await supabase.storage.from(bucket).createSignedUrl(path, 60)
-      if (signed.error) push('sign', false, signed.error.message)
-      else push('sign', true, signed.data.signedUrl.slice(0, 80) + '…')
-
-      const dl = await supabase.storage.from(bucket).download(path)
-      if (dl.error) push('download', false, dl.error.message)
-      else push('download', true, `bytes=${dl.data.size}`)
-
-      const del = await supabase.storage.from(bucket).remove([path])
-      if (del.error) push('cleanup', false, del.error.message)
-      else push('cleanup', true, 'removed')
-    } catch (e) {
-      push('exception', false, String((e as Error)?.message ?? e))
+      setBackend(await fetchBackend())
+    } catch {
+      setBackend(null)
+      setBackendError(true)
     } finally {
-      setStorageBusy(false)
+      setBackendBusy(false)
     }
   }
 
@@ -159,7 +140,7 @@ function DiagnosticsPage() {
         <p className="mt-3 text-amber-800 bg-amber-50 p-3 rounded">
           هذه الصفحة للأدمن فقط. دورك الحالي: <b>{actor.orgRole}</b> — الأدوار: {actor.roles.join(', ') || '—'}.
           <br />
-          إذا رأيت هذه الرسالة فالـ RLS يعمل: الميدلوير سمح بالوصول للسيرفر فن، والواجهة تمنع الأدوات لأن دورك ليس أدمن.
+          يلزم دور مالك المؤسسة أو مسؤول النظام لتشغيل أدوات التشخيص.
         </p>
       </div>
     )
@@ -170,7 +151,7 @@ function DiagnosticsPage() {
       <header>
         <h1 className="text-2xl font-bold">تشخيص Supabase (Admin)</h1>
         <p className="text-sm text-gray-600">
-          يفحص RLS كـ anon مقابل authenticated، ورفع/تنزيل ملف Storage، وحالة الميدلوير.
+          يفحص صلاحيات الوصول وربط الخادم وحاويات صور المنتجات. الفحوصات للقراءة فقط.
         </p>
       </header>
 
@@ -235,29 +216,59 @@ function DiagnosticsPage() {
         </table>
       </section>
 
-      {/* --- Storage --- */}
-      <section className="border rounded-lg p-4 bg-white">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold">٣) اختبار Storage — bucket <code>product-images</code></h2>
+      <section className="border rounded-lg p-4 bg-white space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-semibold">٣) ربط الخادم وصور المنتجات</h2>
           <button
             className="px-3 py-1.5 bg-teal-600 text-white rounded disabled:opacity-50"
-            onClick={() => void runStorageTest()}
-            disabled={storageBusy}
+            onClick={() => void runBackendCheck()}
+            disabled={backendBusy}
           >
-            {storageBusy ? 'جارٍ التنفيذ…' : 'تشغيل الاختبار'}
+            {backendBusy ? 'جارٍ الفحص…' : 'فحص الربط'}
           </button>
         </div>
-        <ul className="space-y-1 text-sm">
-          {storageLog.map((s, i) => (
-            <li key={i} className={s.ok ? 'text-green-700' : 'text-red-700'}>
-              {s.ok ? '✅' : '❌'} <b>{s.step}</b>: {s.msg}
-            </li>
-          ))}
-          {!storageLog.length && !storageBusy && (
-            <li className="text-gray-500">اضغط "تشغيل الاختبار" لرفع ملف تجريبي، توقيع URL، تنزيله، ثم حذفه.</li>
-          )}
-        </ul>
+        <p className="text-sm text-gray-600">يتحقق الخادم من المفتاح دون إرساله إلى المتصفح أو إنشاء ملفات تجريبية.</p>
+        {backendError && <p role="alert" className="text-red-700">تعذّر الفحص. تحقق من الجلسة والصلاحيات ثم أعد المحاولة.</p>}
+        {backend && (
+          <dl className="grid grid-cols-2 gap-2 text-sm">
+            <dt>المشروع المختار</dt><dd className="font-mono break-all">{backend.projectId}</dd>
+            <dt>إعداد المفتاح</dt><dd>{credentialMessages[backend.configuration.issue]}</dd>
+            <dt>التحقق من الاتصال</dt><dd>{connectionMessages[backend.connection]}</dd>
+            <dt><code>product-images</code></dt><dd>{bucketMessages[backend.productImages]}</dd>
+            <dt><code>catalog-media</code></dt><dd>{bucketMessages[backend.catalogMedia]}</dd>
+          </dl>
+        )}
+        <details className="text-sm">
+          <summary className="cursor-pointer text-teal-700">إعداد Secrets الآمن</summary>
+          <div className="mt-3 space-y-2">
+            <p>من <a className="underline" href="https://supabase.com/dashboard/project/ybhrmcdlgyccywpmiucz/settings/api-keys" target="_blank" rel="noreferrer">مفاتيح مشروع Supabase المختار</a>، استخدم مفتاح الخادم لهذا المشروع.</p>
+            <p>أضف القيم في <a className="underline" href="https://lovable.dev/projects/4d4aad01-9bf4-4d8b-acab-e51a06a17c63" target="_blank" rel="noreferrer">Lovable</a> ← Cloud ← Secrets، ثم أعد النشر:</p>
+            <ul className="list-disc pr-5 space-y-1">
+              <li><code>MUSLLY_SUPABASE_PROJECT_ID</code>: <code>ybhrmcdlgyccywpmiucz</code></li>
+              <li><code>MUSLLY_SUPABASE_SERVICE_ROLE_KEY</code>: مفتاح <code>sb_secret_…</code> أو مفتاح <code>service_role</code> الخاص بالمشروع نفسه.</li>
+            </ul>
+            <p>ضع المفتاح في مخزن Secrets فقط. لا تضعه في المحادثة أو GitHub أو أي متغير يبدأ بـ <code>VITE_</code>.</p>
+            <p>ينشئ أول رفع مصرح به حاوية صور المنتجات الخاصة عند غيابها. ظهور حاوية عامة يستدعي مراجعة إعدادها قبل استخدامها.</p>
+          </div>
+        </details>
       </section>
     </div>
   )
+}
+
+const credentialMessages: Record<ServerBackendReadiness['configuration']['issue'], string> = {
+  missing: 'لم يُضف مفتاح الخادم بعد',
+  missing_project_binding: 'يلزم إضافة معرّف المشروع مع المفتاح',
+  project_mismatch: 'المفتاح أو إعداد المشروع يشير إلى مشروع مختلف',
+  invalid_format: 'القيمة ليست مفتاح خادم صالح الصيغة',
+  configured: 'الإعداد موجود؛ نتيجة الاتصال تؤكد صلاحيته',
+}
+const connectionMessages: Record<ServerBackendReadiness['connection'], string> = {
+  not_checked: 'لم يُفحص بسبب نقص الإعداد',
+  verified: 'نجح التحقق من Supabase',
+  rejected: 'رفض Supabase المفتاح أو الصلاحية',
+  unavailable: 'تعذّر الاتصال؛ أعد المحاولة',
+}
+const bucketMessages: Record<ServerBackendReadiness['productImages'], string> = {
+  not_checked: 'لم تُفحص', missing: 'غير موجودة', private: 'خاصة', public: 'عامة — تحتاج مراجعة',
 }

@@ -4,6 +4,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { assertOwnVisionObject } from './vision-storage-policy'
 
 // ─── SIGNED UPLOAD URL ─────────────────────────────────────────────────────
 
@@ -21,9 +22,11 @@ export const createVisionUploadUrl = createServerFn({ method: 'POST' })
       .parse(raw),
   )
   .handler(async ({ data, context }) => {
+    if (data.bucket === 'product-images') throw new Error('ارفع صور المنتجات عبر الرفع الآمن بالباركود أو صفحة المنتج')
+    const safeName = data.filename.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.\./g, '_')
+    const path = `${context.userId}/${crypto.randomUUID()}-${safeName}`
+    assertOwnVisionObject(context.userId, data.bucket, path)
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const safeName = data.filename.replace(/[^a-zA-Z0-9._-]/g, '_')
-    const path = `${context.userId}/${Date.now()}-${safeName}`
     const { data: signed, error } = await supabaseAdmin.storage
       .from(data.bucket)
       .createSignedUploadUrl(path)
@@ -31,7 +34,8 @@ export const createVisionUploadUrl = createServerFn({ method: 'POST' })
     return { path, token: signed.token, bucket: data.bucket as UploadBucket }
   })
 
-async function signedReadUrl(bucket: string, path: string): Promise<string> {
+async function signedReadUrl(bucket: string, path: string, userId: string): Promise<string> {
+  assertOwnVisionObject(userId, bucket, path)
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
   const { data, error } = await supabaseAdmin.storage
     .from(bucket)
@@ -65,7 +69,7 @@ export const analyzePrescriptionImage = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data, context }) => {
     const { callVision } = await import('./ai/vision.server')
-    const imageUrl = await signedReadUrl('prescriptions', data.storagePath)
+    const imageUrl = await signedReadUrl('prescriptions', data.storagePath, context.userId)
 
     const vision = await callVision({
       systemPrompt: `أنت صيدلي خبير في اليمن (عدن).
@@ -162,8 +166,8 @@ export const analyzeInvoiceImage = createServerFn({ method: 'POST' })
     await assertAdmin(context.supabase, context.userId)
 
     const { callVision } = await import('./ai/vision.server')
+    const imageUrl = await signedReadUrl('invoice-uploads', data.storagePath, context.userId)
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const imageUrl = await signedReadUrl('invoice-uploads', data.storagePath)
 
     const vision = await callVision({
       systemPrompt: `أنت محاسب صيدلاني في عدن.
@@ -349,14 +353,18 @@ export const linkMediaByBarcode = createServerFn({ method: 'POST' })
       .parse(raw),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId)
 
-    const { data: product } = await context.supabase
+    const { getActorFromSupabase, requirePermission } = await import('./session.server')
+    const actor = await getActorFromSupabase(context.supabase, context.userId)
+    requirePermission(actor, 'catalog.write')
+    const { data: product, error: productError } = await context.supabase
       .from('catalog_products')
       .select('id, name_ar')
       .eq('barcode', data.barcode)
+      .eq('organization_id', actor.organizationId)
       .limit(2)
 
+    if (productError) throw new Error(productError.message)
     const list = (product ?? []) as Array<{ id: string; name_ar: string }>
     if (list.length === 0) {
       return { ok: false as const, error: `لا يوجد منتج بالباركود ${data.barcode}` }
@@ -366,26 +374,45 @@ export const linkMediaByBarcode = createServerFn({ method: 'POST' })
     }
 
     const productRow = list[0]!
-    const { data: inserted, error } = await context.supabase
-      .from('catalog_product_media')
-      .insert({
-        product_id: productRow.id,
-        storage_bucket: 'product-images',
-        storage_path: data.storagePath,
-        kind: data.kind,
-        status: 'approved',
-        uploaded_by: context.userId,
-        metadata: { linked_by_barcode: data.barcode },
-      } as never)
-      .select('id')
-      .single()
-    if (error) throw new Error(error.message)
-
+    const { registerCatalogImage } = await import('./catalog-media-service.server')
+    const inserted = await registerCatalogImage(context, {
+      productId: productRow.id, storagePath: data.storagePath, kind: data.kind,
+    })
     return {
-      ok: true as const,
-      media_id: (inserted as { id: string }).id,
-      product_id: productRow.id,
-      product_name: productRow.name_ar,
+      ok: true as const, media_id: inserted.id,
+      product_id: productRow.id, product_name: productRow.name_ar, status: inserted.status,
+    }
+  })
+
+// Resolving the barcode and storing the image share the same authenticated
+// server workflow as the product editor. Never mint unchecked browser uploads.
+export const uploadProductImageByBarcode = createServerFn({ method: 'POST' })
+  .middleware([requireSupabaseAuth])
+  .validator((raw: unknown) => {
+    if (!(raw instanceof FormData)) throw new Error('طلب رفع الصورة غير صالح')
+    const input = z.object({
+      barcode: z.string().min(3).max(60),
+      kind: z.enum(['primary', 'gallery', 'thumbnail']).default('gallery'),
+    }).parse({ barcode: raw.get('barcode'), kind: raw.get('kind') ?? 'gallery' })
+    const file = raw.get('file')
+    if (!(file instanceof Blob)) throw new Error('يرجى اختيار صورة')
+    return { ...input, file }
+  })
+  .handler(async ({ data, context }) => {
+    const { getActorFromSupabase, requirePermission } = await import('./session.server')
+    const actor = await getActorFromSupabase(context.supabase, context.userId)
+    requirePermission(actor, 'catalog.write')
+    const { data: products, error } = await context.supabase.from('catalog_products')
+      .select('id, name_ar').eq('barcode', data.barcode).eq('organization_id', actor.organizationId).limit(2)
+    if (error) throw new Error(error.message)
+    if (!products?.length) return { ok: false as const, error: `لا يوجد منتج بالباركود ${data.barcode}` }
+    if (products.length > 1) return { ok: false as const, error: `باركود مكرر (${products.length}) — راجع الكاتالوج` }
+    const product = products[0]!
+    const { uploadCatalogImage } = await import('./catalog-media-service.server')
+    const result = await uploadCatalogImage(context, { productId: product.id, kind: data.kind, file: data.file })
+    return {
+      ok: true as const, media_id: result.id, product_id: product.id,
+      product_name: product.name_ar, status: result.status,
     }
   })
 
@@ -394,11 +421,13 @@ export const linkMediaByBarcode = createServerFn({ method: 'POST' })
 export const listProductsMissingImages = createServerFn({ method: 'GET' })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context.supabase, context.userId)
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const { data: rows, error: qErr } = await supabaseAdmin
+    const { getActorFromSupabase, requirePermission } = await import('./session.server')
+    const actor = await getActorFromSupabase(context.supabase, context.userId)
+    requirePermission(actor, 'catalog.write')
+    const { data: rows, error: qErr } = await context.supabase
       .from('catalog_products')
       .select('id, name_ar, barcode, brand')
+      .eq('organization_id', actor.organizationId)
       .eq('status', 'approved')
       .not('barcode', 'is', null)
       .limit(200)
@@ -407,11 +436,12 @@ export const listProductsMissingImages = createServerFn({ method: 'GET' })
 
     const ids = ((rows ?? []) as Array<{ id: string }>).map((r) => r.id)
     if (ids.length === 0) return []
-    const { data: media } = await supabaseAdmin
+    const { data: media, error: mediaError } = await context.supabase
       .from('catalog_product_media')
       .select('product_id')
       .in('product_id', ids)
       .eq('status', 'approved')
+    if (mediaError) throw new Error(mediaError.message)
     const withImg = new Set(((media ?? []) as Array<{ product_id: string }>).map((m) => m.product_id))
     return (rows ?? []).filter((r) => !withImg.has((r as { id: string }).id)) as Array<{
       id: string

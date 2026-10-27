@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { PRODUCT_IMAGE_MAX_BYTES } from '../catalog-media-policy'
 
 // ---------------------------------------------------------------------------
 // Nano Banana high-res product imagery pipeline.
@@ -74,22 +75,13 @@ async function generatePng(prompt: string, key: string): Promise<Uint8Array | nu
     ok: true,
     latencyMs: Date.now() - startedAt,
   })
+  if (b64.length > Math.ceil(PRODUCT_IMAGE_MAX_BYTES / 3) * 4) return null
   const bin = atob(b64)
   const bytes = new Uint8Array(bin.length)
   for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i)
   return bytes
 }
 
-async function assertAdmin(userId: string) {
-  const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-  const { data } = await supabaseAdmin
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .in('role', ['admin', 'owner'])
-    .limit(1)
-  if (!data || data.length === 0) throw new Error('صلاحيات المشرف مطلوبة')
-}
 
 export const generateProductImages = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
@@ -102,15 +94,22 @@ export const generateProductImages = createServerFn({ method: 'POST' })
       .parse(raw ?? {}),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId)
+    const { getActorFromSupabase, requirePermission } = await import('../session.server')
+    const { uploadCatalogImage } = await import('../catalog-media-service.server')
+    const actor = await getActorFromSupabase(context.supabase, context.userId)
+    requirePermission(actor, 'system.admin')
+    requirePermission(actor, 'catalog.write')
+    const uploadGrant = await context.supabase.rpc('has_org_permission', {
+      _user_id: context.userId, _org_id: actor.organizationId, _permission: 'catalog.media.upload',
+    })
+    if (uploadGrant.error || uploadGrant.data !== true) throw new Error('لا تملك صلاحية رفع صور المنتجات')
     const key = process.env['LOVABLE_API_KEY']
     if (!key) throw new Error('مفتاح خدمة الذكاء الاصطناعي غير مهيأ')
 
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-
-    let query = supabaseAdmin
+    let query = context.supabase
       .from('catalog_products')
       .select('id, name_ar, name_en, brand, dosage_form')
+      .eq('organization_id', actor.organizationId)
       .eq('is_public', true)
       .eq('status', 'approved')
       .limit(data.limit)
@@ -120,14 +119,21 @@ export const generateProductImages = createServerFn({ method: 'POST' })
     const { data: products, error } = await query
     if (error) throw new Error(error.message)
 
-    const results: { productId: string; ok: boolean; reason?: string }[] = []
+    const results: { productId: string; ok: boolean; reason?: string; status?: 'approved' | 'pending' }[] = []
+    if (data.productIds?.length) {
+      const selected = new Set((products ?? []).map((product) => product.id))
+      for (const productId of data.productIds) {
+        if (!selected.has(productId)) results.push({ productId, ok: false, reason: 'product_not_owned_or_unavailable' })
+      }
+    }
 
     for (const p of products ?? []) {
       try {
-        const { count } = await supabaseAdmin
+        const { count, error: mediaError } = await context.supabase
           .from('catalog_product_media')
           .select('id', { count: 'exact', head: true })
           .eq('product_id', p.id)
+        if (mediaError) throw new Error(mediaError.message)
         if ((count ?? 0) > 0 && !data.productIds?.length) {
           results.push({ productId: p.id, ok: false, reason: 'already_has_media' })
           continue
@@ -139,25 +145,11 @@ export const generateProductImages = createServerFn({ method: 'POST' })
           continue
         }
 
-        const path = `${p.id}/nano-${Date.now()}.png`
-        const { error: upErr } = await supabaseAdmin.storage
-          .from('product-images')
-          .upload(path, bytes, { contentType: 'image/png', upsert: true })
-        if (upErr) {
-          results.push({ productId: p.id, ok: false, reason: upErr.message })
-          continue
-        }
-
-        await supabaseAdmin.from('catalog_product_media').insert({
-          product_id: p.id,
-          storage_bucket: 'product-images',
-          storage_path: path,
-          kind: 'image',
-          sort_order: 0,
-          status: 'approved',
-        } as never)
-
-        results.push({ productId: p.id, ok: true })
+        const image = new Blob([Uint8Array.from(bytes).buffer], { type: 'image/png' })
+        const uploaded = await uploadCatalogImage(context, {
+          productId: p.id, file: image, kind: 'primary', altText: 'تصور توضيحي مولّد بالذكاء الاصطناعي للمنتج',
+        })
+        results.push({ productId: p.id, ok: true, status: uploaded.status })
       } catch (e) {
         results.push({ productId: p.id, ok: false, reason: (e as Error).message })
       }

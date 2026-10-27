@@ -5,6 +5,7 @@ import { Search, Package, Pill } from 'lucide-react'
 import { ProductImage } from '@/components/store/ProductImage'
 import { z } from 'zod'
 import { listProducts } from '@/lib/catalog.functions'
+import { PRODUCT_IMAGE_REFRESH_MS } from '@/lib/public-query-cache'
 
 const searchSchema = z.object({ q: z.string().optional() })
 
@@ -47,6 +48,7 @@ function SearchPage() {
       }),
     enabled: query.length >= 2,
     staleTime: 30_000,
+    refetchInterval: PRODUCT_IMAGE_REFRESH_MS,
   })
 
   const products = data?.items ?? []

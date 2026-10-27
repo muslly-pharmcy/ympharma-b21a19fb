@@ -1,13 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, useRef } from 'react'
-import { supabase } from '@/integrations/supabase/client'
+import { toast } from 'sonner'
+import { uploadProductImage } from '@/lib/catalog-media.functions'
 import {
   listStoreProductsAdmin,
   updateProductPrice,
   setProductStockBalance,
-  updateProductImage,
   createStoreProduct,
   deleteStoreProduct,
 } from '@/lib/store-admin.functions'
@@ -32,6 +32,7 @@ type Row = {
   price: number | null
   stock_balance: number | null
   image_url: string | null
+  primary_image_url: string | null
 }
 
 function AdminInventoryPage() {
@@ -42,6 +43,8 @@ function AdminInventoryPage() {
   const query = useQuery({
     queryKey: ['admin-inventory', search, supplier],
     queryFn: () => list({ data: { search: search || undefined, supplier: supplier || undefined, limit: 200, offset: 0 } }),
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 10 * 60 * 1000,
   })
 
   const priceMut = useMutation({
@@ -52,9 +55,15 @@ function AdminInventoryPage() {
     mutationFn: useServerFn(setProductStockBalance),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
   })
+  const uploadImage = useServerFn(uploadProductImage)
   const imageMut = useMutation({
-    mutationFn: useServerFn(updateProductImage),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
+    mutationFn: (form: FormData) => uploadImage({ data: form }),
+    onSuccess: (result) => {
+      toast.success(result.status === 'approved' ? 'تم رفع الصورة واعتمادها' : 'تم رفع الصورة وهي بانتظار المراجعة')
+      void qc.invalidateQueries({ queryKey: ['admin-inventory'] })
+      void qc.invalidateQueries({ queryKey: ['catalog'] })
+      void qc.invalidateQueries({ queryKey: ['storefront'] })
+    },
   })
 
   const createMut = useMutation({
@@ -135,13 +144,17 @@ function AdminInventoryPage() {
                   }}
                   onSaveStock={(newBalance) => stockMut.mutateAsync({ data: { productId: id, newBalance, reason: 'admin manual' } })}
                   onUploadImage={async (file) => {
-                    const path = `${id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
-                    const { error } = await supabase.storage.from('product-images').upload(path, file, {
-                      cacheControl: '3600',
-                      upsert: true,
-                    })
-                    if (error) throw new Error(error.message)
-                    await imageMut.mutateAsync({ data: { productId: id, storagePath: path, bucket: 'product-images' } })
+                    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                      throw new Error('اختر صورة JPEG أو PNG أو WebP')
+                    }
+                    if (file.size === 0 || file.size > 5 * 1024 * 1024) {
+                      throw new Error('حجم الصورة يجب أن يكون بين 1 بايت و5 ميغابايت')
+                    }
+                    const form = new FormData()
+                    form.set('productId', id)
+                    form.set('kind', 'primary')
+                    form.set('file', file)
+                    await imageMut.mutateAsync(form)
                   }}
                 />
               )
@@ -169,6 +182,7 @@ function ProductRow({
   const [price, setPrice] = useState(String(row.price ?? ''))
   const [stock, setStock] = useState(String(row.stock_balance ?? 0))
   const [busy, setBusy] = useState<null | string>(null)
+  const [imageUploaded, setImageUploaded] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const priceDirty = String(row.price ?? '') !== price
@@ -177,8 +191,8 @@ function ProductRow({
   return (
     <tr className="border-t hover:bg-muted/30">
       <td className="p-2">
-        {row.image_url ? (
-          <img src={row.image_url} alt="" className="w-10 h-10 rounded object-cover" />
+        {(row.primary_image_url || row.image_url) ? (
+          <img src={row.primary_image_url || row.image_url || undefined} alt="" className="w-10 h-10 rounded object-cover" />
         ) : (
           <div className="w-10 h-10 rounded bg-muted" />
         )}
@@ -223,6 +237,9 @@ function ProductRow({
         >
           {busy === 'image' ? 'يرفع…' : 'رفع صورة'}
         </button>
+        {imageUploaded && row.id && (
+          <Link to="/catalog/$productId" params={{ productId: row.id }} className="mr-2 text-xs text-primary underline">عرض صور المنتج</Link>
+        )}
         <button
           className="text-xs px-2 py-1 border rounded mr-1 text-destructive hover:bg-destructive/10"
           onClick={() => { void onDelete().catch((err) => alert((err as Error).message)) }}
@@ -232,13 +249,13 @@ function ProductRow({
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           className="hidden"
           onChange={async (e) => {
             const f = e.target.files?.[0]
             if (!f) return
             setBusy('image')
-            try { await onUploadImage(f) } catch (err) { alert((err as Error).message) } finally { setBusy(null); if (fileRef.current) fileRef.current.value = '' }
+            try { await onUploadImage(f); setImageUploaded(true) } catch (err) { alert((err as Error).message) } finally { setBusy(null); if (fileRef.current) fileRef.current.value = '' }
           }}
         />
       </td>
