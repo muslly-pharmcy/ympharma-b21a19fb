@@ -10,7 +10,7 @@ The repository contains an Android Capacitor project. GitHub Actions previously 
    - \`YMPHARMA_ANDROID_STORE_PASSWORD\`
    - \`YMPHARMA_ANDROID_KEY_ALIAS\`
    - \`YMPHARMA_ANDROID_KEY_PASSWORD\`
-3. Add repository/environment variable \`YMPHARMA_ANDROID_RELEASE_READY=true\` only when the secret set and review policy are ready. Until then, the release job is **skipped** by design.
+3. Add **repository-level** variable \`YMPHARMA_ANDROID_RELEASE_READY=true\` (the job-level gate must read it before entering the protected Environment) only when the secret set and review policy are ready. Until then, the release job is **skipped** by design.
 4. Run the manual workflow \`YmPharma Android owner-signed Release (manual only)\` with an increasing \`version_code\` and semver \`version_name\`. The workflow builds via Bun+Capacitor, signs APK/AAB using Gradle, checks the APK with \`apksigner\`, computes SHA256 hashes and uploads 14-day artifacts. No Play Store upload, auto-install or deployment occurs.
 5. Verify the signing certificate fingerprint against the independently recorded owner fingerprint and test installing/upgrading on real Android phones before commercial use.
 6. **Do not enable the release workflow for production until offline 12-hour POS quotas, financial transactions, RLS and the 500-way last-stock test are certified.**
