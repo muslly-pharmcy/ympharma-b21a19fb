@@ -18,17 +18,17 @@ permissions:
 jobs:
   android-release:
     # Must be enabled by the owner in repository Environment/Variables.
-    if: ${ vars.YMPHARMA_ANDROID_RELEASE_READY == 'true' }}
+    if: ${{ vars.YMPHARMA_ANDROID_RELEASE_READY == 'true' }}
     environment: ympharma-android-release
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      YMPHARMA_ANDROID_VERSION_CODE: ${ inputs.version_code }}
-      YMPHARMA_ANDROID_VERSION_NAME: ${ inputs.version_name }}
-      YMPHARMA_ANDROID_KEYSTORE_PATH: ${ runner.temp }}/ympharma-release-keystore.jks
-      YMPHARMA_ANDROID_STORE_PASSWORD: ${ secrets.YMPHARMA_ANDROID_STORE_PASSWORD }}
-      YMPHARMA_ANDROID_KEY_ALIAS: ${ secrets.YMPHARMA_ANDROID_KEY_ALIAS }}
-      YMPHARMA_ANDROID_KEY_PASSWORD: ${ secrets.YMPHARMA_ANDROID_KEY_PASSWORD }}
+      YMPHARMA_ANDROID_VERSION_CODE: ${{ inputs.version_code }}
+      YMPHARMA_ANDROID_VERSION_NAME: ${{ inputs.version_name }}
+      YMPHARMA_ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/ympharma-release-keystore.jks
+      YMPHARMA_ANDROID_STORE_PASSWORD: ${{ secrets.YMPHARMA_ANDROID_STORE_PASSWORD }}
+      YMPHARMA_ANDROID_KEY_ALIAS: ${{ secrets.YMPHARMA_ANDROID_KEY_ALIAS }}
+      YMPHARMA_ANDROID_KEY_PASSWORD: ${{ secrets.YMPHARMA_ANDROID_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -44,7 +44,7 @@ jobs:
       - name: Validate signing credentials and release version
         shell: bash
         env:
-          YMPHARMA_ANDROID_KEYSTORE_B64: ${ secrets.YMPHARMA_ANDROID_KEYSTORE_B64 }}
+          YMPHARMA_ANDROID_KEYSTORE_B64: ${{ secrets.YMPHARMA_ANDROID_KEYSTORE_B64 }}
         run: |
           set -euo pipefail
           for key in YMPHARMA_ANDROID_KEYSTORE_B64 YMPHARMA_ANDROID_STORE_PASSWORD YMPHARMA_ANDROID_KEY_ALIAS YMPHARMA_ANDROID_KEY_PASSWORD; do
