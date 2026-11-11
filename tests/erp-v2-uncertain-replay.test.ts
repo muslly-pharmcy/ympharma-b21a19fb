@@ -64,7 +64,8 @@ describe('ERP v2 uncertain-write and idempotency handler', () => {
     const run = vi.fn(async () => ({ status: 200, body: { applied: 1 } }))
     const response = await erpV2Handle(request(), path, run)
     expect(response.status).toBe(200)
-    expect(run).toHaveBeenCalledExactlyOnceWith(expect.anything(), expect.anything(), orgId)
+    expect(run).toHaveBeenCalledTimes(1)
+    expect(run).toHaveBeenCalledWith(expect.anything(), expect.anything(), orgId)
     expect(mocks.rpc).toHaveBeenCalledTimes(2)
     expect(mocks.rpc).toHaveBeenCalledWith(
       'erp2_finish_idempotency',
