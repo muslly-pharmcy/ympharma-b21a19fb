@@ -21,6 +21,27 @@ function safeParse(text: string): unknown {
   try { return JSON.parse(text) } catch { return undefined }
 }
 
+// Enforce maximum request bytes while streaming: a falsified Content-Length
+// cannot force unbounded buffering of patient or catalog request bodies.
+async function readBoundedBody(request: Request): Promise<string | null> {
+  const stream = request.body
+  if (!stream) return ''
+  const reader = stream.getReader()
+  const chunks: Uint8Array[] = []
+  let total = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    total += value.byteLength
+    if (total > 1_000_000) {
+      await reader.cancel()
+      return null
+    }
+    chunks.push(value)
+  }
+  return Buffer.concat(chunks.map(chunk => Buffer.from(chunk))).toString('utf8')
+}
+
 /**
  * ERP v2 is opt-in, and scoped to exactly ONE approved organization per
  * configured deployment. Never load server credentials from client env.
@@ -49,8 +70,14 @@ export async function erpV2Handle(request: Request, path: string, run: ErpV2Run)
   }
   if (request.method === 'GET' && key) return json(400, { error: 'unexpected_idempotency_key' })
 
-  const body = request.method === 'GET' ? '' : await request.text()
-  if (Buffer.byteLength(body, 'utf8') > 1_000_000) return json(413, { error: 'payload_too_large' })
+  let body = ''
+  try {
+    const received = request.method === 'GET' ? '' : await readBoundedBody(request)
+    if (received === null) return json(413, { error: 'payload_too_large' })
+    body = received
+  } catch {
+    return json(400, { error: 'unreadable_body' })
+  }
 
   const fields: ErpV2SignedFields = {
     timestamp: request.headers.get('x-erp-timestamp') ?? '',
@@ -83,12 +110,20 @@ export async function erpV2Handle(request: Request, path: string, run: ErpV2Run)
     }
   }
 
-  const { data: claim, error: claimError } = await db.rpc('erp2_claim_idempotency', {
-    p_org_id: orgId,
-    p_key: key,
-    p_hash: erpV2Sha256(body),
-    p_endpoint: path,
-  })
+  let claim: unknown
+  let claimError: unknown
+  try {
+    const result = await db.rpc('erp2_claim_idempotency', {
+      p_org_id: orgId,
+      p_key: key,
+      p_hash: erpV2Sha256(body),
+      p_endpoint: path,
+    })
+    claim = result.data
+    claimError = result.error
+  } catch {
+    return json(503, { error: 'erp_v2_idempotency_unavailable' })
+  }
   if (claimError || !claim || typeof claim !== 'object') {
     return json(503, { error: 'erp_v2_idempotency_unavailable' })
   }
@@ -121,11 +156,15 @@ export async function erpV2Handle(request: Request, path: string, run: ErpV2Run)
   // must NEVER be automatically reissued under the same key.
   if (result.status >= 500) return json(result.status, result.body)
 
-  const { error: finishError } = await db.rpc('erp2_finish_idempotency', {
-    p_org_id: orgId,
-    p_key: key,
-    p_response: { status: result.status, body: result.body },
-  })
-  if (finishError) return json(503, { error: 'erp_v2_completion_uncertain' })
+  try {
+    const { error: finishError } = await db.rpc('erp2_finish_idempotency', {
+      p_org_id: orgId,
+      p_key: key,
+      p_response: { status: result.status, body: result.body },
+    })
+    if (finishError) return json(503, { error: 'erp_v2_completion_uncertain' })
+  } catch {
+    return json(503, { error: 'erp_v2_completion_uncertain' })
+  }
   return json(result.status, result.body)
 }
