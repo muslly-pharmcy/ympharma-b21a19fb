@@ -70,7 +70,7 @@ export async function erpV2Handle(request: Request, path: string, run: ErpV2Run)
   }
   if (request.method === 'GET' && key) return json(400, { error: 'unexpected_idempotency_key' })
 
-  let body = ''
+  let body: string
   try {
     const received = request.method === 'GET' ? '' : await readBoundedBody(request)
     if (received === null) return json(413, { error: 'payload_too_large' })
