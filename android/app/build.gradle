@@ -7,6 +7,10 @@ def releaseStorePassword = System.getenv("YMPHARMA_ANDROID_STORE_PASSWORD")
 def releaseAlias = System.getenv("YMPHARMA_ANDROID_KEY_ALIAS")
 def releaseKeyPassword = System.getenv("YMPHARMA_ANDROID_KEY_PASSWORD")
 def hasReleaseSigning = [releaseKeystore, releaseStorePassword, releaseAlias, releaseKeyPassword].every { it != null && !it.isEmpty() }
+def requestedRelease = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+if (requestedRelease && !hasReleaseSigning) {
+    throw new GradleException("YmPharma Android Release signing configuration is missing")
+}
 
 android {
     namespace = "com.ympharma.app"
