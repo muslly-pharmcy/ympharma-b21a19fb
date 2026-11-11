@@ -7,6 +7,8 @@ def releaseStorePassword = System.getenv("YMPHARMA_ANDROID_STORE_PASSWORD")
 def releaseAlias = System.getenv("YMPHARMA_ANDROID_KEY_ALIAS")
 def releaseKeyPassword = System.getenv("YMPHARMA_ANDROID_KEY_PASSWORD")
 def hasReleaseSigning = [releaseKeystore, releaseStorePassword, releaseAlias, releaseKeyPassword].every { it != null && !it.isEmpty() }
+def releaseVersionCode = (System.getenv("YMPHARMA_ANDROID_VERSION_CODE") ?: "1").toInteger()
+def releaseVersionName = System.getenv("YMPHARMA_ANDROID_VERSION_NAME") ?: "1.0"
 def requestedRelease = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
 if (requestedRelease && !hasReleaseSigning) {
     throw new GradleException("YmPharma Android Release signing configuration is missing")
@@ -19,8 +21,8 @@ android {
         applicationId "com.ympharma.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (System.getenv("YMPHARMA_ANDROID_VERSION_CODE") ?: "1").toInteger()
-        versionName (System.getenv("YMPHARMA_ANDROID_VERSION_NAME") ?: "1.0")
+        versionCode releaseVersionCode
+        versionName releaseVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
