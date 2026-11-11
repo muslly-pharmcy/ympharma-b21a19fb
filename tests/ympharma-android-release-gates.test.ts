@@ -13,7 +13,9 @@ describe('Android owner-controlled release path', () => {
   it('gates release behind owner environment, manual dispatch and secret readiness', () => {
     expect(workflow).toContain('workflow_dispatch:')
     expect(workflow).not.toContain('push:')
-    expect(workflow).toContain("vars.YMPHARMA_ANDROID_RELEASE_READY == 'true'")
+    expect(workflow).toContain("if: ${{ vars.YMPHARMA_ANDROID_RELEASE_READY == 'true' }}")
+    expect(workflow).toContain('${{ secrets.YMPHARMA_ANDROID_KEYSTORE_B64 }}')
+    expect(workflow).toContain('${{ runner.temp }}')
     expect(workflow).toContain('environment: ympharma-android-release')
     expect(workflow).toContain('apksigner')
   })
