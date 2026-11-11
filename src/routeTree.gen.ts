@@ -810,6 +810,22 @@ const ApiPublicErpV1OrdersPendingRoute =
     path: '/api/public/erp/v1/orders/pending',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicErpV2StockRoute = ApiPublicErpV2StockRouteImport.update({
+  id: '/api/public/erp/v2/stock',
+  path: '/api/public/erp/v2/stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicErpV2OrdersAckRoute = ApiPublicErpV2OrdersAckRouteImport.update({
+  id: '/api/public/erp/v2/orders/ack',
+  path: '/api/public/erp/v2/orders/ack',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicErpV2OrdersPendingRoute =
+  ApiPublicErpV2OrdersPendingRouteImport.update({
+    id: '/api/public/erp/v2/orders/pending',
+    path: '/api/public/erp/v2/orders/pending',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
