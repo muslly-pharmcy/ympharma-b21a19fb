@@ -6,8 +6,7 @@ def releaseKeystore = System.getenv("YMPHARMA_ANDROID_KEYSTORE_PATH")
 def releaseStorePassword = System.getenv("YMPHARMA_ANDROID_STORE_PASSWORD")
 def releaseAlias = System.getenv("YMPHARMA_ANDROID_KEY_ALIAS")
 def releaseKeyPassword = System.getenv("YMPHARMA_ANDROID_KEY_PASSWORD")
-def hasReleaseSigning = [releaseKeystore, releaseStorePassword, releaseAlias, releaseKeyPassword]
-    .every { it != null && !it.isEmpty() }
+def hasReleaseSigning = [releaseKeystore, releaseStorePassword, releaseAlias, releaseKeyPassword].every { it != null && !it.isEmpty() }
 
 android {
     namespace = "com.ympharma.app"
