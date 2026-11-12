@@ -8,10 +8,10 @@ import { extname, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const COLUMN_ALIASES = {
-  name: ['trade_name', 'name_ar', 'name', 'product_name', 'اسم الصنف', 'الاسم التجاري'],
+  name: ['trade_name', 'commercial_name_ar', 'name_ar', 'name', 'product_name', 'اسم الصنف', 'الاسم التجاري'],
   generic: ['scientific_name', 'generic_name', 'active_ingredient', 'المادة العلمية', 'الاسم العلمي'],
   barcode: ['barcode', 'bar_code', 'ean', 'باركود', 'الباركود'],
-  manufacturer: ['manufacturer', 'company', 'الشركة المصنعة', 'الشركة'],
+  manufacturer: ['manufacturer', 'company_name', 'company', 'الشركة المصنعة', 'الشركة'],
   strength: ['strength', 'concentration', 'التركيز'],
   form: ['dosage_form', 'form', 'الشكل الصيدلاني'],
   pack: ['pack_unit', 'packaging', 'unit', 'وحدة العبوة', 'الوحدة', 'العبوة'],
@@ -84,6 +84,7 @@ export function reviewMedicineRows(rows) {
     const barcode = asciiNumber(field(row, 'barcode')).replace(/\s/g, '')
     const pack = normalizeArabic(field(row, 'pack'))
     if (!name) add(record, 'BLOCK', 'MISSING_TRADE_NAME')
+    else if (!/[\p{L}\p{N}]/u.test(name)) add(record, 'BLOCK', 'INVALID_TRADE_NAME')
     if (!generic) add(record, 'REVIEW', 'MISSING_GENERIC_NAME')
     if (!manufacturer) add(record, 'REVIEW', 'MISSING_MANUFACTURER')
     if (!pack) add(record, 'REVIEW', 'MISSING_PACK_UNIT')
@@ -179,8 +180,8 @@ export async function readMedicineSource(inputPath) {
   if (ext === '.csv') return parseCsv(readFileSync(absolute, 'utf8'))
   if (ext === '.json') {
     const input = JSON.parse(readFileSync(absolute, 'utf8'))
-    const rows = Array.isArray(input) ? input : input.rows ?? input.records
-    if (!Array.isArray(rows)) throw new Error('JSON must contain array, rows[] or records[]')
+    const rows = Array.isArray(input) ? input : input.rows ?? input.records ?? input.products
+    if (!Array.isArray(rows)) throw new Error('JSON must contain array, rows[], records[] or products[]')
     return rows
   }
   if (ext === '.xlsx' || ext === '.xls') {
