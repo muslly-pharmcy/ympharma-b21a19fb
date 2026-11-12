@@ -1,5 +1,8 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { normalizeArabic, parseCsv, reviewMedicineRows } from '../scripts/catalog/review-medicine-import.mjs'
+import { normalizeArabic, parseCsv, readMedicineSource, reviewMedicineRows } from '../scripts/catalog/review-medicine-import.mjs'
 
 function validRow(overrides = {}) {
   return {
@@ -59,5 +62,41 @@ describe('review-only medicine import gate', () => {
     expect(r).toHaveLength(2)
     expect(r[0].name_ar).toBe('اسم; تجاري')
     expect(r[1].name_ar).toContain('آخر')
+  })
+})
+
+describe('recovered catalog source compatibility', () => {
+  it('recognizes source trade name and company without inventing a barcode', () => {
+    const report = reviewMedicineRows([{
+      commercial_name_ar: 'اسم دواء', company_name: 'شركة المصدر',
+      scientific_name: 'Example', packaging: 'box', item_code: '0018215',
+    }])
+    const codes = report.rows[0].findings.map(x => x.code)
+    expect(codes).not.toContain('MISSING_TRADE_NAME')
+    expect(codes).not.toContain('MISSING_MANUFACTURER')
+    expect(codes).toContain('MISSING_BARCODE')
+    expect(report.safe_to_import_automatically).toBe(false)
+  })
+  it('blocks names made only of punctuation while preserving valid Unicode names', () => {
+    const report = reviewMedicineRows(['..', 'ــ', 'دواء', 'Paracetamol 500'].map(trade_name =>
+      validRow({ trade_name, barcode: '' })))
+    expect(report.summary.blocked).toBe(2)
+    expect(report.rows[0].findings.map(x => x.code)).toContain('INVALID_TRADE_NAME')
+    expect(report.rows[1].findings.map(x => x.code)).toContain('MISSING_TRADE_NAME')
+  })
+  it('reads the archived public products envelope without promoting reference prices', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'catalog-products-'))
+    try {
+      const path = join(dir, 'catalog.json')
+      writeFileSync(path, JSON.stringify({ products: [{
+        name: 'صنف', displayed_price_reference: '١٦٬١٢٥ ر.ي', price_validated: false,
+      }] }))
+      const rows = await readMedicineSource(path)
+      expect(rows).toHaveLength(1)
+      expect(reviewMedicineRows(rows).rows[0].findings.map(x => x.code))
+        .toContain('MISSING_SELLING_PRICE')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })
