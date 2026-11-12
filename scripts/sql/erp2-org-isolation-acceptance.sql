@@ -119,6 +119,67 @@ END $test$;
 
 -- Real service_role read to catch mistaken grants, RLS, and SECURITY INVOKER boundaries.
 SET ROLE service_role;
+-- Missing or malformed completion status must never mark an uncertain write done.
+-- Run through the actual service role, not the database owner.
+DO $completion$
+DECLARE
+  org_a uuid := '11111111-1111-4111-8111-111111111111';
+  invalid_response jsonb;
+  result jsonb;
+  rejected integer := 0;
+BEGIN
+  result := public.erp2_claim_idempotency(
+    org_a, 'completion-guard-0001', repeat('c',64), '/api/public/erp/v2/stock'
+  );
+  IF result->>'state' <> 'new' THEN RAISE EXCEPTION 'Completion fixture claim not created'; END IF;
+
+  FOR invalid_response IN
+    SELECT payload FROM (VALUES
+      (NULL::jsonb), ('null'::jsonb), ('[]'::jsonb), ('true'::jsonb),
+      ('{}'::jsonb), ('{"status":null}'::jsonb), ('{"status":"200"}'::jsonb),
+      ('{"status":200.5}'::jsonb), ('{"status":true}'::jsonb),
+      ('{"status":{}}'::jsonb), ('{"status":199}'::jsonb),
+      ('{"status":500}'::jsonb), ('{"status":999999999999999999999999}'::jsonb)
+    ) AS invalid(payload)
+  LOOP
+    BEGIN
+      PERFORM public.erp2_finish_idempotency(org_a, 'completion-guard-0001', invalid_response);
+      RAISE EXCEPTION 'INVALID_COMPLETION_ACCEPTED: %', invalid_response;
+    EXCEPTION WHEN invalid_parameter_value THEN
+      rejected := rejected + 1;
+    END;
+    IF NOT EXISTS (
+      SELECT 1 FROM public.erp2_idempotency
+      WHERE org_id = org_a AND idempotency_key = 'completion-guard-0001'
+        AND status = 'processing' AND response IS NULL AND completed_at IS NULL
+    ) THEN RAISE EXCEPTION 'Invalid completion changed the pending claim'; END IF;
+  END LOOP;
+  IF rejected <> 13 THEN RAISE EXCEPTION 'Expected 13 rejected completions, got %', rejected; END IF;
+
+  PERFORM public.erp2_finish_idempotency(
+    org_a, 'completion-guard-0001', '{"status":200,"body":{"ok":true}}'::jsonb
+  );
+  result := public.erp2_claim_idempotency(
+    org_a, 'completion-guard-0001', repeat('c',64), '/api/public/erp/v2/stock'
+  );
+  IF result->>'state' <> 'replay' OR result->'response'->'body'->>'ok' <> 'true'
+  THEN RAISE EXCEPTION 'Valid completion did not remain replayable'; END IF;
+
+  -- A completed claim is immutable through the completion RPC.
+  BEGIN
+    PERFORM public.erp2_finish_idempotency(
+      org_a, 'completion-guard-0001', '{"status":400,"body":{"error":"changed"}}'::jsonb
+    );
+    RAISE EXCEPTION 'COMPLETED_RESPONSE_OVERWRITTEN';
+  EXCEPTION WHEN no_data_found THEN NULL;
+  END;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.erp2_idempotency
+    WHERE org_id = org_a AND idempotency_key = 'completion-guard-0001'
+      AND status = 'done' AND response = '{"status":200,"body":{"ok":true}}'::jsonb
+  ) THEN RAISE EXCEPTION 'Completed response changed'; END IF;
+END $completion$;
+
 DO $test$
 DECLARE n int;
 BEGIN
