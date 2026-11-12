@@ -55,3 +55,9 @@ All \`catalog_products\` used in mapped snapshots must be **explicitly assigned 
 5. Staged purchase → FEFO → sale → return → ledger/closing, 500-way stock contention test and 12-hour offline POS test.
 6. Database backup/restore, secret rotation, branch/domain and Cloudflare/Vercel source-of-truth approval.
 7. Only after these: decide on applying 0006 to a supported **non-production Supabase branch** and enabling the v2 kill switch in that environment. No live secrets, domain routing or production stock changes are part of this PR.
+
+## Reconciliation pagination
+
+GET /api/public/erp/v2/reconcile accepts only offset (default 0) and limit (1–500, default 500). Sign the full path and exact query on every request. The response retains organizationId and rows and adds pagination: offset, limit, total, hasMore, nextOffset. Continue with nextOffset until null; never assume one response is the complete catalog. Each page uses exact tenant-filtered count and stable item/branch ordering. The next offset advances by the returned row count, including when the database's configured cap is smaller than the requested page size. Missing counts, failed queries and unexpectedly empty intermediate pages fail visibly.
+
+This is a live ordered view, not a transactionally consistent snapshot: pause mapping changes during a full comparison or repeat the pass and reconcile source versions. These pages contain retail snapshots only; the connector is still disabled by default. The regression suite traverses 6,390 synthetic rows under a 200-row server cap; it does not validate or import the original medicine dataset.
