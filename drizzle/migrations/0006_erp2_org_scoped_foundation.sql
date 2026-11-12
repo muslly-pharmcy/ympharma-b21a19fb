@@ -145,9 +145,127 @@ CREATE FUNCTION public.erp2_finish_idempotency(
 SET search_path = ''
 AS $$
 BEGIN
-  IF p_response IS NULL
-     OR jsonb_typeof(p_response) <> 'object'
-     OR (p_response->>'status')::integer NOT BETWEEN 200 AND 499 THEN
+  -- SQL NULL comparisons do not evaluate to true: missing/null status must
+  -- be rejected explicitly. Check JSON type and digits before any cast so
+  -- strings, fractions, booleans and oversized numbers cannot complete a claim.
+  IF jsonb_typeof(p_response) IS DISTINCT FROM 'object'
+     OR jsonb_typeof(p_response->'status') IS DISTINCT FROM 'number'
+     OR COALESCE(p_response->>'status', '') !~ '^[2-4][0-9]{2}
+    RAISE EXCEPTION 'ERP_INVALID_IDEMPOTENCY_COMPLETION' USING ERRCODE = '22023';
+  END IF;
+  UPDATE public.erp2_idempotency
+     SET status = 'done', response = p_response, completed_at = now()
+   WHERE org_id = p_org_id AND idempotency_key = p_key AND status = 'processing';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'ERP_IDEMPOTENCY_CLAIM_NOT_FOUND' USING ERRCODE = 'P0002';
+  END IF;
+END $$;
+
+-- Data is a website-facing snapshot ONLY: no physical batch, order, sale,
+-- purchase_cost, or financial journal table is touched by this RPC.
+CREATE FUNCTION public.erp2_apply_stock_snapshots(
+  p_org_id uuid, p_rows jsonb
+) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER
+SET search_path = ''
+AS $$
+DECLARE
+  r jsonb;
+  v_applied integer := 0;
+  v_stale integer := 0;
+  v_affected integer;
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM public.organizations o
+    WHERE o.id = p_org_id AND o.status = 'active'
+  ) THEN
+    RAISE EXCEPTION 'ERP_ORGANIZATION_INACTIVE' USING ERRCODE = '22023';
+  END IF;
+  IF jsonb_typeof(p_rows) IS DISTINCT FROM 'array'
+     OR jsonb_array_length(p_rows) NOT BETWEEN 1 AND 500 THEN
+    RAISE EXCEPTION 'ERP_INVALID_BATCH' USING ERRCODE = '22023';
+  END IF;
+
+  -- Order all rows deterministically to reduce concurrent upsert deadlocks.
+  FOR r IN
+    SELECT value FROM jsonb_array_elements(p_rows) AS source(value)
+     ORDER BY value->>'external_item', value->>'external_branch', value->>'source_version'
+  LOOP
+    IF jsonb_typeof(r) IS DISTINCT FROM 'object'
+       OR COALESCE(r->>'external_item','') = ''
+       OR length(r->>'external_item') > 120
+       OR COALESCE(r->>'external_branch','') = ''
+       OR length(r->>'external_branch') > 120
+       OR COALESCE(r->>'unit_code','') = ''
+       OR length(r->>'unit_code') > 20
+       OR COALESCE(r->>'source_version','') !~ '^[0-9]{1,15}$'
+       OR COALESCE(r->>'qty_available','') !~ '^[0-9]{1,11}(\.[0-9]{1,4})?$'
+       OR (r->>'currency') NOT IN ('YER','SAR','USD')
+       OR ((r ? 'selling_price') AND r->>'selling_price' IS NOT NULL
+           AND r->>'selling_price' !~ '^[0-9]{1,11}(\.[0-9]{1,4})?$')
+       OR ((r ? 'official_reference_price') AND r->>'official_reference_price' IS NOT NULL
+           AND r->>'official_reference_price' !~ '^[0-9]{1,11}(\.[0-9]{1,4})?$')
+    THEN
+      RAISE EXCEPTION 'ERP_INVALID_STOCK_ROW' USING ERRCODE = '22023';
+    END IF;
+
+    -- Reject unmapped and other-org identities, and any unreviewed or
+    -- unpublished product; global catalog products require explicit approval
+    -- and organization assignment before ERP synchronization.
+    IF NOT EXISTS (
+      SELECT 1 FROM public.erp2_item_map im
+      JOIN public.catalog_products cp ON cp.id = im.product_id
+      JOIN public.erp2_branch_map bm ON bm.org_id = im.org_id
+      JOIN public.wh_warehouses wh ON wh.id = bm.warehouse_id
+      WHERE im.org_id = p_org_id
+        AND im.external_item = r->>'external_item'
+        AND im.unit_code = r->>'unit_code'
+        AND cp.organization_id = p_org_id
+        AND cp.status::text = 'approved' AND cp.is_public = true
+        AND bm.external_branch = r->>'external_branch'
+        AND wh.organization_id = p_org_id AND wh.is_active = true
+    ) THEN
+      RAISE EXCEPTION 'ERP_ORGANIZATION_MAPPING_NOT_APPROVED'
+        USING ERRCODE = '23503';
+    END IF;
+
+    INSERT INTO public.erp2_stock_snapshots AS snapshot(
+      org_id,external_item,external_branch,source_version,
+      qty_available,unit_code,selling_price,official_reference_price,currency
+    ) VALUES (
+      p_org_id,r->>'external_item',r->>'external_branch',
+      (r->>'source_version')::bigint,(r->>'qty_available')::numeric,
+      r->>'unit_code',(r->>'selling_price')::numeric,
+      (r->>'official_reference_price')::numeric,r->>'currency'
+    )
+    ON CONFLICT (org_id,external_item,external_branch) DO UPDATE
+      SET source_version = excluded.source_version,
+          qty_available = excluded.qty_available,
+          unit_code = excluded.unit_code,
+          selling_price = excluded.selling_price,
+          official_reference_price = excluded.official_reference_price,
+          currency = excluded.currency,
+          applied_at = now()
+      WHERE snapshot.source_version < excluded.source_version;
+    GET DIAGNOSTICS v_affected = ROW_COUNT;
+    IF v_affected = 1 THEN v_applied := v_applied + 1;
+    ELSE v_stale := v_stale + 1; END IF;
+  END LOOP;
+  RETURN jsonb_build_object('applied',v_applied,'stale',v_stale);
+END $$;
+
+REVOKE ALL ON FUNCTION
+  public.erp2_claim_idempotency(uuid,text,text,text),
+  public.erp2_finish_idempotency(uuid,text,jsonb),
+  public.erp2_apply_stock_snapshots(uuid,jsonb)
+  FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION
+  public.erp2_claim_idempotency(uuid,text,text,text),
+  public.erp2_finish_idempotency(uuid,text,jsonb),
+  public.erp2_apply_stock_snapshots(uuid,jsonb)
+  TO service_role;
+
+COMMIT;
+ THEN
     RAISE EXCEPTION 'ERP_INVALID_IDEMPOTENCY_COMPLETION' USING ERRCODE = '22023';
   END IF;
   UPDATE public.erp2_idempotency
