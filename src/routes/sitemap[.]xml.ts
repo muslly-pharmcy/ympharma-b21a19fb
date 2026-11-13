@@ -19,11 +19,10 @@ export const Route = createFileRoute('/sitemap.xml')({
           { path: '/', changefreq: 'daily', priority: '1.0' },
           { path: '/shop', changefreq: 'daily', priority: '0.9' },
           { path: '/about', changefreq: 'monthly', priority: '0.7' },
+          { path: '/policies', changefreq: 'monthly', priority: '0.5' },
           { path: '/contact', changefreq: 'monthly', priority: '0.7' },
           { path: '/request', changefreq: 'monthly', priority: '0.8' },
-          { path: '/search', changefreq: 'weekly', priority: '0.6' },
           { path: '/ai-chat', changefreq: 'monthly', priority: '0.5' },
-          { path: '/auth', changefreq: 'yearly', priority: '0.3' },
           // Local SEO landing
           { path: '/delivery/aden', changefreq: 'monthly', priority: '0.9' },
           // Interactive medical tools
