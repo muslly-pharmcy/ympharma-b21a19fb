@@ -61,9 +61,8 @@ describe('ERP v2 full-catalog reconciliation', () => {
   })
   it('does not represent a failed database read as an empty complete catalog', async () => {
     const { db, query } = database(20)
-    query.range.mockResolvedValueOnce({ data: [], error: null, count: 20 })
+    query.range.mockResolvedValueOnce({ data: null, error: { message: 'read failed' }, count: null })
     const result = await readErpV2Reconciliation(request('?offset=20'), db, ORG)
-    expect(result.status).toBe(200)
-    expect((result.body as Page).pagination.nextOffset).toBeNull()
+    expect(result.status).toBe(503)
   })
 })
