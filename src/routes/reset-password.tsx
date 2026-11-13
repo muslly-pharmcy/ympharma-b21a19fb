@@ -5,7 +5,10 @@ import { supabase } from '@/integrations/supabase/client'
 
 export const Route = createFileRoute('/reset-password')({
   head: () => ({
-    meta: [{ title: 'إعادة تعيين كلمة المرور — MUSLLY AI OS' }],
+    meta: [
+      { title: 'إعادة تعيين كلمة المرور — صيدلية المصلي' },
+      { name: 'robots', content: 'noindex, nofollow, noarchive' },
+    ],
   }),
   component: ResetPasswordPage,
 })
