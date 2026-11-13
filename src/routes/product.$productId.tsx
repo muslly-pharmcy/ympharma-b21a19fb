@@ -34,6 +34,7 @@ export const Route = createFileRoute('/product/$productId')({
       return {
         meta: [
           { title: 'تفاصيل المنتج — صيدلية المصلي' },
+          { name: 'robots', content: 'noindex, follow' },
           { name: 'description', content: 'تفاصيل المنتج، السعر، والسياسات.' },
           { property: 'og:title', content: 'تفاصيل المنتج — صيدلية المصلي' },
           { property: 'og:description', content: 'تفاصيل المنتج، السعر، والسياسات.' },
@@ -84,17 +85,8 @@ export const Route = createFileRoute('/product/$productId')({
             description: description.slice(0, 300),
             ...(product.brand ? { brand: { '@type': 'Brand', name: product.brand } } : {}),
             ...(image ? { image: [image] } : {}),
-            ...(price !== null
-              ? {
-                  offers: {
-                    '@type': 'Offer',
-                    price,
-                    priceCurrency: 'YER',
-                    url,
-                    availability: 'https://schema.org/InStock',
-                  },
-                }
-              : {}),
+            // The regulatory reference price is not a confirmed selling offer.
+            // Do not emit price/availability Offer schema until checkout has a real quote.
           }),
         },
       ],
