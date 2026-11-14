@@ -27,9 +27,9 @@ export function buildSrcSet(url: string): string {
   return IMAGE_WIDTHS.map((w) => `${url.replace(/([?&]w=)\d+/, `$1${w}`)} ${w}w`).join(', ')
 }
 
-/** Low-bandwidth default: pick the ~400px variant when available. */
+/** Low-bandwidth default: pick the 240px variant for compact mobile product cards. */
 export function lowBandwidthSrc(url: string): string {
-  return /[?&]w=\d+/.test(url) ? url.replace(/([?&]w=)\d+/, '$1400') : url
+  return /[?&]w=\d+/.test(url) ? url.replace(/([?&]w=)\d+/, '$1240') : url
 }
 
 export type ProductImageBucket =
