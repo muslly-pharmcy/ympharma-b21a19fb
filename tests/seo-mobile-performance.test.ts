@@ -20,6 +20,15 @@ describe('storefront SEO and mobile loading guards', () => {
     expect(backdrop).toContain('!reducedMotion.matches')
   })
 
+  it('loads the prescription upload flow only when the dialog is opened', () => {
+    const storefront = read('src/pages/Storefront.tsx')
+    expect(storefront).toContain("import('@/components/store/PrescriptionUploadModal')")
+    expect(storefront).toContain('lazy(() =>')
+    expect(storefront).toContain('{rxOpen && (')
+    expect(storefront).toContain('<Suspense')
+    expect(storefront).not.toContain("import { PrescriptionUploadModal } from")
+  })
+
   it('requests small responsive images where the remote image URL supports widths', () => {
     const url = 'https://images.unsplash.com/photo-123?auto=format&w=800&q=68'
     expect(lowBandwidthSrc(url)).toContain('w=240')
