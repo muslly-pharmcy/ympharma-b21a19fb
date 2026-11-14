@@ -131,6 +131,10 @@ import { Route as ApiPublicErpV1ReconcileRouteImport } from './routes/api/public
 import { Route as ApiPublicErpV1StockRouteImport } from './routes/api/public/erp/v1/stock'
 import { Route as ApiPublicErpV1OrdersAckRouteImport } from './routes/api/public/erp/v1/orders.ack'
 import { Route as ApiPublicErpV1OrdersPendingRouteImport } from './routes/api/public/erp/v1/orders.pending'
+import { Route as ApiPublicErpV2ReconcileRouteImport } from './routes/api/public/erp/v2/reconcile'
+import { Route as ApiPublicErpV2StockRouteImport } from './routes/api/public/erp/v2/stock'
+import { Route as ApiPublicErpV2OrdersAckRouteImport } from './routes/api/public/erp/v2/orders.ack'
+import { Route as ApiPublicErpV2OrdersPendingRouteImport } from './routes/api/public/erp/v2/orders.pending'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -785,6 +789,11 @@ const ApiPublicErpV1ReconcileRoute = ApiPublicErpV1ReconcileRouteImport.update({
   path: '/api/public/erp/v1/reconcile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicErpV2ReconcileRoute = ApiPublicErpV2ReconcileRouteImport.update({
+  id: '/api/public/erp/v2/reconcile',
+  path: '/api/public/erp/v2/reconcile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicErpV1StockRoute = ApiPublicErpV1StockRouteImport.update({
   id: '/api/public/erp/v1/stock',
   path: '/api/public/erp/v1/stock',
@@ -799,6 +808,22 @@ const ApiPublicErpV1OrdersPendingRoute =
   ApiPublicErpV1OrdersPendingRouteImport.update({
     id: '/api/public/erp/v1/orders/pending',
     path: '/api/public/erp/v1/orders/pending',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicErpV2StockRoute = ApiPublicErpV2StockRouteImport.update({
+  id: '/api/public/erp/v2/stock',
+  path: '/api/public/erp/v2/stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicErpV2OrdersAckRoute = ApiPublicErpV2OrdersAckRouteImport.update({
+  id: '/api/public/erp/v2/orders/ack',
+  path: '/api/public/erp/v2/orders/ack',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicErpV2OrdersPendingRoute =
+  ApiPublicErpV2OrdersPendingRouteImport.update({
+    id: '/api/public/erp/v2/orders/pending',
+    path: '/api/public/erp/v2/orders/pending',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -924,6 +949,10 @@ export interface FileRoutesByFullPath {
   '/api/public/erp/v1/stock': typeof ApiPublicErpV1StockRoute
   '/api/public/erp/v1/orders/ack': typeof ApiPublicErpV1OrdersAckRoute
   '/api/public/erp/v1/orders/pending': typeof ApiPublicErpV1OrdersPendingRoute
+  '/api/public/erp/v2/reconcile': typeof ApiPublicErpV2ReconcileRoute
+  '/api/public/erp/v2/stock': typeof ApiPublicErpV2StockRoute
+  '/api/public/erp/v2/orders/ack': typeof ApiPublicErpV2OrdersAckRoute
+  '/api/public/erp/v2/orders/pending': typeof ApiPublicErpV2OrdersPendingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1045,6 +1074,10 @@ export interface FileRoutesByTo {
   '/api/public/erp/v1/stock': typeof ApiPublicErpV1StockRoute
   '/api/public/erp/v1/orders/ack': typeof ApiPublicErpV1OrdersAckRoute
   '/api/public/erp/v1/orders/pending': typeof ApiPublicErpV1OrdersPendingRoute
+  '/api/public/erp/v2/reconcile': typeof ApiPublicErpV2ReconcileRoute
+  '/api/public/erp/v2/stock': typeof ApiPublicErpV2StockRoute
+  '/api/public/erp/v2/orders/ack': typeof ApiPublicErpV2OrdersAckRoute
+  '/api/public/erp/v2/orders/pending': typeof ApiPublicErpV2OrdersPendingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1170,6 +1203,10 @@ export interface FileRoutesById {
   '/api/public/erp/v1/stock': typeof ApiPublicErpV1StockRoute
   '/api/public/erp/v1/orders/ack': typeof ApiPublicErpV1OrdersAckRoute
   '/api/public/erp/v1/orders/pending': typeof ApiPublicErpV1OrdersPendingRoute
+  '/api/public/erp/v2/reconcile': typeof ApiPublicErpV2ReconcileRoute
+  '/api/public/erp/v2/stock': typeof ApiPublicErpV2StockRoute
+  '/api/public/erp/v2/orders/ack': typeof ApiPublicErpV2OrdersAckRoute
+  '/api/public/erp/v2/orders/pending': typeof ApiPublicErpV2OrdersPendingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1295,6 +1332,10 @@ export interface FileRouteTypes {
     | '/api/public/erp/v1/stock'
     | '/api/public/erp/v1/orders/ack'
     | '/api/public/erp/v1/orders/pending'
+    | '/api/public/erp/v2/reconcile'
+    | '/api/public/erp/v2/stock'
+    | '/api/public/erp/v2/orders/ack'
+    | '/api/public/erp/v2/orders/pending'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1416,6 +1457,10 @@ export interface FileRouteTypes {
     | '/api/public/erp/v1/stock'
     | '/api/public/erp/v1/orders/ack'
     | '/api/public/erp/v1/orders/pending'
+    | '/api/public/erp/v2/reconcile'
+    | '/api/public/erp/v2/stock'
+    | '/api/public/erp/v2/orders/ack'
+    | '/api/public/erp/v2/orders/pending'
   id:
     | '__root__'
     | '/'
@@ -1540,6 +1585,10 @@ export interface FileRouteTypes {
     | '/api/public/erp/v1/stock'
     | '/api/public/erp/v1/orders/ack'
     | '/api/public/erp/v1/orders/pending'
+    | '/api/public/erp/v2/reconcile'
+    | '/api/public/erp/v2/stock'
+    | '/api/public/erp/v2/orders/ack'
+    | '/api/public/erp/v2/orders/pending'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1591,6 +1640,10 @@ export interface RootRouteChildren {
   ApiPublicErpV1StockRoute: typeof ApiPublicErpV1StockRoute
   ApiPublicErpV1OrdersAckRoute: typeof ApiPublicErpV1OrdersAckRoute
   ApiPublicErpV1OrdersPendingRoute: typeof ApiPublicErpV1OrdersPendingRoute
+  ApiPublicErpV2ReconcileRoute: typeof ApiPublicErpV2ReconcileRoute
+  ApiPublicErpV2StockRoute: typeof ApiPublicErpV2StockRoute
+  ApiPublicErpV2OrdersAckRoute: typeof ApiPublicErpV2OrdersAckRoute
+  ApiPublicErpV2OrdersPendingRoute: typeof ApiPublicErpV2OrdersPendingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2449,6 +2502,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicErpV1OrdersPendingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/erp/v2/reconcile': {
+      id: '/api/public/erp/v2/reconcile'
+      path: '/api/public/erp/v2/reconcile'
+      fullPath: '/api/public/erp/v2/reconcile'
+      preLoaderRoute: typeof ApiPublicErpV2ReconcileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/erp/v2/stock': {
+      id: '/api/public/erp/v2/stock'
+      path: '/api/public/erp/v2/stock'
+      fullPath: '/api/public/erp/v2/stock'
+      preLoaderRoute: typeof ApiPublicErpV2StockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/erp/v2/orders/ack': {
+      id: '/api/public/erp/v2/orders/ack'
+      path: '/api/public/erp/v2/orders/ack'
+      fullPath: '/api/public/erp/v2/orders/ack'
+      preLoaderRoute: typeof ApiPublicErpV2OrdersAckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/erp/v2/orders/pending': {
+      id: '/api/public/erp/v2/orders/pending'
+      path: '/api/public/erp/v2/orders/pending'
+      fullPath: '/api/public/erp/v2/orders/pending'
+      preLoaderRoute: typeof ApiPublicErpV2OrdersPendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2792,6 +2873,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicErpV1StockRoute: ApiPublicErpV1StockRoute,
   ApiPublicErpV1OrdersAckRoute: ApiPublicErpV1OrdersAckRoute,
   ApiPublicErpV1OrdersPendingRoute: ApiPublicErpV1OrdersPendingRoute,
+  ApiPublicErpV2ReconcileRoute: ApiPublicErpV2ReconcileRoute,
+  ApiPublicErpV2StockRoute: ApiPublicErpV2StockRoute,
+  ApiPublicErpV2OrdersAckRoute: ApiPublicErpV2OrdersAckRoute,
+  ApiPublicErpV2OrdersPendingRoute: ApiPublicErpV2OrdersPendingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
