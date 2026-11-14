@@ -203,9 +203,9 @@ function ProductCard({ product }: { product: CatalogProduct }) {
         rounded="rounded-xl"
         className="mb-3 aspect-square w-full"
       />
-      <h3 className="line-clamp-2 text-sm font-semibold text-gray-900">
+      <h2 className="line-clamp-2 text-sm font-semibold text-gray-900">
         {product.name_ar}
-      </h3>
+      </h2>
       <p className="mt-1 line-clamp-1 text-xs text-gray-500">
         {[product.brand, product.strength].filter(Boolean).join(' · ') || '—'}
       </p>
