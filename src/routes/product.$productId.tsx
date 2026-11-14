@@ -240,10 +240,11 @@ function ProductDetailPage() {
             </div>
 
             <div className="rounded-2xl bg-primary/5 p-4">
-              <p className="text-xs text-gray-600">السعر</p>
+              <p className="text-xs text-gray-600">السعر المرجعي الرسمي — ليس سعر البيع</p>
               <p className="mt-1 text-3xl font-bold text-primary">
-                {price !== null ? `${price.toLocaleString('ar-EG')} ر.ي` : 'يُطلب السعر'}
+                {price !== null ? `${price.toLocaleString('ar-EG')} ر.ي` : 'السعر المرجعي غير متاح'}
               </p>
+              <p className="mt-2 text-xs leading-5 text-gray-600">يُؤكَّد سعر البيع الفعلي وتوفر الصنف مع الصيدلية عند مراجعة الطلب.</p>
             </div>
 
             {product.requires_prescription ? (
@@ -296,7 +297,6 @@ function ProductDetailPage() {
             <PharmacologyPanel
               product={product}
               displayName={product.name_ar ?? product.name_en ?? 'المنتج'}
-              available={price !== null}
             />
 
             <ProductAiGuide productId={productId} />
