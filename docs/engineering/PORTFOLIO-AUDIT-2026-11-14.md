@@ -43,7 +43,7 @@ Project: `ybhrmcdlgyccywpmiucz`, observed on 2026-11-14:
 ## Avoid unsafe merges
 
 - Draft PRs #29 and #30 were superseded by merged #48; #40 superseded by merged #46. Do not merge old drafts on top of current main.
-- PR #25 contains historic security migrations reported as already applied to Supabase, but its source branch is behind. Reconcile migration IDs and current grants before cherry-picking any remaining unique files; never run the migration twice.
+- The four unique files from legacy PR #25 are now included **in this review branch**: the recorded security migration, a static regression test, a read-only catalog/store audit, and a phase 1/3 evidence note. Read-only Supabase migration history confirms version `20261111213535` is already applied; each of the five protected financial/inventory RPCs denies `anon` and `authenticated` EXECUTE but permits `service_role`. This is a source-history sync only — **do not replay this SQL in production**. The original PR #25 stays unmerged.
 - Different MUSLLY repositories may have overlapping UI but distinct dependency/version histories. Port *specific* evidence-backed features via targeted PRs, **not** a monolithic repo merge.
 - Account-level connected plugins/Skills do not automatically install packages or run workflows in all repositories. The main repo's registered 12 skills are guidance; each test/build/deployment must be independently observed.
 
