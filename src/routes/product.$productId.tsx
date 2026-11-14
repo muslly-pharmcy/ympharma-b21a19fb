@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate, notFound } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
@@ -25,7 +25,9 @@ export const Route = createFileRoute('/product/$productId')({
   parseParams: (p) => ({ productId: z.string().uuid().parse(p.productId) }),
   loader: async ({ params }) => {
     const res = await getProduct({ data: { id: params.productId } })
-    return { product: res?.product ?? null, detail: res }
+    // Let the router respond with an actual 404 instead of a soft-404 200 page.
+    if (!res?.product) throw notFound()
+    return { product: res.product, detail: res }
   },
   head: ({ params, loaderData }) => {
     const product = loaderData?.product
