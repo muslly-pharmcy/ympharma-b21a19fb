@@ -6,8 +6,8 @@ interface PharmacologyPanelProps {
   product: PharmacologyResolvable
   /** Product name used in the WhatsApp message. */
   displayName: string
-  /** When false, the "out of stock" actions are highlighted. */
-  available?: boolean
+  /** Use only inventory-confirmed availability; undefined means unverified. */
+  availability?: "available" | "unavailable"
 }
 
 function wa(text: string) {
@@ -22,9 +22,10 @@ function wa(text: string) {
 export function PharmacologyPanel({
   product,
   displayName,
-  available = true,
+  availability,
 }: PharmacologyPanelProps) {
   const entry = classifyProduct(product)
+  const isConfirmedUnavailable = availability === "unavailable"
 
   return (
     <section dir="rtl" className="space-y-3">
@@ -70,13 +71,13 @@ export function PharmacologyPanel({
 
       <div
         className={`rounded-2xl border p-4 ${
-          available
+          !isConfirmedUnavailable
             ? 'border-gray-200 bg-white dark:border-white/10 dark:bg-slate-900/40'
             : 'border-amber-300 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-950/30'
         }`}
       >
         <p className="mb-2 text-sm font-bold text-foreground">
-          {available ? 'تحتاج كمية خاصة أو بديل مناسب؟' : 'الصنف غير متوفر حالياً'}
+          {isConfirmedUnavailable ? 'الصنف غير متوفر حالياً' : availability === 'available' ? 'تحتاج كمية خاصة أو بديل مناسب؟' : 'يرجى تأكيد توفر الصنف قبل الطلب'}
         </p>
         <p className="mb-3 text-[12px] text-muted-foreground">
           تواصل مباشرة مع صيدلي المصلي لطلب توفير الصنف أو اقتراح بديل دوائي من نفس التصنيف.
