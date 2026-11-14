@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useMemo, useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
@@ -8,7 +8,6 @@ import { listProducts, listCategories } from '@/lib/catalog.functions'
 import { PRODUCT_IMAGE_REFRESH_MS } from '@/lib/public-query-cache'
 import { useDebounce } from '@/shared/hooks/useDebounce'
 import { HealthBundles } from '@/components/store/HealthBundles'
-import { PrescriptionUploadModal } from '@/components/store/PrescriptionUploadModal'
 import { HeroBanner } from '@/components/store/HeroBanner'
 import { CategoryGrid } from '@/components/store/CategoryGrid'
 import { ProductCard, type StoreProduct } from '@/components/store/ProductCard'
@@ -16,6 +15,14 @@ import { Skeleton } from '@/components/skeletons/Skeleton'
 import { GlassHero } from '@/shared/components/home/GlassHero'
 import CategoriesGrid from '@/shared/components/home/CategoriesGrid'
 import { Route } from '@/routes/index'
+
+// The prescription upload flow is requested explicitly by the visitor.
+// Keep its form, server-action stubs and animation code out of the initial storefront bundle.
+const PrescriptionUploadModal = lazy(() =>
+  import('@/components/store/PrescriptionUploadModal').then((module) => ({
+    default: module.PrescriptionUploadModal,
+  })),
+)
 
 const gridVariants = {
   hidden: { opacity: 0 },
@@ -65,7 +72,11 @@ export default function Storefront() {
 
   return (
     <div dir="rtl" className="min-h-screen pb-24 md:pb-0">
-      <PrescriptionUploadModal open={rxOpen} onClose={() => setRxOpen(false)} />
+      {rxOpen && (
+        <Suspense fallback={<div role="status" className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 text-white">جارٍ فتح نموذج الوصفة…</div>}>
+          <PrescriptionUploadModal open onClose={() => setRxOpen(false)} />
+        </Suspense>
+      )}
 
       <section className="px-4 pt-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
