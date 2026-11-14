@@ -6,7 +6,7 @@ import { listProducts, listCategories } from '@/lib/catalog.functions'
 export const Route = createFileRoute('/')({
   loader: async () => {
     const [products, categories] = await Promise.all([
-      listProducts({ data: { page: 1, pageSize: 24 } }), listCategories(),
+      listProducts({ data: { page: 1, pageSize: 8 } }), listCategories(),
     ])
     return { products, categories }
   },

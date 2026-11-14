@@ -1,0 +1,26 @@
+name: Public Store SEO Smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '42 3 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: muslly-public-seo-smoke
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Public SEO contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check production metadata, sitemap and 404 behavior
+        run: node scripts/seo-smoke.mjs https://muslly.com

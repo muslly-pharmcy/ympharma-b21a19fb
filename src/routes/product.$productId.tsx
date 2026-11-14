@@ -47,16 +47,11 @@ export const Route = createFileRoute('/product/$productId')({
       }
     }
     const name = product.name_ar || product.name_en || 'منتج'
-    const price =
-      typeof product.sbdma_official_price === 'number'
-        ? product.sbdma_official_price
-        : null
     const description =
       [name, product.brand, product.strength, product.dosage_form]
         .filter(Boolean)
         .join(' · ') +
-      (price !== null ? ` — السعر ${price} ر.ي` : '') +
-      ' | صيدلية المصلي'
+      ' — اطّلع على بيانات المنتج وعبوته في صيدلية المصلي بعدن؛ يُؤكّد السعر والتوفر عند مراجعة الطلب.'
     const rawImage = (product as { image_url?: string | null }).image_url
     const image =
       typeof rawImage === 'string' && rawImage.startsWith('https://') ? rawImage : null

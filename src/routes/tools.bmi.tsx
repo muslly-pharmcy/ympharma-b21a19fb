@@ -113,6 +113,20 @@ function BmiTool() {
         </div>
       </div>
 
+      <section className="mt-5 rounded-2xl border border-primary/10 bg-white p-5 text-right">
+        <h2 className="mb-2 text-lg font-bold text-gray-900">ما معنى النتيجة؟</h2>
+        <p className="text-sm leading-7 text-gray-700">
+          يُحسب مؤشر كتلة الجسم بقسمة الوزن بالكيلوغرام على مربع الطول بالأمتار.
+          وهو أداة فرز عامة للبالغين وليست تشخيصًا لنسبة الدهون أو حالة صحية محددة.
+          لا يُفسَّر بالطريقة نفسها لدى الأطفال والحوامل والرياضيين ذوي الكتلة العضلية المرتفعة.
+        </p>
+        <p className="mt-2 text-sm leading-7 text-gray-700">
+          تقدير الماء المعروض تقريبي؛ تختلف الحاجة حسب العمر والنشاط والطقس والحالة الصحية.
+          إذا كنت تعاني مرضًا يستدعي تقييد السوائل أو تتناول أدوية تؤثر في توازنها،
+          فاستشر الطبيب لتحديد الكمية المناسبة لك.
+        </p>
+      </section>
+
       {result && (
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="glass-card rounded-3xl border border-white/40 p-5">

@@ -45,7 +45,7 @@ export default function Storefront() {
     queryKey: ['storefront', 'home-products', search, categoryId],
     queryFn: () =>
       productsFn({
-        data: { search: search || undefined, categoryId, page: 1, pageSize: 24 },
+        data: { search: search || undefined, categoryId, page: 1, pageSize: 8 },
       }),
     staleTime: 60_000,
     refetchInterval: PRODUCT_IMAGE_REFRESH_MS,

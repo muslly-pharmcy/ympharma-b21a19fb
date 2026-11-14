@@ -163,6 +163,20 @@ function RequestPage() {
           </form>
         )}
       </div>
+
+      <section className="mt-6 rounded-2xl border border-primary/15 bg-white p-5 text-right">
+        <h2 className="text-lg font-bold text-gray-900">كيف يُراجع طلب الدواء؟</h2>
+        <ol className="mt-3 list-decimal space-y-2 pr-5 text-sm leading-7 text-gray-700">
+          <li>اكتب اسم الدواء أو الغرض من الاستفسار، وأضف التركيز والشكل الدوائي إن كنت تعرفهما.</li>
+          <li>يتواصل الفريق لمراجعة البيانات والتأكد من توفر الصنف والتفاصيل المطلوبة.</li>
+          <li>عند الحاجة إلى وصفة طبية، تُراجع الوصفة قبل الموافقة على صرف الدواء.</li>
+          <li>يُؤكّد السعر النهائي وخيارات التسليم قبل استكمال الطلب؛ الإرسال ليس شراءً نهائياً.</li>
+        </ol>
+        <p className="mt-3 text-xs leading-6 text-gray-600">
+          هذه الخدمة مخصّصة للطلبات والاستفسارات غير الطارئة. عند وجود أعراض خطرة
+          أو حالة إسعافية توجّه إلى أقرب مرفق طبي، ولا تنتظر الرد على النموذج.
+        </p>
+      </section>
     </div>
   )
 }

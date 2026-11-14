@@ -87,7 +87,7 @@ export function ProductCard({ product, index = 0, featured = false }: ProductCar
             alt={name}
             rounded="rounded-none"
             className="aspect-square w-full"
-            priority={index < 4}
+            priority={index < 2}
           />
 
           <span className="pointer-events-none absolute left-3 top-3 rounded-full border border-white/50 bg-white/80 px-2.5 py-1 text-[10px] font-bold text-emerald-700 shadow-sm backdrop-blur-md dark:bg-slate-900/70 dark:text-emerald-300">
