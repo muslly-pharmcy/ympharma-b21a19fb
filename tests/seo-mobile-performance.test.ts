@@ -20,6 +20,14 @@ describe('storefront SEO and mobile loading guards', () => {
     expect(backdrop).toContain('!reducedMotion.matches')
   })
 
+  it('reuses the home route categories instead of refetching them', () => {
+    const storefront = read('src/pages/Storefront.tsx')
+    const categoriesGrid = read('src/shared/components/home/CategoriesGrid.tsx')
+    expect(storefront).toContain('<CategoriesGrid categories={categories} />')
+    expect(categoriesGrid).not.toContain('useQuery(')
+    expect(categoriesGrid).not.toContain('listCategories()')
+  })
+
   it('loads the prescription upload flow only when the dialog is opened', () => {
     const storefront = read('src/pages/Storefront.tsx')
     expect(storefront).toContain("import('@/components/store/PrescriptionUploadModal')")
