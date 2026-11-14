@@ -43,7 +43,7 @@ export async function erpHandle(
   if (!z.string().min(8).max(200).safeParse(key).success) return json(400, { error: 'missing_idempotency_key' })
   // Do not invoke a financial write unless the server has explicitly granted
   // a fresh idempotency claim. Missing/unknown RPC results are not "new".
-  let claim: { state?: string; response?: unknown } | null = null
+  let claim: { state?: string; response?: unknown } | null
   try {
     const { data, error } = await db.rpc('erp_claim_idempotency', {
       p_key: key, p_hash: sha256Hex(body), p_endpoint: path,
