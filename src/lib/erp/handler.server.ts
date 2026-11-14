@@ -41,22 +41,52 @@ export async function erpHandle(
 
   const key = request.headers.get('idempotency-key') ?? ''
   if (!z.string().min(8).max(200).safeParse(key).success) return json(400, { error: 'missing_idempotency_key' })
-  const { data: claim, error } = await db.rpc('erp_claim_idempotency', {
-    p_key: key, p_hash: sha256Hex(body), p_endpoint: path,
-  })
-  if (error) return json(500, { error: 'idempotency_store_failed' })
-  if (claim.state === 'conflict') return json(409, { error: 'idempotency_key_reused_with_different_content' })
-  if (claim.state === 'replay') return json(200, { ...claim.response, replayed: true })
-  if (claim.state === 'in_progress') return json(409, { error: 'request_in_progress', retryAfterSeconds: 5 })
+  // Do not invoke a financial write unless the server has explicitly granted
+  // a fresh idempotency claim. Missing/unknown RPC results are not "new".
+  let claim: { state?: string; response?: unknown } | null
+  try {
+    const { data, error } = await db.rpc('erp_claim_idempotency', {
+      p_key: key, p_hash: sha256Hex(body), p_endpoint: path,
+    })
+    if (error) return json(503, { error: 'idempotency_store_failed' })
+    claim = data as { state?: string; response?: unknown } | null
+  } catch {
+    return json(503, { error: 'idempotency_store_failed' })
+  }
+  if (claim?.state === 'conflict') return json(409, { error: 'idempotency_key_reused_with_different_content' })
+  if (claim?.state === 'replay') {
+    if (!claim.response || typeof claim.response !== 'object' || Array.isArray(claim.response))
+      return json(503, { error: 'idempotency_replay_unverifiable' })
+    return json(200, { ...claim.response, replayed: true })
+  }
+  if (claim?.state === 'in_progress') return json(409, { error: 'request_in_progress', retryAfterSeconds: 5 })
+  if (claim?.state !== 'new') return json(503, { error: 'idempotency_claim_unverifiable' })
+
+  let outcome: { status: number; body: unknown }
+  try {
+    outcome = await run(parsed, db)
+  } catch {
+    // A remote write may have committed before the response was lost.
+    // Preserve the processing claim for reconciliation rather than deleting
+    // it and admitting a duplicate replay with the same key.
+    return json(500, { error: 'processing_failed', reconciliationRequired: true })
+  }
+  if (!Number.isInteger(outcome.status) || outcome.status < 200 || outcome.status > 599)
+    return json(503, { error: 'processing_result_unverifiable', reconciliationRequired: true })
+  if (outcome.status >= 500) {
+    // The remote commit state is unknown; do not mark the key available again.
+    return json(outcome.status, outcome.body)
+  }
 
   try {
-    const r = await run(parsed, db)
-    await db.rpc('erp_finish_idempotency', { p_key: key, p_response: r.body, p_ok: r.status < 500 })
-    return json(r.status, r.body)
+    const { error } = await db.rpc('erp_finish_idempotency', {
+      p_key: key, p_response: outcome.body, p_ok: true,
+    })
+    if (error) return json(503, { error: 'idempotency_finalize_failed', reconciliationRequired: true })
   } catch {
-    await db.rpc('erp_finish_idempotency', { p_key: key, p_response: null, p_ok: false })
-    return json(500, { error: 'processing_failed' })
+    return json(503, { error: 'idempotency_finalize_failed', reconciliationRequired: true })
   }
+  return json(outcome.status, outcome.body)
 }
 
 function safeJson(s: string): unknown {
