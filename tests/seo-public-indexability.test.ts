@@ -5,7 +5,8 @@ const read = (path: string) => readFileSync(new URL(`../${path}`, import.meta.ur
 
 describe('public SEO metadata and crawl policy', () => {
   it('renders exactly one primary H1 across the home hero sections', () => {
-    const homeSections = read('src/shared/components/home/GlassHero.tsx') +
+    const homeSections = read('src/shared/components/Navbar.tsx') +
+      read('src/shared/components/home/GlassHero.tsx') +
       read('src/components/store/HeroBanner.tsx')
     expect((homeSections.match(/<h1\b/g) ?? []).length).toBe(1)
   })
