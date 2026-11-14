@@ -44,7 +44,7 @@ jobs:
       - name: Build Node server target
         run: bun run build
 
-      - name: Install Chromium
+      - name: Fail if built Node artifacts contain credentials\n        run: node scripts/check-no-secrets.mjs .output\n\n      - name: Install Chromium
         run: bunx playwright install --with-deps chromium
 
       - name: Connection and offline browser regression tests
