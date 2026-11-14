@@ -60,7 +60,7 @@ export default function Navbar() {
             className="h-10 w-10 md:h-12 md:w-12"
           />
           <div className="hidden md:block min-w-0 leading-tight">
-            <h1 className="truncate text-base font-bold text-gray-900">صيدلية المصلي</h1>
+            <span className="block truncate text-base font-bold text-gray-900">صيدلية المصلي</span>
             <p className="truncate text-[11px] text-gray-500">Almosly Pharmacy · عدن</p>
           </div>
         </Link>
