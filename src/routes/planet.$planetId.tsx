@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client'
 
 export const Route = createFileRoute('/planet/$planetId')({
   ssr: false,
+  head: () => ({ meta: [{ name: 'robots', content: 'noindex, nofollow, noarchive' }] }),
   beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser()
     if (error || !data.user) {
