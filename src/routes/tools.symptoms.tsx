@@ -160,6 +160,20 @@ function SymptomWizard() {
           </motion.div>
         ) : null}
       </AnimatePresence>
+
+      <section className="mt-6 rounded-2xl border border-primary/10 bg-white p-5 text-right">
+        <h2 className="mb-2 text-lg font-bold text-gray-900">كيف تستخدم مرشد الأعراض؟</h2>
+        <p className="text-sm leading-7 text-gray-700">
+          اختر الإجابة الأقرب لحالتك لمشاهدة إرشاد عام حول الخطوة التالية.
+          لا تحل النتائج محل التاريخ المرضي أو الفحص السريري أو التشخيص الطبي،
+          وقد تحتاج الأعراض المتشابهة إلى تقييم مختلف حسب العمر والأدوية والأمراض المصاحبة.
+        </p>
+        <p className="mt-2 text-sm leading-7 text-gray-700">
+          إذا ظهرت علامات خطر مثل صعوبة التنفس أو ألم الصدر أو فقدان الوعي
+          فاطلب المساعدة الطبية العاجلة. وعند استمرار الأعراض أو تفاقمها
+          اطلب تقييمًا من مختص بدل الاعتماد على الإرشاد الآلي وحده.
+        </p>
+      </section>
     </div>
   )
 }
