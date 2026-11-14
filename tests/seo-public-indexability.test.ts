@@ -54,6 +54,16 @@ describe('public SEO metadata and crawl policy', () => {
     expect(product).toContain("name: 'robots', content: 'noindex, follow'")
   })
 
+  it('does not confuse official reference prices with confirmed sale prices or stock', () => {
+    const product = read('src/routes/product.$productId.tsx')
+    const pharmacology = read('src/components/store/PharmacologyPanel.tsx')
+    expect(product).toContain('السعر المرجعي الرسمي — ليس سعر البيع')
+    expect(product).toContain('يُؤكَّد سعر البيع الفعلي وتوفر الصنف')
+    expect(product).not.toContain('available={price !== null}')
+    expect(pharmacology).toContain('availability === "unavailable"')
+    expect(pharmacology).toContain('يرجى تأكيد توفر الصنف قبل الطلب')
+  })
+
   it('declares the sitemap and excludes machine endpoints from crawler access', () => {
     const robots = read('public/robots.txt')
     expect(robots).toContain('Sitemap: https://muslly.com/sitemap.xml')
