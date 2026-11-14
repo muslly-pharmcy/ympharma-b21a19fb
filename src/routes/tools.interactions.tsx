@@ -187,6 +187,20 @@ function InteractionsTool() {
         </motion.div>
       )}
 
+      <section className="mt-6 rounded-2xl border border-primary/10 bg-white p-5 text-right">
+        <h2 className="mb-2 text-lg font-bold text-gray-900">قبل استخدام نتائج الفحص</h2>
+        <p className="text-sm leading-7 text-gray-700">
+          أدخل أسماء المواد الفعالة إن أمكن، وليس الاسم التجاري فقط. قد يحتوي
+          المستحضر الواحد على أكثر من مادة فعالة، وقد تختلف الأسماء والتهجئة بين العبوات.
+          نتائج الأداة تقتصر على المعلومات المتاحة في قاعدة المعرفة المستخدمة هنا.
+        </p>
+        <p className="mt-2 text-sm leading-7 text-gray-700">
+          لا تُوقف دواءً موصوفًا أو تغيّر الجرعة بناءً على غياب تحذير في هذه الشاشة.
+          اعرض قائمة أدويتك ومكمّلاتك على الصيدلي أو الطبيب، خصوصًا عند استخدام
+          عدة علاجات معًا أو وجود حمل أو مرض مزمن.
+        </p>
+      </section>
+
       {mutation.isError && (
         <p className="mt-4 rounded-xl bg-red-50 p-3 text-center text-xs text-red-700">
           تعذّر التحقق من التداخلات أو التعرف على جميع المواد. لا تعتبر ذلك تأكيدًا للأمان؛ راجع الصيدلي.
