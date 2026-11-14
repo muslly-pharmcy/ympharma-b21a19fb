@@ -27,10 +27,8 @@ export function AmbientBackdrop({ className = '' }: { className?: string }) {
     const wideScreen = window.matchMedia('(min-width: 1024px)')
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
-    const lowEnd =
-      (navigator.hardwareConcurrency ?? 8) <= 2 ||
-      (navigator as Navigator & { deviceMemory?: number }).deviceMemory !== undefined &&
-        (navigator as Navigator & { deviceMemory?: number }).deviceMemory! <= 2
+    const memoryGb = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
+    const lowEnd = (navigator.hardwareConcurrency ?? 8) <= 2 || (memoryGb ?? 8) <= 2
 
     const updateEligibility = () => {
       const allowed = wideScreen.matches && !reducedMotion.matches &&
