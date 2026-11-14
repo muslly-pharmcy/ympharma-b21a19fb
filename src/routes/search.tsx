@@ -14,6 +14,7 @@ export const Route = createFileRoute('/search')({
   head: () => ({
     meta: [
       { title: 'البحث — صيدلية المصلي' },
+      { name: 'robots', content: 'noindex, follow' },
       {
         name: 'description',
         content: 'ابحث عن الأدوية والمنتجات الصحية والخدمات في صيدلية المصلي.',

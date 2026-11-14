@@ -7,5 +7,8 @@ Disallow: /ai-runtime
 Disallow: /vision-lab
 Disallow: /sbdma-import
 Disallow: /reset-password
+Disallow: /api/
+Disallow: /.mcp/
+Disallow: /mcp
 
 Sitemap: https://muslly.com/sitemap.xml

@@ -58,9 +58,9 @@ export function HeroBanner({
             <Sparkles className="h-3.5 w-3.5" /> صيدلية إلكترونية موثوقة
           </p>
 
-          <h1 className="mt-4 text-3xl font-black leading-tight text-foreground sm:text-5xl">
+          <h2 className="mt-4 text-3xl font-black leading-tight text-foreground sm:text-5xl">
             صيدلية المصلي — <span className="bg-gradient-to-l from-primary via-teal-600 to-cyan-600 bg-clip-text text-transparent">دواؤك يصلك بثقة</span>
-          </h1>
+          </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             تصفّح المنتجات المتاحة وارفع وصفتك، مع مراجعة صيدلية وتأكيد السعر وموعد
             التوصيل قبل إتمام الطلب.
