@@ -15,3 +15,5 @@ User-facing reports in Arabic; identifiers, commands and code may use English.
 - External ChatGPT plugin connections are **not** repository installations. Never claim PostHog, Context7, Superpowers, or any hosted tool is instrumented in this application until code, configuration and observed events/tests prove it.
 - Analytics and diagnostics must use an approved allowlist. Never emit credentials, tokens, prescription/patient records, free-form medical notes, exact location traces, accounting entries, bank details, or private API bodies to third-party telemetry. Confirm collection policy and retention before enabling analytics.
 - No direct-to-production writes for testing. Distinguish source/config inspection from executed tests; treat missing evidence as NOT RUN or BLOCKED.
+
+- Privacy boundary: treat analytics as opt-in until a reviewed event allowlist, data minimization and retention policy are evidenced in the running application.
