@@ -1,8 +1,7 @@
 import { Link } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { LayoutGrid, Pill, Thermometer, HeartPulse, Sparkles, Baby, Droplets, Cross, Stethoscope } from 'lucide-react'
-import { listCategories } from '@/lib/catalog.functions'
+import type { CatalogCategory } from '@/domain/catalog/schemas'
 
 // Icon + color per known category slug (fallback used for unknowns)
 const STYLE_MAP: Record<string, { icon: React.ComponentType<{ className?: string }>; bg: string; color: string }> = {
@@ -17,12 +16,8 @@ const STYLE_MAP: Record<string, { icon: React.ComponentType<{ className?: string
   'womens-care': { icon: Sparkles, bg: 'bg-rose-50', color: 'text-rose-600' },
 }
 
-export default function CategoriesGrid() {
-  const { data: categories = [] } = useQuery({
-    queryKey: ['home', 'categories'],
-    queryFn: () => listCategories(),
-    staleTime: 5 * 60_000,
-  })
+/** Categories come from the parent route's existing server loader; no duplicate client fetch. */
+export default function CategoriesGrid({ categories }: { categories: CatalogCategory[] }) {
 
   if (!categories.length) return null
 
