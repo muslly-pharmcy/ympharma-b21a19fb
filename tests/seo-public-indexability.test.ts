@@ -26,12 +26,15 @@ describe('public SEO metadata and crawl policy', () => {
     expect(read('src/routes/auth.tsx')).toContain("name: 'robots', content: 'noindex'")
     expect(read('src/routes/reset-password.tsx')).toContain("name: 'robots', content: 'noindex, nofollow, noarchive'")
     expect(read('src/routes/_authenticated/route.tsx')).toContain("name: 'robots', content: 'noindex, nofollow, noarchive'")
+    expect(read('src/routes/mission-control.tsx')).toContain("name: 'robots', content: 'noindex, nofollow, noarchive'")
+    expect(read('src/routes/planet.$planetId.tsx')).toContain("name: 'robots', content: 'noindex, nofollow, noarchive'")
   })
 
   it('only exposes relevant public routes in the static sitemap', () => {
     const sitemap = read('src/routes/sitemap[.]xml.ts')
     expect(sitemap).not.toContain("path: '/auth'")
     expect(sitemap).not.toContain("path: '/search'")
+    expect(sitemap).not.toContain("path: '/ai-chat'")
     expect(sitemap).toContain("path: '/policies'")
     expect(sitemap).toContain(".eq('is_public', true)")
     expect(sitemap).toContain(".eq('status', 'approved')")
