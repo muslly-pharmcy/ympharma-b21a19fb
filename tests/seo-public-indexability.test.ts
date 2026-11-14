@@ -43,6 +43,7 @@ describe('public SEO metadata and crawl policy', () => {
   it('does not falsely assert availability for reference-priced products', () => {
     const product = read('src/routes/product.$productId.tsx')
     expect(product).not.toContain("availability: 'https://schema.org/InStock'")
+    expect(product).toContain('if (!res?.product) throw notFound()')
     expect(product).toContain("name: 'robots', content: 'noindex, follow'")
   })
 
