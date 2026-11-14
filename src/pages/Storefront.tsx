@@ -147,7 +147,7 @@ export default function Storefront() {
 
       <section className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <CategoriesGrid />
+          <CategoriesGrid categories={categories} />
         </div>
       </section>
 
