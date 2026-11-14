@@ -21,6 +21,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:all": "vitest run --exclude 'artifacts/**' --exclude 'e2e/**' && playwright test",
+    "test:static": "vitest run tests",
+    "check:secrets": "node scripts/check-no-secrets.mjs",
     "cap:sync": "npm run build:android && cap sync",
     "cap:add:ios": "cap add ios",
     "cap:add:android": "cap add android",
