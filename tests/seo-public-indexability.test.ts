@@ -6,8 +6,8 @@ const read = (path: string) => readFileSync(new URL(`../${path}`, import.meta.ur
 describe('public SEO metadata and crawl policy', () => {
   it('does not skip heading levels in the shared footer on H1-only pages', () => {
     const footer = read('src/shared/components/Footer.tsx')
-    expect((footer.match(/<h3\\b/g) ?? []).length).toBe(0)
-    expect((footer.match(/<h2\\b/g) ?? []).length).toBe(3)
+    expect((footer.match(/<h3\b/g) ?? []).length).toBe(0)
+    expect((footer.match(/<h2\b/g) ?? []).length).toBe(3)
   })
 
   it('renders exactly one primary H1 across the home hero sections', () => {
