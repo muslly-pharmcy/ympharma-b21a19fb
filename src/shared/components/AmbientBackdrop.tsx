@@ -22,12 +22,30 @@ export function AmbientBackdrop({ className = '' }: { className?: string }) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // Preserve the glass gradient on mobile without downloading the large
+    // React Three Fiber/WebGL chunk on the critical rendering path.
+    const wideScreen = window.matchMedia('(min-width: 1024px)')
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
     const lowEnd =
       (navigator.hardwareConcurrency ?? 8) <= 2 ||
-      // @ts-expect-error non-standard but widely available on Android
-      (navigator.deviceMemory ?? 8) <= 2
-    setEnabled(!reduce && !lowEnd && supportsWebGL())
+      (navigator as Navigator & { deviceMemory?: number }).deviceMemory !== undefined &&
+        (navigator as Navigator & { deviceMemory?: number }).deviceMemory! <= 2
+
+    const updateEligibility = () => {
+      const allowed = wideScreen.matches && !reducedMotion.matches &&
+        !connection?.saveData && !lowEnd
+      // Avoid even probing WebGL on mobile, low-end, or reduced-motion devices.
+      setEnabled(allowed && supportsWebGL())
+    }
+
+    updateEligibility()
+    wideScreen.addEventListener('change', updateEligibility)
+    reducedMotion.addEventListener('change', updateEligibility)
+    return () => {
+      wideScreen.removeEventListener('change', updateEligibility)
+      reducedMotion.removeEventListener('change', updateEligibility)
+    }
   }, [])
 
   useEffect(() => {
