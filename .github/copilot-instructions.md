@@ -17,3 +17,9 @@ User-facing reports in Arabic; identifiers, commands and code may use English.
 - No direct-to-production writes for testing. Distinguish source/config inspection from executed tests; treat missing evidence as NOT RUN or BLOCKED.
 
 - Privacy boundary: treat analytics as opt-in until a reviewed event allowlist, data minimization and retention policy are evidenced in the running application.
+
+## Graphify project maps
+
+Use `.agents/skills/graphify/SKILL.md` for architecture and dependency queries.
+Build and refresh with the bundled helper before relying on a stale graph.
+Graph evidence supplements source inspection and tests; it does not replace them.

@@ -17,3 +17,7 @@ test-results/
 !.env.example
 *.log
 supabase/.temp/
+
+# Local Graphify knowledge graphs and isolated Python environment
+graphify-out/
+.graphify-venv/
