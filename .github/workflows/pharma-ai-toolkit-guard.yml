@@ -2,7 +2,7 @@ name: Pharma AI Toolkit Static Check
 on:
   pull_request:
   push:
-    branches: [chore/pharma-ai-agent-toolkit-20261112]
+    branches: [main, chore/pharma-ai-agent-toolkit-20261112]
 permissions:
   contents: read
 jobs:
