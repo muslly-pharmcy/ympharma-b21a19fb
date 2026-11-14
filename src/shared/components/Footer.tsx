@@ -21,7 +21,7 @@ export function Footer() {
 
 
         <div>
-          <h3 className="font-semibold text-gray-900 mb-3">روابط سريعة</h3>
+          <h2 className="font-semibold text-gray-900 mb-3">روابط سريعة</h2>
           <ul className="space-y-2 text-sm text-gray-600">
             <li><Link to="/about" className="hover:text-primary">من نحن</Link></li>
             <li><Link to="/contact" className="hover:text-primary">تواصل معنا</Link></li>
@@ -37,7 +37,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="font-semibold text-gray-900 mb-3">تواصل معنا</h3>
+          <h2 className="font-semibold text-gray-900 mb-3">تواصل معنا</h2>
           <ul className="space-y-2 text-sm text-gray-600">
             <li className="flex items-center gap-2"><Phone className="w-4 h-4 text-primary" /><a href={`tel:${PHARMACY.phone}`} dir="ltr">{PHARMACY.phone}</a></li>
             <li className="flex items-center gap-2"><MessageCircle className="w-4 h-4 text-green-600" /><a href={`https://wa.me/${PHARMACY.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">واتساب</a></li>
@@ -47,7 +47,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2"><Clock className="w-4 h-4 text-primary" />ساعات العمل</h3>
+          <h2 className="font-semibold text-gray-900 mb-3 flex items-center gap-2"><Clock className="w-4 h-4 text-primary" />ساعات العمل</h2>
           <ul className="space-y-2 text-sm text-gray-600">
             {PHARMACY.hoursAr.map((h) => (
               <li key={h.day} className="flex justify-between gap-3">
