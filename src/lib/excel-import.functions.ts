@@ -1,14 +1,16 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { toPendingReviewProduct } from './excel-review'
 
-// Bulk upsert products from a client-parsed Excel sheet.
-// Admin-only. Client parses the .xlsx (with the `xlsx` package) and posts
-// normalized rows here — we upsert into catalog_products (by store_code),
-// then seed one FEFO batch per new product so it appears in the shop.
+/**
+ * Excel upload is an ingestion step for CATALOG REVIEW ONLY.
+ * Stock, official prices, clinical approval and public exposure are never
+ * modified by this endpoint. The review/approval workflow owns publication.
+ */
 const RowSchema = z.object({
-  store_code: z.string().min(1),
-  name_ar: z.string().min(1),
+  store_code: z.string().trim().min(1).max(120),
+  name_ar: z.string().trim().min(1).max(500),
   name_en: z.string().optional().nullable(),
   brand: z.string().optional().nullable(),
   manufacturer: z.string().optional().nullable(),
@@ -21,119 +23,90 @@ const RowSchema = z.object({
 })
 export type ExcelProductRow = z.infer<typeof RowSchema>
 
-const DEFAULT_ORG = '11111111-1111-1111-1111-000000000001'
-const DEFAULT_WH = '22222222-2222-2222-2222-000000000001'
-
 export const bulkImportExcel = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
   .validator((raw: unknown) =>
-    z.object({ rows: z.array(RowSchema).min(1).max(5000) }).parse(raw),
+    z.object({ rows: z.array(RowSchema).min(1).max(500) }).parse(raw),
   )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context
-    // Admin check
-    const { data: isAdmin } = await supabase.rpc('has_role', {
-      _user_id: userId,
-      _role: 'admin',
-    })
-    if (!isAdmin) throw new Error('Admin only')
-
+  .handler(async ({ data }) => {
+    const { getActor, requirePermission } = await import('./session.server')
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+    const actor = await getActor()
+    requirePermission(actor, 'catalog.write')
 
-    // Preload category slug → id map (global categories)
-    const { data: cats } = await supabaseAdmin
+    const { data: cats, error: categoriesError } = await supabaseAdmin
       .from('catalog_categories')
       .select('id, slug')
       .is('organization_id', null)
-    const catMap = new Map<string, string>((cats ?? []).map((c: { id: string; slug: string }) => [c.slug, c.id]))
+    if (categoriesError) throw new Error('تعذر قراءة التصنيفات؛ لم يبدأ الاستيراد.')
+    const categories = new Map<string, string>(
+      (cats ?? []).map((c: { id: string; slug: string }) => [c.slug, c.id]),
+    )
 
     let inserted = 0
-    let updated = 0
     let skipped = 0
+    let deferredStockRows = 0
     const errors: Array<{ store_code: string; error: string }> = []
+    const seenCodes = new Set<string>()
 
+    // Each row is an independent, nonpublic pending-review insert.
+    // Uniqueness constraints prevent duplicates under concurrent retries.
+    // Failures are reported per-row; no "all-or-nothing" guarantee is claimed.
     for (const row of data.rows) {
+      const code = row.store_code.trim()
+      if (seenCodes.has(code)) {
+        skipped++
+        errors.push({ store_code: code, error: 'كود مكرر داخل الملف.' })
+        continue
+      }
+      seenCodes.add(code)
       try {
-        const category_id = row.category_slug ? catMap.get(row.category_slug) ?? null : null
-        // Check existing by store_code
-        const { data: existing } = await supabaseAdmin
+        const { data: existing, error: lookupError } = await supabaseAdmin
           .from('catalog_products')
           .select('id')
-          .eq('store_code', row.store_code)
+          .eq('organization_id', actor.organizationId)
+          .eq('store_code', code)
           .maybeSingle()
-
-        const payload = {
-          store_code: row.store_code,
-          name_ar: row.name_ar,
-          name_en: row.name_en ?? null,
-          brand: row.brand ?? null,
-          manufacturer: row.manufacturer ?? null,
-          barcode: row.barcode ?? null,
-          strength: row.strength ?? null,
-          dosage_form: row.dosage_form ?? null,
-          sbdma_official_price: row.price ?? null,
-          category_id,
-          status: 'approved' as const,
-          is_public: true,
-          requires_prescription: false,
-        }
-
-        let productId: string
+        if (lookupError) throw new Error('تعذر التحقق من تكرار الصنف.')
         if (existing?.id) {
-          const { error } = await supabaseAdmin
-            .from('catalog_products')
-            .update(payload)
-            .eq('id', existing.id)
-          if (error) throw error
-          productId = existing.id
-          updated++
-        } else {
-          const { data: created, error } = await supabaseAdmin
-            .from('catalog_products')
-            .insert(payload)
-            .select('id')
-            .single()
-          if (error) throw error
-          productId = created.id
-          inserted++
+          skipped++
+          errors.push({ store_code: code, error: 'الصنف موجود بهذه المؤسسة؛ التعديل يتطلب مراجعة منفصلة.' })
+          continue
         }
-
-        // Seed a stock batch if quantity provided and no batch exists yet
-        const qty = Number(row.qty ?? 0)
-        if (qty > 0) {
-          const { data: batch } = await supabaseAdmin
-            .from('inv_stock_batches')
-            .select('id')
-            .eq('product_id', productId)
-            .eq('batch_no', 'EXCEL-IMPORT')
-            .maybeSingle()
-          if (batch?.id) {
-            await supabaseAdmin
-              .from('inv_stock_batches')
-              .update({ qty_on_hand: qty })
-              .eq('id', batch.id)
-          } else {
-            await supabaseAdmin.from('inv_stock_batches').insert({
-              organization_id: DEFAULT_ORG,
-              warehouse_id: DEFAULT_WH,
-              product_id: productId,
-              batch_no: 'EXCEL-IMPORT',
-              qty_on_hand: qty,
-              qty_reserved: 0,
-              expiry_date: new Date(Date.now() + 540 * 86_400_000)
-                .toISOString()
-                .slice(0, 10),
-              received_at: new Date().toISOString(),
-            })
+        const categoryId = row.category_slug
+          ? categories.get(row.category_slug) ?? null
+          : null
+        const payload = toPendingReviewProduct(
+          row, actor.organizationId, actor.userId, categoryId,
+        )
+        const { error: insertError } = await supabaseAdmin
+          .from('catalog_products')
+          .insert(payload)
+        if (insertError) {
+          if (insertError.code === '23505') {
+            throw new Error('الكود مستخدم بالفعل؛ لن يتم تعديل منتج آخر.')
           }
+          throw new Error('تعذر حفظ سجل المراجعة؛ راجع الكود والبيانات.')
         }
-      } catch (e) {
+        inserted++
+        if ((row.qty ?? 0) > 0) deferredStockRows++
+      } catch (err) {
         skipped++
-        errors.push({ store_code: row.store_code, error: (e as Error).message })
+        errors.push({
+          store_code: code,
+          error: err instanceof Error ? err.message : 'تعذر إضافة الصنف للمراجعة.',
+        })
       }
     }
-
-    return { inserted, updated, skipped, total: data.rows.length, errors: errors.slice(0, 50) }
+    return {
+      inserted,
+      updated: 0,
+      skipped,
+      total: data.rows.length,
+      errors: errors.slice(0, 200),
+      staged: true as const,
+      deferredStockRows,
+    }
   })
 
 // Read-only status of the image-generation queue (admin dashboard).
