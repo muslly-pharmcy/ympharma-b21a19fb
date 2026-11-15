@@ -29,6 +29,7 @@ type Row = {
   supplier_name_text: string | null
   pack_unit: string | null
   price: number | null
+  status: string | null
   stock_balance: number | null
   image_url: string | null
   primary_image_url: string | null
@@ -73,7 +74,7 @@ function AdminInventoryPage() {
   return (
     <div dir="rtl" className="p-6 max-w-[1400px] mx-auto space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">إدارة المخزون والأسعار</h1>
+        <h1 className="text-2xl font-bold">مراجعة الأصناف والمخزون والأسعار</h1>
         <div className="text-sm text-muted-foreground">{query.data?.total ?? 0} صنف</div>
       </div>
 
@@ -81,6 +82,7 @@ function AdminInventoryPage() {
         busy={createMut.isPending}
         onAdd={async (v) => {
           await createMut.mutateAsync({ data: v })
+          toast.success('أُضيف الصنف إلى قائمة المراجعة فقط، دون نشره أو اعتماد سعر أو رصيد.')
         }}
       />
       <p role="note" className="text-sm rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-900">
@@ -111,7 +113,7 @@ function AdminInventoryPage() {
               <th className="p-2">الاسم</th>
               <th className="p-2">المورد</th>
               <th className="p-2">الوحدة</th>
-              <th className="p-2 w-32">السعر</th>
+              <th className="p-2 w-32">السعر الرسمي</th>
               <th className="p-2 w-28">الرصيد</th>
               <th className="p-2 w-40">إجراءات</th>
             </tr>
@@ -184,12 +186,21 @@ function ProductRow({
         )}
       </td>
       <td className="p-2 font-mono text-xs">{row.store_code ?? '—'}</td>
-      <td className="p-2">{row.name ?? '—'}</td>
+      <td className="p-2">
+        <span>{row.name ?? '—'}</span>
+        {row.status !== 'approved' && (
+          <span className="mr-2 text-xs rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">
+            بانتظار الاعتماد
+          </span>
+        )}
+      </td>
       <td className="p-2 text-xs">{row.supplier_name_text ?? '—'}</td>
       <td className="p-2 text-xs">{row.pack_unit ?? '—'}</td>
       <td className="p-2">
         <input
-          className="border rounded px-2 py-1 w-24 bg-background text-sm"
+          className="border rounded px-2 py-1 w-24 bg-background text-sm disabled:opacity-60"
+          disabled={row.status !== 'approved'}
+          title={row.status === 'approved' ? 'السعر الرسمي' : 'اعتماد السعر بعد مراجعة الصنف فقط'}
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           onBlur={async () => {
@@ -253,7 +264,7 @@ function AddProductForm({ onAdd, busy }: { onAdd: (v: NewProduct) => Promise<voi
   if (!open) {
     return (
       <button className="px-4 py-2 rounded bg-primary text-primary-foreground text-sm font-semibold" onClick={() => setOpen(true)}>
-        + إضافة دواء جديد
+        + إضافة صنف للمراجعة
       </button>
     )
   }
@@ -281,15 +292,15 @@ function AddProductForm({ onAdd, busy }: { onAdd: (v: NewProduct) => Promise<voi
       <input aria-label="اسم الدواء" className={inp} placeholder="اسم الدواء *" value={f.name_ar} onChange={(e) => setF({ ...f, name_ar: e.target.value })} />
       <input aria-label="الكود" className={inp} placeholder="الكود (نفس كود برنامج الصيدلية) *" value={f.store_code} onChange={(e) => setF({ ...f, store_code: e.target.value })} />
       <input aria-label="الباركود" className={inp} placeholder="الباركود" value={f.barcode} onChange={(e) => setF({ ...f, barcode: e.target.value })} />
-      <input aria-label="السعر" className={inp} placeholder="السعر (ر.ي) *" inputMode="decimal" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} />
+      <input aria-label="السعر المقترح" className={inp} placeholder="السعر المقترح (ر.ي) *" inputMode="decimal" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} />
       <p className="text-xs text-amber-700 self-center">الكميات تتطلب استلام دفعة معتمدًا.</p>
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={f.rx} onChange={(e) => setF({ ...f, rx: e.target.checked })} /> يحتاج وصفة طبية
+        <input type="checkbox" checked={f.rx} onChange={(e) => setF({ ...f, rx: e.target.checked })} /> اقتراح: يحتاج وصفة طبية (يخضع للمراجعة)
       </label>
       {err && <p className="sm:col-span-3 text-sm text-destructive">{err}</p>}
       <div className="sm:col-span-3 flex gap-2">
         <button type="submit" disabled={busy} className="px-4 py-2 rounded bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50">
-          {busy ? 'جارٍ الحفظ…' : 'حفظ'}
+          {busy ? 'جارٍ الإرسال…' : 'إرسال للمراجعة'}
         </button>
         <button type="button" className="px-4 py-2 rounded border text-sm" onClick={() => setOpen(false)}>إلغاء</button>
       </div>
