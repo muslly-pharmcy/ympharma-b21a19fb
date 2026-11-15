@@ -21,6 +21,14 @@ Excel approval workflow remains separate; any approval must validate clinical cl
 
 The review-only import is intentionally per-row, not all-or-nothing; batches may partially complete and return detailed skipped rows. Repeated uploads skip existing codes. It does not yet record a durable import-job ID or a transaction-wide audit entry. Before applying to production, test against representative staging data and confirm the review queue and catalog access policies.
 
+## Read-only live database baseline (not a migration test)
+- Inspected MUSALLY PHARMA PostgreSQL 17.6: 27 catalog records, 15 of which are global and 12 tenant-owned; all 27 currently approved and public.
+- 15 inventory batches exist: 0 negative on-hand, 0 negative reserved, 0 with reserved > on-hand.
+- The 15 batches reference global catalog products (catalog_products.organization_id NULL); **0** represent non-null cross-tenant product mismatches. A join comparing org IDs without accounting for global catalog would misleadingly flag all 15.
+- The DB has separate nonnegative CHECK constraints but no CHECK enforcing `qty_on_hand >= qty_reserved`. Actual data being currently valid does **not** prove future writes safe.
+- `inv_adjust_stock(uuid,numeric,text)` remains callable by authenticated; that legacy function does not lock with FOR UPDATE or enforce the reservation invariant. Tracked by issue #68; the admin UI containment does **not** fix that RPC.
+- CI for this review branch passed typecheck/lint/unit tests/dependency audit/Node build/browser regressions/Cloudflare validation; **no live mutation or tenant-auth E2E** was run.
+
 ## Acceptance before merge
 - Full CI typecheck/lint/unit tests/node+Cloudflare builds.
 - Staging: role/tenant tests, existing-code replay, global collision test, 200+ batch replay and source data review.
