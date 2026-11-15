@@ -168,10 +168,20 @@ export const createStoreProduct = createServerFn({ method: 'POST' })
         name_ar: data.name_ar,
         store_code: data.store_code,
         barcode: data.barcode || null,
-        sbdma_official_price: data.price,
-        requires_prescription: data.requires_prescription,
-        status: 'approved',
-        is_public: true,
+        // Manual creation is a *proposal*, not an official price, clinical
+        // classification, inventory receipt or publication decision.
+        requires_prescription: true,
+        status: 'pending_review',
+        is_public: false,
+        metadata: {
+          admin_review: {
+            source: 'admin-manual',
+            clinical_status: 'unverified',
+            suggested_requires_prescription: data.requires_prescription,
+            proposed_price_yer: String(data.price),
+            inventory_posted: false,
+          },
+        },
         created_by: actor.userId,
       } as never)
       .select('id')
@@ -181,7 +191,7 @@ export const createStoreProduct = createServerFn({ method: 'POST' })
       throw new Error(error.message)
     }
     await audit(actor, { action: 'catalog.product.create', resourceType: 'catalog_product', resourceId: row.id, payload: data })
-    return { id: row.id as string }
+    return { id: row.id as string, status: 'pending_review' as const }
   })
 
 // ---------- Delete product (soft: archived + hidden from store, keeps order history) ----------
