@@ -179,9 +179,18 @@ export const listModuleTransactions = createServerFn({ method: 'GET' })
     z.object({ period: z.enum(['day', 'week', 'month', 'year']).default('day') }).parse(raw ?? {}),
   )
   .handler(async ({ data, context }): Promise<{ items: ModuleTransaction[]; truncated: boolean }> => {
-    // Caller-scoped client: billing_ledger admin-read RLS remains authoritative.
+    // RLS silently returns an empty list to a non-admin; distinguish that
+    // from a genuinely empty billing period. The role check matches the live
+    // billing_ledger_admin_read policy and uses the authenticated caller ID.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any
+    const { data: isAdmin, error: roleError } = await sb.rpc('has_role', {
+      _user_id: context.userId,
+      _role: 'admin',
+    })
+    if (roleError || isAdmin !== true) {
+      throw new Error('ليس لديك صلاحية قراءة سجل الفوترة.')
+    }
     const period = data.period as BillingPeriod
     const { data: rows, error } = await sb
       .from('billing_ledger')
