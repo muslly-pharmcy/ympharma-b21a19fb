@@ -13,8 +13,8 @@ import { bulkImportExcel, type ExcelProductRow } from '@/lib/excel-import.functi
 export const Route = createFileRoute('/_authenticated/admin-excel-import')({
   head: () => ({
     meta: [
-      { title: 'استيراد Excel — لوحة التحكم' },
-      { name: 'description', content: 'رفع ملف Excel لتحديث الأصناف والأسعار والمخزون.' },
+      { title: 'مراجعة استيراد Excel — لوحة التحكم' },
+      { name: 'description', content: 'إدخال أصناف غير منشورة للمراجعة من Excel، دون تعديل المخزون والأسعار المعتمدة.' },
     ],
   }),
   component: AdminExcelImport,
@@ -73,8 +73,23 @@ function AdminExcelImport() {
   const [result, setResult] = useState<Result | null>(null)
 
   const importMut = useMutation({
-    mutationFn: (payload: ExcelProductRow[]) =>
-      bulkImportExcel({ data: { rows: payload } }),
+    mutationFn: async (payload: ExcelProductRow[]) => {
+      // Bounded requests: no import exceeds the 500-row server limit.
+      const aggregate: Result = {
+        inserted: 0, updated: 0, skipped: 0, total: 0,
+        errors: [], staged: true, deferredStockRows: 0,
+      }
+      for (let start = 0; start < payload.length; start += 200) {
+        const part = await bulkImportExcel({ data: { rows: payload.slice(start, start + 200) } })
+        aggregate.inserted += part.inserted
+        aggregate.updated += part.updated
+        aggregate.skipped += part.skipped
+        aggregate.total += part.total
+        aggregate.deferredStockRows += part.deferredStockRows
+        aggregate.errors.push(...part.errors.slice(0, Math.max(0, 200 - aggregate.errors.length)))
+      }
+      return aggregate
+    },
     onSuccess: setResult,
   })
 
@@ -127,15 +142,19 @@ function AdminExcelImport() {
   return (
     <div dir="rtl" className="mx-auto max-w-5xl space-y-6 p-6 pt-24">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">استيراد Excel للأصناف والمخزون</h1>
+        <h1 className="text-3xl font-bold text-gray-900">إدخال أصناف Excel للمراجعة</h1>
         <p className="text-sm text-gray-600">
-          ارفع ملف Excel لتحديث/إضافة الأصناف مع الأسعار والكميات. الأعمدة المدعومة:
+          ارفع ملف Excel لإضافة أصناف جديدة بحالة «بانتظار المراجعة» فقط. تُحفظ الأسعار والكميات كمقترحات ولا تُعتمد أو تُرحّل للمخزون. الأعمدة المدعومة:
           <code className="mx-1 rounded bg-gray-100 px-1 text-xs">
             store_code, name_ar, name_en, brand, manufacturer, barcode, strength, dosage_form,
             price, qty, category_slug
           </code>
         </p>
       </header>
+
+      <p role="note" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+        الاستيراد لا ينشر أصنافًا ولا يحدّث أسعارًا رسمية أو أرصدة أو دفعات. مراجعة الصنف وتصنيف الوصفة والسعر والاستلام المخزني إجراءات مستقلة إلزامية.
+      </p>
 
       <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90">
@@ -166,11 +185,17 @@ function AdminExcelImport() {
         </div>
       )}
 
+      {importMut.isError && (
+        <div role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+          تعذر إرسال إحدى دفعات المراجعة. ربما حُفظت دفعات سابقة بنجاح؛ أعد الإرسال بأمان، إذ تُتجاهل الأكواد الموجودة ولا يُنشأ مخزون.
+        </div>
+      )}
+
       {rows.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
             <div>
-              <p className="text-sm text-gray-500">صفوف جاهزة للاستيراد</p>
+              <p className="text-sm text-gray-500">صفوف جاهزة للإرسال للمراجعة</p>
               <p className="text-2xl font-bold text-primary">{rows.length.toLocaleString('ar-EG')}</p>
             </div>
             <button
@@ -180,11 +205,11 @@ function AdminExcelImport() {
             >
               {importMut.isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> جارٍ الاستيراد…
+                  <Loader2 className="h-4 w-4 animate-spin" /> جارٍ إرسال أصناف المراجعة…
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="h-4 w-4" /> بدء الاستيراد
+                  <CheckCircle2 className="h-4 w-4" /> إرسال للمراجعة
                 </>
               )}
             </button>
@@ -223,17 +248,20 @@ function AdminExcelImport() {
       )}
 
       {result && (
-        <div className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-          <div className="flex items-center gap-2 text-emerald-800">
+        <div className="space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-6">
+          <div className="flex items-center gap-2 text-amber-900">
             <CheckCircle2 className="h-5 w-5" />
-            <h2 className="text-lg font-bold">اكتمل الاستيراد</h2>
+            <h2 className="text-lg font-bold">اكتمل إرسال الأصناف الجديدة للمراجعة</h2>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label="إجمالي" value={result.total} />
-            <Stat label="مضاف جديد" value={result.inserted} />
-            <Stat label="محدّث" value={result.updated} />
-            <Stat label="فشل" value={result.skipped} />
+            <Stat label="بانتظار المراجعة" value={result.inserted} />
+            <Stat label="معدّل في الإنتاج" value={result.updated} />
+            <Stat label="متجاوز أو مكرر" value={result.skipped} />
           </div>
+          <p role="status" className="text-sm text-amber-900">
+            {result.deferredStockRows} صف احتوى كميات مقترحة؛ لم تُرحّل أي كمية إلى المخزون. لا تُعتمد الأسعار أو الوصفات إلا بعد مراجعة منفصلة.
+          </p>
           {result.errors.length > 0 && (
             <details className="rounded-xl bg-white p-4">
               <summary className="cursor-pointer text-sm font-semibold text-red-700">

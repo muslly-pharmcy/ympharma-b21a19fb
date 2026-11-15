@@ -4,6 +4,7 @@
 // with a `warning` field (non-breaking, forward-compatible).
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+import { getBillingPeriodStart, type BillingEntryType, type BillingPeriod } from './billing-display'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 
 const sel = (s: string): string => s
@@ -160,35 +161,67 @@ export const listModuleDeliveries = createServerFn({ method: 'GET' })
     return { items, warning: null }
   })
 
-// ─── Finance (billing_ledger as source of truth) ────────────────────────────
+// ─── Billing ledger (not ERP profit and loss) ───────────────────────────────
+// billing_ledger has entry_type, amount_yer and notes; it does NOT have
+// direction/category/amount_cents. A charge is not assumed to be ERP revenue.
 export interface ModuleTransaction {
   id: string
-  type: 'income' | 'expense' | 'transfer'
-  category: string
-  amount: number
+  type: BillingEntryType
+  amountYer: string
   description: string
+  subjectType: string | null
   createdAt: string
 }
 
 export const listModuleTransactions = createServerFn({ method: 'GET' })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ items: ModuleTransaction[]; warning: string | null }> => {
+  .validator((raw: unknown) =>
+    z.object({ period: z.enum(['day', 'week', 'month', 'year']).default('day') }).parse(raw ?? {}),
+  )
+  .handler(async ({ data, context }): Promise<{ items: ModuleTransaction[]; truncated: boolean }> => {
+    // RLS silently returns an empty list to a non-admin; distinguish that
+    // from a genuinely empty billing period. The role check matches the live
+    // billing_ledger_admin_read policy and uses the authenticated caller ID.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any
-    const { data, error } = await sb
+    const { data: isAdmin, error: roleError } = await sb.rpc('has_role', {
+      _user_id: context.userId,
+      _role: 'admin',
+    })
+    if (roleError || isAdmin !== true) {
+      throw new Error('ليس لديك صلاحية قراءة سجل الفوترة.')
+    }
+    const period = data.period as BillingPeriod
+    const { data: rows, error } = await sb
       .from('billing_ledger')
-      .select(sel('id, direction, category, amount_cents, description, created_at'))
+      .select(sel('id, entry_type, amount_yer, notes, subject_type, created_at'))
+      .gte('created_at', getBillingPeriodStart(period))
+      .lte('created_at', new Date().toISOString())
       .order('created_at', { ascending: false })
-      .limit(100)
-    if (error) return { items: [], warning: error.message }
-    type Row = { id: string; direction: string | null; category: string | null; amount_cents: number | null; description: string | null; created_at: string }
-    const items: ModuleTransaction[] = ((data ?? []) as Row[]).map((r) => ({
-      id: r.id,
-      type: (r.direction === 'credit' ? 'income' : r.direction === 'debit' ? 'expense' : 'transfer'),
-      category: r.category ?? '',
-      amount: Number(r.amount_cents ?? 0) / 100,
-      description: r.description ?? '',
-      createdAt: r.created_at,
-    }))
-    return { items, warning: null }
+      .limit(101)
+
+    // Fail visibly: a SQL/permission failure must never become a zero-valued KPI.
+    if (error) throw new Error('تعذر قراءة سجل الفوترة. تحقق من الصلاحيات أو اتصال قاعدة البيانات.')
+
+    type Row = {
+      id: string
+      entry_type: BillingEntryType
+      amount_yer: string | number
+      notes: string | null
+      subject_type: string | null
+      created_at: string
+    }
+    const results = (rows ?? []) as Row[]
+    return {
+      truncated: results.length > 100,
+      items: results.slice(0, 100).map((row) => ({
+        id: row.id,
+        type: row.entry_type,
+        // Do not rescale YER values to cents; retain the database decimal digits.
+        amountYer: String(row.amount_yer),
+        description: row.notes ?? '',
+        subjectType: row.subject_type,
+        createdAt: row.created_at,
+      })),
+    }
   })
