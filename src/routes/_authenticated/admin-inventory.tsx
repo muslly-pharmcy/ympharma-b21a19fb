@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { toast } from 'sonner'
 import { uploadProductImage } from '@/lib/catalog-media.functions'
 import {
@@ -53,7 +53,7 @@ function AdminInventoryPage() {
   })
   const stockMut = useMutation({
     mutationFn: useServerFn(setProductStockBalance),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['admin-inventory'] }),
   })
   const uploadImage = useServerFn(uploadProductImage)
   const imageMut = useMutation({
@@ -85,15 +85,13 @@ function AdminInventoryPage() {
       <AddProductForm
         busy={createMut.isPending}
         onAdd={async (v) => {
-          const { qty, ...rest } = v
-          const created = await createMut.mutateAsync({ data: rest })
-          if (qty > 0) {
-            await stockMut.mutateAsync({ data: { productId: created.id, newBalance: qty, reason: 'admin initial stock' } })
-          }
+          if (v.qty > 0) throw new Error('أنشئ الصنف دون رصيد ثم سجّل استلام دفعة برقم تشغيلة وصلاحية')
+          const { qty: _qty, ...rest } = v
+          await createMut.mutateAsync({ data: rest })
         }}
       />
       <p className="text-xs text-muted-foreground">
-        الأصناف المرتبطة ببرنامج الصيدلية تُحدَّث كمياتها وأسعارها تلقائياً كل ساعة عبر نفس «الكود».
+        إضافة الرصيد تتم عبر استلام دفعة موثقة. التسوية هنا تتطلب رصيداً حديثاً وتحافظ على الكميات المحجوزة.
       </p>
 
       <div className="flex gap-2 flex-wrap">
@@ -142,7 +140,13 @@ function AdminInventoryPage() {
                     if (!confirm(`حذف «${row.name ?? ''}» من المتجر؟`)) return
                     await deleteMut.mutateAsync({ data: { productId: id } })
                   }}
-                  onSaveStock={(newBalance) => stockMut.mutateAsync({ data: { productId: id, newBalance, reason: 'admin manual' } })}
+                  onSaveStock={async (newBalance) => {
+                    if (row.stock_balance === null) throw new Error('تعذر قراءة الرصيد الحالي؛ حدّث الصفحة')
+                    await stockMut.mutateAsync({ data: {
+                      productId: id, expectedBalance: row.stock_balance, newBalance,
+                      idempotencyKey: crypto.randomUUID(), reason: 'admin manual',
+                    } })
+                  }}
                   onUploadImage={async (file) => {
                     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
                       throw new Error('اختر صورة JPEG أو PNG أو WebP')
@@ -181,6 +185,7 @@ function ProductRow({
 }) {
   const [price, setPrice] = useState(String(row.price ?? ''))
   const [stock, setStock] = useState(String(row.stock_balance ?? 0))
+  useEffect(() => { setStock(String(row.stock_balance ?? 0)) }, [row.stock_balance])
   const [busy, setBusy] = useState<null | string>(null)
   const [imageUploaded, setImageUploaded] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -224,7 +229,10 @@ function ProductRow({
             const n = Math.floor(Number(stock))
             if (!stockDirty || !Number.isFinite(n) || n < 0) return
             setBusy('stock')
-            try { await onSaveStock(n) } finally { setBusy(null) }
+            try { await onSaveStock(n) } catch (error) {
+              toast.error(error instanceof Error ? error.message : 'تعذرت تسوية المخزون')
+              setStock(String(row.stock_balance ?? 0))
+            } finally { setBusy(null) }
           }}
         />
         {busy === 'stock' && <span className="text-xs mr-1">…</span>}
@@ -309,7 +317,7 @@ function AddProductForm({ onAdd, busy }: { onAdd: (v: NewProduct) => Promise<voi
       <input aria-label="الكود" className={inp} placeholder="الكود (نفس كود برنامج الصيدلية) *" value={f.store_code} onChange={(e) => setF({ ...f, store_code: e.target.value })} />
       <input aria-label="الباركود" className={inp} placeholder="الباركود" value={f.barcode} onChange={(e) => setF({ ...f, barcode: e.target.value })} />
       <input aria-label="السعر" className={inp} placeholder="السعر (ر.ي) *" inputMode="decimal" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} />
-      <input aria-label="الكمية" className={inp} placeholder="الكمية" inputMode="numeric" value={f.qty} onChange={(e) => setF({ ...f, qty: e.target.value })} />
+      <input aria-label="الكمية" className={inp} placeholder="الرصيد عبر استلام دفعة" inputMode="numeric" value="0" disabled />
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={f.rx} onChange={(e) => setF({ ...f, rx: e.target.checked })} /> يحتاج وصفة طبية
       </label>
