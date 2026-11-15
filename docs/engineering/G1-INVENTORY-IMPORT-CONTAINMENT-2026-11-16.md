@@ -11,6 +11,8 @@ Date: 2026-11-16. Changes **code only** on review branch; no production SQL, che
 - Excel import inserts **new** tenant-bound `catalog_products` only, marked `pending_review`, `is_public=false`, `requires_prescription=true` pending classification; no `sbdma_official_price` write.
 - Candidate price and quantity are review proposals only, saved in `metadata.excel_review`; no stock batch is created or updated.
 - Existing catalog codes are skipped, not overwritten. Unique constraint violations are reported and do not affect other organizations.
+- Manual admin product creation was another publication bypass. It now creates private `pending_review` records with conservative prescription handling; entered price is a **proposal**, not an official SBDMA price. The admin UI labels the product as pending review and does not allow official-price edits until approval.
+- These changes **do not implement** the clinical review/approval workflow itself. Until a qualified reviewer and authorized approval service exist, newly created/imported products remain private by design.
 - The UI sends at most 200 rows per request, aggregates counts, and explicitly explains non-atomic partial completion and deferred quantity review.
 - Automated guards prevent reintroduction of unsafe stock writes or auto-publication via this import route.
 
