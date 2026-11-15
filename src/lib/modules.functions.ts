@@ -5,6 +5,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { billingPeriod } from '@/lib/billing-ledger'
 
 const sel = (s: string): string => s
 
@@ -160,35 +161,11 @@ export const listModuleDeliveries = createServerFn({ method: 'GET' })
     return { items, warning: null }
   })
 
-// ─── Finance (billing_ledger as source of truth) ────────────────────────────
-export interface ModuleTransaction {
-  id: string
-  type: 'income' | 'expense' | 'transfer'
-  category: string
-  amount: number
-  description: string
-  createdAt: string
-}
-
+// Billing is subscription activity, not the ERP income/expense journal.
 export const listModuleTransactions = createServerFn({ method: 'GET' })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ items: ModuleTransaction[]; warning: string | null }> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb = context.supabase as any
-    const { data, error } = await sb
-      .from('billing_ledger')
-      .select(sel('id, direction, category, amount_cents, description, created_at'))
-      .order('created_at', { ascending: false })
-      .limit(100)
-    if (error) return { items: [], warning: error.message }
-    type Row = { id: string; direction: string | null; category: string | null; amount_cents: number | null; description: string | null; created_at: string }
-    const items: ModuleTransaction[] = ((data ?? []) as Row[]).map((r) => ({
-      id: r.id,
-      type: (r.direction === 'credit' ? 'income' : r.direction === 'debit' ? 'expense' : 'transfer'),
-      category: r.category ?? '',
-      amount: Number(r.amount_cents ?? 0) / 100,
-      description: r.description ?? '',
-      createdAt: r.created_at,
-    }))
-    return { items, warning: null }
+  .validator((raw: unknown) => z.object({ period: billingPeriod.default('day') }).parse(raw ?? {}))
+  .handler(async ({ data, context }) => {
+    const { readBillingLedger } = await import('@/lib/billing-ledger.server')
+    return readBillingLedger(context, data.period)
   })

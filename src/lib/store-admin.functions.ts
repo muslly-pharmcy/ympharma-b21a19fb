@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 import { signPrimaryCatalogImages, type CatalogMediaReference } from './catalog-media-policy'
 
+import { stockSetInput } from '@/lib/admin-stock'
+
 const uuid = z.string().uuid()
 
 // ---------- Update product price (SBDMA official price) ----------
@@ -55,111 +57,17 @@ export const updateProductImage = createServerFn({ method: 'POST' })
     return registerCatalogImage(context, { ...data, kind: 'primary' })
   })
 
-// ---------- Set absolute stock balance (creates single adjustment batch) ----------
+// Organization-wide compare-and-set; all batch mutations happen in one SQL transaction.
 export const setProductStockBalance = createServerFn({ method: 'POST' })
-  .validator((raw: unknown) =>
-    z
-      .object({
-        productId: uuid,
-        newBalance: z.number().int().min(0),
-        reason: z.string().min(2).max(200).default('admin manual set'),
-      })
-      .parse(raw),
-  )
+  .validator((raw: unknown) => stockSetInput.parse(raw))
   .handler(async ({ data }) => {
     const { getActor, requirePermission } = await import('./session.server')
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const { audit } = await import('./audit.server')
     const actor = await getActor()
-    requirePermission(actor, 'catalog.write')
-
-    // Ensure product belongs to actor org
-    const { data: p, error: pErr } = await supabaseAdmin
-      .from('catalog_products')
-      .select('organization_id')
-      .eq('id', data.productId)
-      .single()
-    if (pErr) throw new Error(pErr.message)
-    if (p.organization_id !== actor.organizationId) {
-      throw new Error('Forbidden: cross-org update')
-    }
-
-    // Get / create default warehouse for this org
-    const { data: wh } = await supabaseAdmin
-      .from('wh_warehouses')
-      .select('id')
-      .eq('organization_id', actor.organizationId)
-      .eq('is_active', true)
-      .order('created_at', { ascending: true })
-      .limit(1)
-      .maybeSingle()
-
-    let warehouseId = wh?.id as string | undefined
-    if (!warehouseId) {
-      const { data: newWh, error: whErr } = await supabaseAdmin
-        .from('wh_warehouses')
-        .insert({
-          organization_id: actor.organizationId,
-          code: 'MAIN',
-          name: 'المخزن الرئيسي',
-          kind: 'central',
-          is_active: true,
-        })
-        .select('id')
-        .single()
-      if (whErr) throw new Error(whErr.message)
-      warehouseId = newWh.id
-    }
-
-    // Sum existing on-hand for this product in org
-    const { data: existingBatches } = await supabaseAdmin
-      .from('inv_stock_batches')
-      .select('id, qty_on_hand')
-      .eq('organization_id', actor.organizationId)
-      .eq('product_id', data.productId)
-
-    const currentTotal = ((existingBatches ?? []) as Array<{ qty_on_hand: number }>).reduce(
-      (s, r) => s + Number(r.qty_on_hand ?? 0),
-      0,
-    )
-    const delta = data.newBalance - currentTotal
-
-    if (delta === 0) return { ok: true, delta: 0, newBalance: data.newBalance }
-
-    // Add a single adjustment batch (positive) or reduce first batches (negative)
-    if (delta > 0) {
-      const { error } = await supabaseAdmin.from('inv_stock_batches').insert({
-        organization_id: actor.organizationId,
-        warehouse_id: warehouseId,
-        product_id: data.productId,
-        qty_on_hand: delta,
-        qty_reserved: 0,
-      })
-      if (error) throw new Error(error.message)
-    } else {
-      let toRemove = -delta
-      for (const b of (existingBatches ?? []) as Array<{ id: string; qty_on_hand: number }>) {
-        if (toRemove <= 0) break
-        const take = Math.min(Number(b.qty_on_hand ?? 0), toRemove)
-        if (take <= 0) continue
-        const newQty = Number(b.qty_on_hand) - take
-        const { error } = await supabaseAdmin
-          .from('inv_stock_batches')
-          .update({ qty_on_hand: newQty })
-          .eq('id', b.id)
-        if (error) throw new Error(error.message)
-        toRemove -= take
-      }
-    }
-
-    await audit(actor, {
-      action: 'catalog.product.stock_set',
-      resourceType: 'catalog_product',
-      resourceId: data.productId,
-      payload: { delta, newBalance: data.newBalance, reason: data.reason },
-    })
-
-    return { ok: true, delta, newBalance: data.newBalance }
+    requirePermission(actor, 'inventory.write')
+    const { setAdminStock } = await import('@/lib/admin-stock.server')
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+    // RPC name is new; preserve generated Supabase types until schema regeneration.
+    return setAdminStock(supabaseAdmin as unknown as Parameters<typeof setAdminStock>[0], actor, data)
   })
 
 // ---------- List for admin inventory table ----------

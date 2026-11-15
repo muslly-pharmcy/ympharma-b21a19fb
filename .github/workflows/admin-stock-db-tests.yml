@@ -1,0 +1,48 @@
+name: Atomic admin stock PostgreSQL acceptance
+on:
+  pull_request:
+    paths:
+      - 'drizzle/migrations/0007_atomic_admin_stock_set.sql'
+      - 'scripts/sql/admin-stock-*'
+      - 'scripts/sql/extract-stock-adjustment.mjs'
+      - '.github/workflows/admin-stock-db-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: ympharma_admin_stock_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: synthetic-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d ympharma_admin_stock_test"
+          --health-interval=5s --health-timeout=5s --health-retries=15
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: synthetic-ci-only
+      PGDATABASE: ympharma_admin_stock_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Create disposable fixtures
+        run: psql -X -v ON_ERROR_STOP=1 -f scripts/sql/admin-stock-ci-fixtures.sql
+      - name: Load the real historical adjustment function
+        run: node scripts/sql/extract-stock-adjustment.mjs | psql -X -v ON_ERROR_STOP=1
+      - name: Apply staging candidate and test transaction invariants
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -f drizzle/migrations/0007_atomic_admin_stock_set.sql
+          psql -X -v ON_ERROR_STOP=1 -f scripts/sql/admin-stock-acceptance.sql
+      - name: Race 20 independent connections
+        run: python3 scripts/sql/admin-stock-concurrency.py
