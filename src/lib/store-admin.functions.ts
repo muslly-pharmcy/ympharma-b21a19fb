@@ -19,12 +19,15 @@ export const updateProductPrice = createServerFn({ method: 'POST' })
 
     const { data: existing, error: fetchErr } = await supabaseAdmin
       .from('catalog_products')
-      .select('organization_id, sbdma_official_price')
+      .select('organization_id, sbdma_official_price, status')
       .eq('id', data.productId)
       .single()
     if (fetchErr) throw new Error(fetchErr.message)
     if (existing.organization_id !== actor.organizationId) {
       throw new Error('Forbidden: cross-org update')
+    }
+    if (existing.status !== 'approved') {
+      throw new Error('لا يجوز اعتماد السعر الرسمي قبل اعتماد الصنف ومراجعته.')
     }
 
     const { error } = await supabaseAdmin
