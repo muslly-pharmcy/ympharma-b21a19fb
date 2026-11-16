@@ -48,3 +48,5 @@ jobs:
         run: psql -X -v ON_ERROR_STOP=1 -f scripts/sql/legacy-stock-rpc-acceptance.sql
       - name: Verify two competing decrements
         run: bash scripts/sql/legacy-stock-rpc-concurrency.sh
+      - name: Restore synthetic backup and verify data and reservation guard
+        run: bash scripts/sql/legacy-stock-rpc-recovery.sh
