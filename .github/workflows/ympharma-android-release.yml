@@ -43,10 +43,10 @@ jobs:
       - name: Validate signing credentials and release version
         shell: bash
         env:
+          YMPHARMA_ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/ympharma-release-keystore.jks
           YMPHARMA_ANDROID_KEYSTORE_B64: ${{ secrets.YMPHARMA_ANDROID_KEYSTORE_B64 }}
         run: |
           set -euo pipefail
-          export YMPHARMA_ANDROID_KEYSTORE_PATH="${RUNNER_TEMP}/ympharma-release-keystore.jks"
           printf 'YMPHARMA_ANDROID_KEYSTORE_PATH=%s\n' "$YMPHARMA_ANDROID_KEYSTORE_PATH" >> "$GITHUB_ENV"
           for key in YMPHARMA_ANDROID_KEYSTORE_B64 YMPHARMA_ANDROID_STORE_PASSWORD YMPHARMA_ANDROID_KEY_ALIAS YMPHARMA_ANDROID_KEY_PASSWORD; do
             if [ -z "${!key:-}" ]; then
