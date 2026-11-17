@@ -12,3 +12,4 @@ description: Build responsive accessible Arabic RTL interfaces and fast enterpri
 - Moderate glass and 3D effects must honor reduced-motion and avoid layout jank.
 - Verify dark/light themes, network failures, performance, permissions and no regression to financial actions.
 - Only claim UX improvements after screenshots and observed tests.
+- Before a substantial redesign, consult the project-local `refero-style-reference` skill for source-backed visual directions, and record a reference lock; never treat a marketing style reference as evidence for POS or accounting interaction flows.
