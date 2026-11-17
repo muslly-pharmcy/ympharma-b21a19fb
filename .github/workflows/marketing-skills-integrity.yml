@@ -39,15 +39,24 @@ jobs:
           destination=".agents/skills"
           test "$(git -C .agents/marketingskills rev-parse HEAD)" = "1f837447b20bb6f0e72d87b80ece1c221c362c7d"
           test "$(find "$source_dir" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')" = "53"
+          # Compare canonical Git blobs, not checkout-transformed bytes (e.g. CRLF / filters).
           count=0
-          while IFS= read -r -d '' file; do
-            relative="${file#"$source_dir"/}"
-            cmp "$file" "$destination/$relative"
+          while IFS= read -r file; do
+            relative="${file#skills/}"
+            original="$(git -C .agents/marketingskills rev-parse "HEAD:$file")"
+            copied="$(git rev-parse "HEAD:.agents/skills/$relative" 2>/dev/null || true)"
+            if [[ "$original" != "$copied" ]]; then
+              echo "::error::Missing or changed marketing skill file: $relative" >&2
+              exit 1
+            fi
             count=$((count + 1))
-          done < <(find "$source_dir" -type f -print0)
+          done < <(git -C .agents/marketingskills ls-tree -r --name-only HEAD -- skills/)
+          echo "Compared $count source Git blobs"
           test "$count" -eq 460
-          test "$(find "$destination" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')" -eq 67
-          cmp ".agents/marketingskills/LICENSE" "$destination/LICENSE.marketingskills"
+          total="$(find "$destination" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')"
+          echo "Installed $total skill entrypoints"
+          test "$total" -eq 67
+          test "$(git -C .agents/marketingskills rev-parse "HEAD:LICENSE")" = "$(git rev-parse "HEAD:.agents/skills/LICENSE.marketingskills")"
           for name in graphify pharma-pos-fefo pharma-ledger-integrity pharma-safe-change muslly-marketing-integration; do
             test -f "$destination/$name/SKILL.md"
           done
