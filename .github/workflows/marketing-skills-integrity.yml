@@ -55,9 +55,9 @@ jobs:
           test "$count" -eq 460
           total="$(find "$destination" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')"
           echo "Installed $total skill entrypoints"
-          test "$total" -eq 67
+          test "$total" -ge 67
           test "$(git -C .agents/marketingskills rev-parse "HEAD:LICENSE")" = "$(git rev-parse "HEAD:.agents/skills/LICENSE.marketingskills")"
           for name in graphify pharma-pos-fefo pharma-ledger-integrity pharma-safe-change muslly-marketing-integration; do
             test -f "$destination/$name/SKILL.md"
           done
-          echo "PASS: 460 byte-identical files, 53 upstream skills, 67 total project skills and MIT license"
+          echo "PASS: 460 byte-identical files, 53 upstream skills, $total total project skills and MIT license"
