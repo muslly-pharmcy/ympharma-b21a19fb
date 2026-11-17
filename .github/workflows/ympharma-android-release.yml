@@ -25,7 +25,6 @@ jobs:
     env:
       YMPHARMA_ANDROID_VERSION_CODE: ${{ inputs.version_code }}
       YMPHARMA_ANDROID_VERSION_NAME: ${{ inputs.version_name }}
-      YMPHARMA_ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/ympharma-release-keystore.jks
       YMPHARMA_ANDROID_STORE_PASSWORD: ${{ secrets.YMPHARMA_ANDROID_STORE_PASSWORD }}
       YMPHARMA_ANDROID_KEY_ALIAS: ${{ secrets.YMPHARMA_ANDROID_KEY_ALIAS }}
       YMPHARMA_ANDROID_KEY_PASSWORD: ${{ secrets.YMPHARMA_ANDROID_KEY_PASSWORD }}
@@ -47,6 +46,8 @@ jobs:
           YMPHARMA_ANDROID_KEYSTORE_B64: ${{ secrets.YMPHARMA_ANDROID_KEYSTORE_B64 }}
         run: |
           set -euo pipefail
+          export YMPHARMA_ANDROID_KEYSTORE_PATH="${RUNNER_TEMP}/ympharma-release-keystore.jks"
+          printf 'YMPHARMA_ANDROID_KEYSTORE_PATH=%s\n' "$YMPHARMA_ANDROID_KEYSTORE_PATH" >> "$GITHUB_ENV"
           for key in YMPHARMA_ANDROID_KEYSTORE_B64 YMPHARMA_ANDROID_STORE_PASSWORD YMPHARMA_ANDROID_KEY_ALIAS YMPHARMA_ANDROID_KEY_PASSWORD; do
             if [ -z "${!key:-}" ]; then
               echo "::error::Android signing configuration is incomplete ($key)"
