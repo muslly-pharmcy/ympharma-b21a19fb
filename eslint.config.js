@@ -16,6 +16,10 @@ export default tseslint.config(
       '.tanstack/**',
       '.wrangler/**',
       'node_modules/**',
+      // Third-party marketing skills are documentation/tooling, not shipped ERP application code.
+      // Their byte-for-byte integrity is enforced by marketing-skills-integrity.yml.
+      '.agents/skills/**',
+      '.agents/marketingskills/**',
       'coverage/**',
       'playwright-report/**',
       'test-results/**',
