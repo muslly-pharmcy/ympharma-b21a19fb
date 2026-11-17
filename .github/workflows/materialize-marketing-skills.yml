@@ -1,0 +1,64 @@
+name: Materialize pinned Marketing Skills
+
+on:
+  push:
+    branches:
+      - feature/muslly-marketing-skills-20261117
+    paths:
+      - .github/workflows/materialize-marketing-skills.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          submodules: false
+
+      - name: Verify target branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "feature/muslly-marketing-skills-20261117"
+
+      - name: Fetch pinned upstream submodule
+        run: git submodule update --init --recursive
+
+      - name: Install all marketing skills
+        run: bash scripts/install-marketing-skills.sh
+
+      - name: Verify installed skills and preserve existing agent skills
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_count="$(find .agents/marketingskills/skills -mindepth 2 -maxdepth 2 -type f -name SKILL.md | wc -l | tr -d ' ')"
+          test "$source_count" -eq 53
+          for skill in .agents/marketingskills/skills/*/SKILL.md; do
+            name="$(basename "$(dirname "$skill")")"
+            test -f ".agents/skills/$name/SKILL.md"
+          done
+          for name in graphify pharma-pos-fefo pharma-ledger-integrity pharma-safe-change muslly-marketing-integration; do
+            test -f ".agents/skills/$name/SKILL.md"
+          done
+          installed_count="$(find .agents/skills -mindepth 2 -maxdepth 2 -type f -name SKILL.md | wc -l | tr -d ' ')"
+          test "$installed_count" -ge 67
+          echo "Verified $source_count marketing skills; $installed_count total installed skills"
+
+      - name: Commit source files to feature branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A -- .agents/skills
+          if git diff --cached --quiet; then
+            echo "Skill files already materialized"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "chore(marketing): materialize 53 pinned skills [skip ci]"
+          git push origin "HEAD:refs/heads/feature/muslly-marketing-skills-20261117"

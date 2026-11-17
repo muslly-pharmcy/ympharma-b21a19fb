@@ -27,10 +27,10 @@ export const Route = createFileRoute('/shop')({
       {
         name: 'description',
         content:
-          'تسوّق أدوية بدون وصفة، مستلزمات، وعناية شخصية من صيدلية المصلي مع خيارات شحن وتوصيل موثوقة.',
+          'تصفح المنتجات الصحية والعناية الشخصية والفيتامينات في صيدلية المصلي بعدن، مع مراجعة الطلب وتأكيد السعر والتوفر قبل التوصيل.',
       },
       { property: 'og:title', content: 'متجر صيدلية المصلي' },
-      { property: 'og:description', content: 'كتالوج شفاف بأسعار محدّثة وخيارات دفع مرنة.' },
+      { property: 'og:description', content: 'تصفح منتجات صيدلية المصلي في عدن، مع تأكيد السعر والتوفر ومراجعة الطلب قبل التوصيل.' },
       { property: 'og:type', content: 'website' },
       { name: 'twitter:card', content: 'summary_large_image' },
     ],

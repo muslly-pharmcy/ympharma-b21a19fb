@@ -1,0 +1,63 @@
+name: Marketing Skills integrity
+
+on:
+  pull_request:
+    paths:
+      - ".agents/marketingskills"
+      - ".agents/skills/**"
+      - ".gitmodules"
+      - "scripts/install-marketing-skills.sh"
+      - ".github/workflows/marketing-skills-integrity.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".agents/marketingskills"
+      - ".agents/skills/**"
+      - ".gitmodules"
+      - "scripts/install-marketing-skills.sh"
+      - ".github/workflows/marketing-skills-integrity.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Load pinned source
+        run: git submodule update --init --recursive
+      - name: Verify each source file matches the checked-in skill
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_dir=".agents/marketingskills/skills"
+          destination=".agents/skills"
+          test "$(git -C .agents/marketingskills rev-parse HEAD)" = "1f837447b20bb6f0e72d87b80ece1c221c362c7d"
+          test "$(find "$source_dir" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')" = "53"
+          # Compare canonical Git blobs, not checkout-transformed bytes (e.g. CRLF / filters).
+          count=0
+          while IFS= read -r file; do
+            relative="${file#skills/}"
+            original="$(git -C .agents/marketingskills rev-parse "HEAD:$file")"
+            copied="$(git rev-parse "HEAD:.agents/skills/$relative" 2>/dev/null || true)"
+            if [[ "$original" != "$copied" ]]; then
+              echo "::error::Missing or changed marketing skill file: $relative" >&2
+              exit 1
+            fi
+            count=$((count + 1))
+          done < <(git -C .agents/marketingskills ls-tree -r --name-only HEAD -- skills/)
+          echo "Compared $count source Git blobs"
+          test "$count" -eq 460
+          total="$(find "$destination" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')"
+          echo "Installed $total skill entrypoints"
+          test "$total" -ge 67
+          test "$(git -C .agents/marketingskills rev-parse "HEAD:LICENSE")" = "$(git rev-parse "HEAD:.agents/skills/LICENSE.marketingskills")"
+          for name in graphify pharma-pos-fefo pharma-ledger-integrity pharma-safe-change muslly-marketing-integration; do
+            test -f "$destination/$name/SKILL.md"
+          done
+          echo "PASS: 460 byte-identical files, 53 upstream skills, $total total project skills and MIT license"
