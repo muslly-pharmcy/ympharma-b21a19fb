@@ -39,3 +39,12 @@ The script will not change any existing pharmacy agent skill; it skips conflicts
 
 ## What this does NOT claim
 No claims of live site publication, ad campaign launch, analytics account linkage, production conversion uplift, or global ChatGPT-account skill installation.
+
+## Verified cloud installation — 2026-11-17
+- GitHub Actions workflow **Materialize pinned Marketing Skills** completed successfully on the feature branch.
+- All **53** upstream skill entrypoints are now checked in at `.agents/skills/<skill>/SKILL.md`, alongside the existing **14** Pharma AI and integration skills (**67 total**).
+- All **460** upstream files inside `skills/` are versioned in `.agents/skills/`.
+- Post-install GitHub object-SHA comparison: **460 of 460 identical** to upstream commit `1f837447b20bb6f0e72d87b80ece1c221c362c7d`, no missing or mismatched files.
+- The MIT license is preserved in `.agents/skills/LICENSE.marketingskills`.
+- Ongoing regression check: `.github/workflows/marketing-skills-integrity.yml` checks the pinned git submodule, all copied file bytes and existing Pharma AI skills.
+- This proves source installation in the GitHub project. It does **not** imply publishing the SEO change to the live website, installing the skills globally in ChatGPT, or running untrusted upstream scripts.

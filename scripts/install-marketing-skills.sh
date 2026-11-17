@@ -29,6 +29,7 @@ for dir in "$SOURCE"/*/; do
     installed=$((installed + 1))
   fi
 done
+cp "$ROOT/.agents/marketingskills/LICENSE" "$DEST/LICENSE.marketingskills"
 echo "Marketing Skills: source=$count installed=$installed skipped=$skipped."
 echo "All original files are preserved in the pinned submodule; only missing skills were copied."
 echo "Review third-party scripts before running them. No website deployment or ad campaign was triggered."
