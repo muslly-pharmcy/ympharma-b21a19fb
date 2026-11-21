@@ -1,0 +1,2767 @@
+{
+  "schema_version": 1,
+  "source": "https://github.com/ruvnet/ruflo",
+  "revision": "87f612cef121b50c2e31e2d3f88e46d88963a377",
+  "entry_policy": "inventory-only;not-trusted-or-enabled",
+  "source_count": 403,
+  "official_featured": [
+    {
+      "title": "ADR",
+      "description": "Architecture Decision Records with lifecycle and dependency tracking",
+      "skills": [
+        "adr-create",
+        "adr-index",
+        "adr-reindex",
+        "adr-review",
+        "adr-verify"
+      ]
+    },
+    {
+      "title": "Agents",
+      "description": "Managed cloud agents, WASM sandboxed agents, and nested subagent trees",
+      "skills": [
+        "managed-agent",
+        "nested-subagents",
+        "wasm-agent",
+        "wasm-gallery"
+      ]
+    },
+    {
+      "title": "AgentDB",
+      "description": "Semantic routing, HNSW vector search, and hierarchical recall",
+      "skills": [
+        "agentdb-query",
+        "vector-search"
+      ]
+    },
+    {
+      "title": "AI Defense",
+      "description": "PII detection and prompt-injection scanning",
+      "skills": [
+        "pii-detect",
+        "safety-scan"
+      ]
+    },
+    {
+      "title": "Autopilot",
+      "description": "Autonomous task loops with learned-pattern prediction",
+      "skills": [
+        "autopilot-loop",
+        "autopilot-predict"
+      ]
+    },
+    {
+      "title": "Browser",
+      "description": "Session-recorded browser automation with RVF-backed replay",
+      "skills": [
+        "browser-auth-flow",
+        "browser-extract",
+        "browser-form-fill",
+        "browser-intent",
+        "browser-login",
+        "browser-record",
+        "browser-replay",
+        "browser-scrape",
+        "browser-screenshot-diff",
+        "browser-test"
+      ]
+    },
+    {
+      "title": "Business Pods",
+      "description": "Composable business-domain agent bundles",
+      "skills": [
+        "pod-sales"
+      ]
+    },
+    {
+      "title": "Core",
+      "description": "Project init, plugin discovery, doctor health checks, and witness signing",
+      "skills": [
+        "discover-plugins",
+        "init-project",
+        "ruflo-doctor",
+        "witness"
+      ]
+    },
+    {
+      "title": "Cost Tracker",
+      "description": "Session cost telemetry, budgets, anomaly detection, and burn tracking",
+      "skills": [
+        "cost-anomaly",
+        "cost-benchmark",
+        "cost-booster-edit",
+        "cost-booster-route",
+        "cost-budget-check",
+        "cost-burn",
+        "cost-compact-context",
+        "cost-conversation",
+        "cost-counterfactual",
+        "cost-diff",
+        "cost-export",
+        "cost-federation",
+        "cost-health",
+        "cost-optimize",
+        "cost-projection",
+        "cost-report",
+        "cost-session",
+        "cost-summary",
+        "cost-track",
+        "cost-trend"
+      ]
+    },
+    {
+      "title": "Dynamic Agent Architecture",
+      "description": "Cognitive-pattern agents that adapt across tasks",
+      "skills": [
+        "cognitive-pattern",
+        "daa-agent"
+      ]
+    },
+    {
+      "title": "Domain-Driven Design",
+      "description": "Bounded-context scaffolding and aggregate validation",
+      "skills": [
+        "ddd-aggregate",
+        "ddd-context",
+        "ddd-validate"
+      ]
+    },
+    {
+      "title": "Documentation",
+      "description": "API doc generation with drift detection",
+      "skills": [
+        "api-docs",
+        "doc-gen"
+      ]
+    },
+    {
+      "title": "Federation",
+      "description": "Cross-installation zero-trust agent federation",
+      "skills": [
+        "federation-audit",
+        "federation-init",
+        "federation-status"
+      ]
+    },
+    {
+      "title": "Goals",
+      "description": "Deep research, dossier collection, and goal-oriented action planning",
+      "skills": [
+        "deep-research",
+        "dossier-collect",
+        "goal-plan",
+        "horizon-track",
+        "research-synthesize"
+      ]
+    },
+    {
+      "title": "Intelligence",
+      "description": "Learned model routing, IPFS pattern transfer, neural training",
+      "skills": [
+        "intelligence-route",
+        "intelligence-transfer",
+        "neural-train"
+      ]
+    },
+    {
+      "title": "IoT (Cognitum)",
+      "description": "ESP32 device fleet management with anomaly detection",
+      "skills": [
+        "iot-anomalies",
+        "iot-firmware",
+        "iot-fleet",
+        "iot-register",
+        "iot-witness-verify"
+      ]
+    },
+    {
+      "title": "Git Analysis",
+      "description": "Diff risk analysis and PR-lifecycle git workflows",
+      "skills": [
+        "diff-analyze",
+        "git-workflow"
+      ]
+    },
+    {
+      "title": "Knowledge Graph",
+      "description": "Entity/relation extraction with pathfinder traversal",
+      "skills": [
+        "kg-extract",
+        "kg-traverse"
+      ]
+    },
+    {
+      "title": "Loop Workers",
+      "description": "Recurring background workers via cron and interval scheduling",
+      "skills": [
+        "cron-schedule",
+        "loop-worker"
+      ]
+    },
+    {
+      "title": "Market Data",
+      "description": "OHLCV ingest with HNSW-indexed candlestick pattern matching",
+      "skills": [
+        "market-ingest",
+        "market-pattern"
+      ]
+    },
+    {
+      "title": "MetaHarness",
+      "description": "Harness scoring, MCP security scanning, drift detection, and adversarial red/blue testing",
+      "skills": [
+        "harness-bench",
+        "harness-drift-from-history",
+        "harness-evolve",
+        "harness-genome",
+        "harness-gepa",
+        "harness-learn",
+        "harness-mcp-scan",
+        "harness-mint",
+        "harness-oia-audit",
+        "harness-score",
+        "harness-security-bench",
+        "harness-similarity",
+        "harness-threat-model"
+      ]
+    },
+    {
+      "title": "Database Migrations",
+      "description": "Sequential migration generation with validation",
+      "skills": [
+        "migrate-create",
+        "migrate-validate"
+      ]
+    },
+    {
+      "title": "Neural Trader",
+      "description": "LSTM/Transformer strategy backtesting and portfolio optimization",
+      "skills": [
+        "trader-backtest",
+        "trader-cloud-backtest",
+        "trader-explain",
+        "trader-portfolio",
+        "trader-portfolio-cg",
+        "trader-regime",
+        "trader-risk",
+        "trader-signal",
+        "trader-train"
+      ]
+    },
+    {
+      "title": "Observability",
+      "description": "Distributed tracing and metrics aggregation with anomaly detection",
+      "skills": [
+        "observe-metrics",
+        "observe-trace"
+      ]
+    },
+    {
+      "title": "Plugin Creator",
+      "description": "Scaffold and validate new Claude Code plugins",
+      "skills": [
+        "create-plugin",
+        "validate-plugin"
+      ]
+    },
+    {
+      "title": "RAG Memory",
+      "description": "Hybrid search, Graph RAG, MMR reranking, memory bridging",
+      "skills": [
+        "memory-bridge",
+        "memory-search"
+      ]
+    },
+    {
+      "title": "RuVector",
+      "description": "HNSW embeddings, RVF cognitive containers, GNN clustering",
+      "skills": [
+        "vector-cluster",
+        "vector-embed",
+        "vector-hyperbolic",
+        "vector-setup"
+      ]
+    },
+    {
+      "title": "RuVLLM",
+      "description": "Local inference with MicroLoRA fine-tuning and multi-provider routing",
+      "skills": [
+        "chat-format",
+        "llm-config"
+      ]
+    },
+    {
+      "title": "RVF",
+      "description": "Portable session persistence across conversations",
+      "skills": [
+        "rvf-manage",
+        "session-persist"
+      ]
+    },
+    {
+      "title": "Security Audit",
+      "description": "Codebase security scanning and CVE dependency checks",
+      "skills": [
+        "dependency-check",
+        "security-scan"
+      ]
+    },
+    {
+      "title": "SPARC",
+      "description": "Specification-Pseudocode-Architecture-Refinement-Completion methodology",
+      "skills": [
+        "sparc-implement",
+        "sparc-refine",
+        "sparc-spec"
+      ]
+    },
+    {
+      "title": "Swarm",
+      "description": "Multi-agent swarm initialization and live event monitoring",
+      "skills": [
+        "monitor-stream",
+        "swarm-init"
+      ]
+    },
+    {
+      "title": "Test Generation",
+      "description": "TDD London School test generation with coverage gap detection",
+      "skills": [
+        "tdd-repair",
+        "tdd-workflow",
+        "test-gaps"
+      ]
+    },
+    {
+      "title": "Workflows",
+      "description": "GAIA benchmark runs and native workflow orchestration",
+      "skills": [
+        "gaia-architecture-comparison",
+        "gaia-debugging",
+        "gaia-submission",
+        "workflow-create",
+        "workflow-run"
+      ]
+    }
+  ],
+  "skill_files": [
+    {
+      "path": ".agents/skills/agent-adaptive-coordinator/SKILL.md",
+      "git_blob_sha": "2497fd483e967f838e58094d3d78b47454187773",
+      "bytes": 16064,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-agent/SKILL.md",
+      "git_blob_sha": "1cd74b3bbf66466ea648f020a1fe4abfdc544edd",
+      "bytes": 25186,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-agentic-payments/SKILL.md",
+      "git_blob_sha": "b20b7e114ec6b1cc7acd84c96649bba665d17bfe",
+      "bytes": 5282,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-analyze-code-quality/SKILL.md",
+      "git_blob_sha": "88192851ca960cd826685d78fa3f732350f1ca50",
+      "bytes": 4726,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-app-store/SKILL.md",
+      "git_blob_sha": "4e2ddc0c5086a036c33bf72be66a9058ed1d9179",
+      "bytes": 4024,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-arch-system-design/SKILL.md",
+      "git_blob_sha": "271835e96707e91c36ab57523e56e5bdd0dd229f",
+      "bytes": 4920,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-architecture/SKILL.md",
+      "git_blob_sha": "7e01a36a9af7f69247a801b6abefe809893843fa",
+      "bytes": 10994,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-authentication/SKILL.md",
+      "git_blob_sha": "3c2b8381f4eb854a46673fe35719098580ecd56e",
+      "bytes": 2841,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-automation-smart-agent/SKILL.md",
+      "git_blob_sha": "a247cf3a4b83f11ccb6279b6376c2058fe34362d",
+      "bytes": 5475,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-base-template-generator/SKILL.md",
+      "git_blob_sha": "1b29380e898c88b543beca20b14187cae03503d6",
+      "bytes": 3979,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-benchmark-suite/SKILL.md",
+      "git_blob_sha": "a1bb7784769e238d48a8b2fa40ef0cc62ce344a3",
+      "bytes": 19733,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-byzantine-coordinator/SKILL.md",
+      "git_blob_sha": "88c239de276f890936b1ddfacf7a767c4fb3eb0e",
+      "bytes": 2451,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-challenges/SKILL.md",
+      "git_blob_sha": "e963e957f25ac42e4045cb715727e093181bc981",
+      "bytes": 3977,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-code-analyzer/SKILL.md",
+      "git_blob_sha": "1d3c7f37e4707ed0c0664d5d3d373a08bed79ff2",
+      "bytes": 5913,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-code-goal-planner/SKILL.md",
+      "git_blob_sha": "482fe32487d1b450619225b42fc681f954b9f035",
+      "bytes": 14320,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-code-review-swarm/SKILL.md",
+      "git_blob_sha": "af9ef4f16be1af62c8a772a643655facd9732002",
+      "bytes": 12191,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-coder/SKILL.md",
+      "git_blob_sha": "6056c9fbc67f8d8ca30f5ab82220a410915849c3",
+      "bytes": 6591,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-collective-intelligence-coordinator/SKILL.md",
+      "git_blob_sha": "093f835f2d53e731acdb5995130eeee895728e79",
+      "bytes": 4045,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-consensus-coordinator/SKILL.md",
+      "git_blob_sha": "20625158fe38461a3dbed0f3fd4a41a7e86847bd",
+      "bytes": 12617,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-coordination/SKILL.md",
+      "git_blob_sha": "75184d08bbaf292dedfe8d71f7dee4e8f6e0ba87",
+      "bytes": 2074,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-coordinator-swarm-init/SKILL.md",
+      "git_blob_sha": "45b62147d79d8ae8c36005acffe723c2681dae5c",
+      "bytes": 4005,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-crdt-synchronizer/SKILL.md",
+      "git_blob_sha": "c6f759f9261433e71cd3ce2835a9ca26fd09d03c",
+      "bytes": 25151,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-data-ml-model/SKILL.md",
+      "git_blob_sha": "41bd23ea3088376391e38b7a01a9e384ef4b7e3e",
+      "bytes": 5292,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-dev-backend-api/SKILL.md",
+      "git_blob_sha": "401b4a06e98d66cdc38e39cc2fada5f132245954",
+      "bytes": 10240,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-docs-api-openapi/SKILL.md",
+      "git_blob_sha": "f90c7cac67fc0b71faf56ed49e8aeb616f9acb03",
+      "bytes": 5065,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-github-modes/SKILL.md",
+      "git_blob_sha": "2a736dcb61b8fffe8745146d4f2b86db5f3b2d91",
+      "bytes": 6790,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-github-pr-manager/SKILL.md",
+      "git_blob_sha": "1741ef5e523b6f574375530baefdb0cc32202f3d",
+      "bytes": 4626,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-goal-planner/SKILL.md",
+      "git_blob_sha": "7243c1085ccbe8929091735b34d2914fdb88ad57",
+      "bytes": 3367,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-gossip-coordinator/SKILL.md",
+      "git_blob_sha": "0293fe2b2000d58805f57879debd3332fdff08e8",
+      "bytes": 2514,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-hierarchical-coordinator/SKILL.md",
+      "git_blob_sha": "2031f300313f6632c29c0c76bf75bd75d6fe6318",
+      "bytes": 11156,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-implementer-sparc-coder/SKILL.md",
+      "git_blob_sha": "b6bdf4f083202f7f02554f59b60c3011e5bc3515",
+      "bytes": 6654,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-issue-tracker/SKILL.md",
+      "git_blob_sha": "c3dc5b08c21ff42e82fea02434aaa98bf83da619",
+      "bytes": 9493,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-load-balancer/SKILL.md",
+      "git_blob_sha": "c86d2206d9d8d045a0c7b59e3b3d9d29fc0f0734",
+      "bytes": 12358,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-matrix-optimizer/SKILL.md",
+      "git_blob_sha": "af97f75bdfa88a2bcc330759534a08e9ad3fa271",
+      "bytes": 7150,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-memory-coordinator/SKILL.md",
+      "git_blob_sha": "848ddf790d23ca8a3f15b5b9801e05493bf05192",
+      "bytes": 4632,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-mesh-coordinator/SKILL.md",
+      "git_blob_sha": "fe9b9de9fa991c4038bc0a7f59f070da78df58a6",
+      "bytes": 12983,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-migration-plan/SKILL.md",
+      "git_blob_sha": "519660caf052ec12c6ca9a4606cf65241fd72adc",
+      "bytes": 18429,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-multi-repo-swarm/SKILL.md",
+      "git_blob_sha": "9b9bfd44c5ab948c3fff68f2c76126ab6e68abce",
+      "bytes": 12870,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-neural-network/SKILL.md",
+      "git_blob_sha": "64399770f5d96d86a6a7cd4113ef204b7e66621a",
+      "bytes": 3858,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-ops-cicd-github/SKILL.md",
+      "git_blob_sha": "a79b706ece24b7d92948ad06756c83b89cf8d05f",
+      "bytes": 4592,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-orchestrator-task/SKILL.md",
+      "git_blob_sha": "4d2624a24b4cd9fc542fe6d2687213e65e0f0640",
+      "bytes": 4138,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-pagerank-analyzer/SKILL.md",
+      "git_blob_sha": "3fddf78fc7319cfa6bd69348aab704e7c970f65c",
+      "bytes": 11422,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-payments/SKILL.md",
+      "git_blob_sha": "0dac4335111d58053a5a00bbe8ca3dfa53335436",
+      "bytes": 3837,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-performance-analyzer/SKILL.md",
+      "git_blob_sha": "9f09017e83d827adb5f7873a03ae4fb13261c46f",
+      "bytes": 5342,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-performance-benchmarker/SKILL.md",
+      "git_blob_sha": "b2ed5be80e80fc1fce36c377af06551f886bcd57",
+      "bytes": 27370,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-performance-monitor/SKILL.md",
+      "git_blob_sha": "cd0e3af656c76c6bc5367d7d35e1f8ced8fb067a",
+      "bytes": 19695,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-performance-optimizer/SKILL.md",
+      "git_blob_sha": "a220df56e98614375df68c3593bc8a2a816f5830",
+      "bytes": 14505,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-planner/SKILL.md",
+      "git_blob_sha": "91b2e1da5f87d80924742efa629d861facad8ed3",
+      "bytes": 4697,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-pr-manager/SKILL.md",
+      "git_blob_sha": "70a5d0111ebd8da62cc8421bced85b60406f278b",
+      "bytes": 6233,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-production-validator/SKILL.md",
+      "git_blob_sha": "fe19bbc47de333d240ed6499422fd5d891d48e89",
+      "bytes": 11872,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-project-board-sync/SKILL.md",
+      "git_blob_sha": "14fd299501880725534efd480fb9ad618e406f68",
+      "bytes": 11495,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-pseudocode/SKILL.md",
+      "git_blob_sha": "3740580aedf1d771f52b587298129da1d0d8a43a",
+      "bytes": 8464,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-queen-coordinator/SKILL.md",
+      "git_blob_sha": "fc1681b3af7190efaa263916ebbb765a9796a302",
+      "bytes": 5257,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-quorum-manager/SKILL.md",
+      "git_blob_sha": "2194e43ce3e4fb03c9250dfd8666092c81775f38",
+      "bytes": 28108,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-raft-manager/SKILL.md",
+      "git_blob_sha": "0cc3e1331ad2a00de5100aee4800b46c81df3b7f",
+      "bytes": 2388,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-refinement/SKILL.md",
+      "git_blob_sha": "2d558df8d4b5e70f5af55b04e6a0362dc900b037",
+      "bytes": 13869,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-release-manager/SKILL.md",
+      "git_blob_sha": "18de00ce6cc30e4656ee5ce84de3a9e5bb7cd948",
+      "bytes": 12539,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-release-swarm/SKILL.md",
+      "git_blob_sha": "0d42ebba790b4bf1e299d45cdecd7dc93a65097a",
+      "bytes": 14027,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-repo-architect/SKILL.md",
+      "git_blob_sha": "c26c31dfeb2a1cea9a6fb56152fa517ca5daedbd",
+      "bytes": 12528,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-researcher/SKILL.md",
+      "git_blob_sha": "c51b51ba2d032c46ee28cad84ebdf36568e96c8c",
+      "bytes": 5481,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-resource-allocator/SKILL.md",
+      "git_blob_sha": "e2a0982c8500090156e6c238977dfafc4f73ff98",
+      "bytes": 19517,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-reviewer/SKILL.md",
+      "git_blob_sha": "850cc3704b061f07814eabc9edca2385f5e1ec5a",
+      "bytes": 7975,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-safla-neural/SKILL.md",
+      "git_blob_sha": "83d7964c6f5bc4f65cebedd30e70bdc1b7884c9b",
+      "bytes": 2884,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-sandbox/SKILL.md",
+      "git_blob_sha": "742325f13297dc75b3187663a2a85e0a93e0813d",
+      "bytes": 3105,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-scout-explorer/SKILL.md",
+      "git_blob_sha": "51ee6051afeafc366e44b1b6fa8f74561923acee",
+      "bytes": 6309,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-security-manager/SKILL.md",
+      "git_blob_sha": "9f6df6e320bd120225f3bd6353211f5779a3fe0d",
+      "bytes": 19753,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-sona-learning-optimizer/SKILL.md",
+      "git_blob_sha": "08f552f3a77372d9e69d4367244b0e069f58364e",
+      "bytes": 2063,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-sparc-coordinator/SKILL.md",
+      "git_blob_sha": "e32942aff32192b1f1d640d669cc0ecb751991bf",
+      "bytes": 4767,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-spec-mobile-react-native/SKILL.md",
+      "git_blob_sha": "a92af5359ccda9b6d226726c49924fdb8cec1918",
+      "bytes": 5683,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-specification/SKILL.md",
+      "git_blob_sha": "bdd084d370b1724e6478c91a9e163e13059fef43",
+      "bytes": 7109,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-swarm-issue/SKILL.md",
+      "git_blob_sha": "cf451b0730daf809c67b374ac5536a1bfb6185de",
+      "bytes": 14470,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-swarm-memory-manager/SKILL.md",
+      "git_blob_sha": "6162f2b9f37a8a63248eafc9077c9f265143a9b3",
+      "bytes": 4942,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-swarm-pr/SKILL.md",
+      "git_blob_sha": "dc94e1af43a739e73030209fd3969100d0e4b14e",
+      "bytes": 11294,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-swarm/SKILL.md",
+      "git_blob_sha": "ab6427903da0bb4e9cf7a1521b812364f8bde6ca",
+      "bytes": 3562,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-sync-coordinator/SKILL.md",
+      "git_blob_sha": "edc0e9c986d4a4fc758c47278ee9e31b7b706d4f",
+      "bytes": 16301,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-tdd-london-swarm/SKILL.md",
+      "git_blob_sha": "dea50bcfc96dd5cb7073874b831e742cdbb14d47",
+      "bytes": 7138,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-test-long-runner/SKILL.md",
+      "git_blob_sha": "0c5d9df56096b17f5b551a3142e6fca0dc4ad820",
+      "bytes": 1702,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-tester/SKILL.md",
+      "git_blob_sha": "d789d6c194e4d53ca8eb703ef6025ac0cf594d42",
+      "bytes": 8580,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-topology-optimizer/SKILL.md",
+      "git_blob_sha": "1fcb1fc9c71ad993787d6d48ef72e3d868d69db2",
+      "bytes": 24668,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-trading-predictor/SKILL.md",
+      "git_blob_sha": "dfc904d3b7d0bca718eda164e94c53cbc77f3948",
+      "bytes": 9815,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-user-tools/SKILL.md",
+      "git_blob_sha": "fa61a394e38729a47d9e1eecfecfe46d1c63406b",
+      "bytes": 4370,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-v3-integration-architect/SKILL.md",
+      "git_blob_sha": "9139489372ae7f53b276ce68f4eb483ea3eee26e",
+      "bytes": 11031,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-v3-memory-specialist/SKILL.md",
+      "git_blob_sha": "093b7023ce6a76f1187c9dc1a9f69c3107e02d5b",
+      "bytes": 9813,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-v3-performance-engineer/SKILL.md",
+      "git_blob_sha": "e19012f7a4786b423c00f6bfc4f4a118e08746d1",
+      "bytes": 13599,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-v3-queen-coordinator/SKILL.md",
+      "git_blob_sha": "35ba6e5dfe267fbf4a8d4f8f18261f48b0149f69",
+      "bytes": 4032,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-v3-security-architect/SKILL.md",
+      "git_blob_sha": "a65a97d02084eda31896d637b9684257e10c0494",
+      "bytes": 6418,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-worker-specialist/SKILL.md",
+      "git_blob_sha": "443ecc4e688926d592a7289f1c82d24f966a0cc1",
+      "bytes": 5437,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-workflow-automation/SKILL.md",
+      "git_blob_sha": "ad42e7e59d24bcf3c071bbcefaafc84faa6aa018",
+      "bytes": 16027,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agent-workflow/SKILL.md",
+      "git_blob_sha": "9dcab815c21758e4d40ccacf5ac8b2185dac9044",
+      "bytes": 3790,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agentdb-advanced/SKILL.md",
+      "git_blob_sha": "298845ea470337ae4ff684adaceab33bc8d0e172",
+      "bytes": 13140,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agentdb-learning/SKILL.md",
+      "git_blob_sha": "7864d784829a3cd8e33d1dc91810355889c9f8ad",
+      "bytes": 11916,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agentdb-memory-patterns/SKILL.md",
+      "git_blob_sha": "d9b6d5520e3ce56410dc49792cd8e68f50d11b7b",
+      "bytes": 8692,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agentdb-optimization/SKILL.md",
+      "git_blob_sha": "103d2629e26b384fc1bbed11dee397e1fe643451",
+      "bytes": 12165,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agentdb-vector-search/SKILL.md",
+      "git_blob_sha": "f664dd9be342e9900722019799d37bde52bb871c",
+      "bytes": 8963,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/agentic-jujutsu/SKILL.md",
+      "git_blob_sha": "ad98fb6a1f06a329930b882d39324c2ccc16e7dd",
+      "bytes": 18848,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/claims/SKILL.md",
+      "git_blob_sha": "6220f4eddb2ed7dd59c61d35bed454affcf9ca5f",
+      "bytes": 4287,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/embeddings/SKILL.md",
+      "git_blob_sha": "f2790081842ee8a6ef33fc3496dc110427356183",
+      "bytes": 1817,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/flow-nexus-neural/SKILL.md",
+      "git_blob_sha": "0e24797edd876b852f9adba0df90d1b42c1a241b",
+      "bytes": 16323,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/flow-nexus-platform/SKILL.md",
+      "git_blob_sha": "8fb7b3b617052387d5e910cb702a73d431c8ac15",
+      "bytes": 25642,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/flow-nexus-swarm/SKILL.md",
+      "git_blob_sha": "fb498c51d8dfa881e52f0922d32c56117034c797",
+      "bytes": 16760,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/github-automation/SKILL.md",
+      "git_blob_sha": "78a5233385d791c541a746639f9cef34aa2f28f8",
+      "bytes": 1471,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/github-code-review/SKILL.md",
+      "git_blob_sha": "27176d40adcb4a58a35520964c9159b9a5eac3f6",
+      "bytes": 26063,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/github-multi-repo/SKILL.md",
+      "git_blob_sha": "73ff842fe05485c729c657e82c47f65765ee7e23",
+      "bytes": 22796,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/github-project-management/SKILL.md",
+      "git_blob_sha": "a257d10709fd9254756e45c5d2b6709c5348aa68",
+      "bytes": 28418,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/github-release-management/SKILL.md",
+      "git_blob_sha": "f2521974d175aba4f34beeb515d1ccf34068c5c2",
+      "bytes": 29673,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/github-workflow-automation/SKILL.md",
+      "git_blob_sha": "8e37004852c4b97b026cc223149c819848d1b75f",
+      "bytes": 23917,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/hive-mind-advanced/SKILL.md",
+      "git_blob_sha": "46398764ca44a8b4e00a95242a8d9a8dd3592000",
+      "bytes": 16723,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/hive-mind/SKILL.md",
+      "git_blob_sha": "f09252bb2299581eb9d1670bef4fdc9f7f61e233",
+      "bytes": 1868,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/hooks-automation/SKILL.md",
+      "git_blob_sha": "4498e181c45eeed5132f9ddb2d3346327f125152",
+      "bytes": 31351,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/memory-management/SKILL.md",
+      "git_blob_sha": "c337ff95e6e906f3c09dc2802bbfbbb485e6c278",
+      "bytes": 3318,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/neural-training/SKILL.md",
+      "git_blob_sha": "f37d90456a985a3eab47b6c234726c6226a44bd3",
+      "bytes": 1735,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/open-federation/SKILL.md",
+      "git_blob_sha": "cecd27c69ca36272cebef69014f53901e1bfb4ef",
+      "bytes": 6418,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/pair-programming/SKILL.md",
+      "git_blob_sha": "8fa80d4ec7065bbae6931048a5860794c63ababa",
+      "bytes": 24862,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/performance-analysis/SKILL.md",
+      "git_blob_sha": "5963b57bb936e89140e1dce41fa232283e311b67",
+      "bytes": 14671,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/reasoningbank-agentdb/SKILL.md",
+      "git_blob_sha": "d4abf656776454b0170b64240d1ab24b2a6c4000",
+      "bytes": 10930,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/reasoningbank-intelligence/SKILL.md",
+      "git_blob_sha": "6048e2c81032007d09015a3548a452254d9b30c2",
+      "bytes": 4830,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/security-audit/SKILL.md",
+      "git_blob_sha": "83f7d64958f60edc175024ede5fa4d5bd13d6e29",
+      "bytes": 3291,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/skill-builder/SKILL.md",
+      "git_blob_sha": "d510804bcd4ea2a1d4f91644fc3856400fffe9fd",
+      "bytes": 21901,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/sparc-methodology/SKILL.md",
+      "git_blob_sha": "d48e6ef61b5e65a084d09ad0d71fb419a9753a05",
+      "bytes": 3315,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/stream-chain/SKILL.md",
+      "git_blob_sha": "e360af98d8d7140d789902d0792e3e414911b321",
+      "bytes": 12708,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/swarm-advanced/SKILL.md",
+      "git_blob_sha": "0aedfbaac1e54f470afb2d725ddb51811198a740",
+      "bytes": 23843,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/swarm-orchestration/SKILL.md",
+      "git_blob_sha": "1e2a9df73770e79e1af37c73afaa79b978764796",
+      "bytes": 3114,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/v3-cli-modernization/SKILL.md",
+      "git_blob_sha": "f67343be9eb34c079291b570376e4bbd730f7675",
+      "bytes": 25724,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/v3-core-implementation/SKILL.md",
+      "git_blob_sha": "dda763dc59dffafb3432e5380457fb2e04bba4b8",
+      "bytes": 22019,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/v3-ddd-architecture/SKILL.md",
+      "git_blob_sha": "86b8ed7f53b1804fe6ceba19d94dab8d2c6bade6",
+      "bytes": 12166,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/v3-integration-deep/SKILL.md",
+      "git_blob_sha": "d7afaf403fae22577e9a08d9d6a0c3b9ed8c07c7",
+      "bytes": 7278,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/v3-mcp-optimization/SKILL.md",
+      "git_blob_sha": "496718aa01df8e0940312ec1340de5273f080fc4",
+      "bytes": 21428,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/v3-memory-unification/SKILL.md",
+      "git_blob_sha": "279dc63c44bbb5b88b8ba549fe97c1f93ff0e456",
+      "bytes": 5229,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/v3-performance-optimization/SKILL.md",
+      "git_blob_sha": "8ae175ac80d31882c23b8a778ba17fcd695f3f2b",
+      "bytes": 11439,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/v3-security-overhaul/SKILL.md",
+      "git_blob_sha": "e356d34d42bb85beffe8403be169f739f805aeda",
+      "bytes": 2440,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/v3-swarm-coordination/SKILL.md",
+      "git_blob_sha": "42c229d8fe1b82eb14ea1644b7b717ed42ee1662",
+      "bytes": 12137,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/verification-quality/SKILL.md",
+      "git_blob_sha": "f65f90769405e0f4ac18b33b43ad00d1df40913d",
+      "bytes": 19781,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/worker-benchmarks/SKILL.md",
+      "git_blob_sha": "c6dabb337e227c70b1e586de0ed37097e9bf1fa8",
+      "bytes": 4251,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/worker-integration/SKILL.md",
+      "git_blob_sha": "5ac32b487ab8f434529a87c61f80ea89369259b1",
+      "bytes": 3894,
+      "scope": ".agents"
+    },
+    {
+      "path": ".agents/skills/workflow-automation/SKILL.md",
+      "git_blob_sha": "e980b6573a709e429558731e2a457478ee9da920",
+      "bytes": 1760,
+      "scope": ".agents"
+    },
+    {
+      "path": ".claude/skills/agentdb-advanced/SKILL.md",
+      "git_blob_sha": "1caa8bc88bf02a40495b0fed404d6c7af1542d83",
+      "bytes": 13066,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/agentdb-learning/SKILL.md",
+      "git_blob_sha": "e21b17ff2f4374b3dffe8fa04a7d2900d09f2937",
+      "bytes": 11906,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/agentdb-memory-patterns/SKILL.md",
+      "git_blob_sha": "64d0ef99aa9da227f9b24c55f95e2fcd9ed3cbd8",
+      "bytes": 8690,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/agentdb-optimization/SKILL.md",
+      "git_blob_sha": "dd8ae59826312a11f8148782820a81ca0f436e5e",
+      "bytes": 12151,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/agentdb-vector-search/SKILL.md",
+      "git_blob_sha": "fe0740e7572af7eb40ca239cdd1113192c6ec938",
+      "bytes": 8961,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/agentic-jujutsu/SKILL.md",
+      "git_blob_sha": "447fee8a3d43741ac4173ff72588530a24b02ed1",
+      "bytes": 18837,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/browser/SKILL.md",
+      "git_blob_sha": "4f0b216e5a8fa928c23a41378da241f8da4a1703",
+      "bytes": 5286,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/flow-nexus-neural/SKILL.md",
+      "git_blob_sha": "c76b6ca12cfc64872da0c239e8b48cd5b316bd57",
+      "bytes": 16126,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/flow-nexus-platform/SKILL.md",
+      "git_blob_sha": "a1e43a6328c7bdb2e2bca9ae356d787a83c3d3e1",
+      "bytes": 25516,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/flow-nexus-swarm/SKILL.md",
+      "git_blob_sha": "f7b9b6ff64bee7393731bbc0349f23fa884fa395",
+      "bytes": 16557,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/github-code-review/SKILL.md",
+      "git_blob_sha": "42ec8f2631521b091b69610d73f863a278c731ac",
+      "bytes": 25680,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/github-multi-repo/SKILL.md",
+      "git_blob_sha": "9ab64819f2efce3343db151fb0fa84e699654453",
+      "bytes": 22386,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/github-project-management/SKILL.md",
+      "git_blob_sha": "8e53128559247ba70eabf205b4eaaa362441928e",
+      "bytes": 29536,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/github-release-management/SKILL.md",
+      "git_blob_sha": "cb1ad23145fe1ac46d115ca1b1067a483670f10c",
+      "bytes": 29140,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/github-workflow-automation/SKILL.md",
+      "git_blob_sha": "c1fdfface93b8821de1cb290f5821ae4c0f0cba0",
+      "bytes": 23619,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/hive-mind-advanced/SKILL.md",
+      "git_blob_sha": "3b5a712e8d2b43ed9e50c5122438b46b6d0d0c43",
+      "bytes": 16562,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/hooks-automation/SKILL.md",
+      "git_blob_sha": "4804785bfdc89785c4a8da33320e42cc96081333",
+      "bytes": 30871,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/pair-programming/SKILL.md",
+      "git_blob_sha": "ff377d077ce3e14d374c41c49118d47849f04ff7",
+      "bytes": 24862,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/performance-analysis/SKILL.md",
+      "git_blob_sha": "eafe9e8682eb0bac8c604c14e6b839ddf4142d86",
+      "bytes": 14538,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/reasoningbank-agentdb/SKILL.md",
+      "git_blob_sha": "057ac09a6af1cfc89d861ffd845fdabdd206cc1a",
+      "bytes": 10923,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/reasoningbank-intelligence/SKILL.md",
+      "git_blob_sha": "74930e73a4557043009178e6025fa11dd2407682",
+      "bytes": 4828,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/skill-builder/SKILL.md",
+      "git_blob_sha": "62c3c9192847d51c7b3fbc6a0c13a754628f1195",
+      "bytes": 21899,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/sparc-methodology/SKILL.md",
+      "git_blob_sha": "55f38d749c526fad0fb45bc8a7d2eca420f0c67a",
+      "bytes": 24956,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/stream-chain/SKILL.md",
+      "git_blob_sha": "5ca1e610c79d7020b99502f57a17cb0ed40d1b5d",
+      "bytes": 12613,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/swarm-advanced/SKILL.md",
+      "git_blob_sha": "e76ed8770f02c9ec1e85590dfb5d272bf3ef1033",
+      "bytes": 23700,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/swarm-orchestration/SKILL.md",
+      "git_blob_sha": "50d7fce3c901b2d2e73536985d9c3758501e67b9",
+      "bytes": 4308,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/v3-cli-modernization/SKILL.md",
+      "git_blob_sha": "adf30ed62c385026228f8086a248175dd503c52d",
+      "bytes": 25722,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/v3-core-implementation/SKILL.md",
+      "git_blob_sha": "b1d2eda9f8e74af6fe03d8ee6ab396abd3aadbc5",
+      "bytes": 22017,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/v3-ddd-architecture/SKILL.md",
+      "git_blob_sha": "a2829891c1f3ac9a0f399847a07435789b98a43f",
+      "bytes": 12164,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/v3-integration-deep/SKILL.md",
+      "git_blob_sha": "1981bb8020bbbc1f32745a7a89844c77213fdbdb",
+      "bytes": 7276,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/v3-mcp-optimization/SKILL.md",
+      "git_blob_sha": "7450cbab380b07c7f94f18848df2603c57f4f3ab",
+      "bytes": 21426,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/v3-memory-unification/SKILL.md",
+      "git_blob_sha": "4e0d15e56d2ef8619f14724927d9f0bd79e49dd9",
+      "bytes": 5227,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/v3-performance-optimization/SKILL.md",
+      "git_blob_sha": "6d71b0de4171e3afb12ae9b15dc32f483935fe01",
+      "bytes": 11437,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/v3-security-overhaul/SKILL.md",
+      "git_blob_sha": "fe7c79d232b585791c80464176b6c346cc2d9f62",
+      "bytes": 2438,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/v3-swarm-coordination/SKILL.md",
+      "git_blob_sha": "aa9ec507ccfe2e023e008cf3b228858a9a775b18",
+      "bytes": 12135,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/verification-quality/SKILL.md",
+      "git_blob_sha": "e8016df8f5e85c4ae58a3ab3b7f5a3c9e5cd6134",
+      "bytes": 20624,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/worker-benchmarks/SKILL.md",
+      "git_blob_sha": "7d8fa5be17fa895ec480a113f387d42517e0b3da",
+      "bytes": 4126,
+      "scope": ".claude"
+    },
+    {
+      "path": ".claude/skills/worker-integration/SKILL.md",
+      "git_blob_sha": "ae7bc160c1b468e032b66d55eb4edc6509251370",
+      "bytes": 3762,
+      "scope": ".claude"
+    },
+    {
+      "path": "chatgpt-plugin/skills/coordinate-ruflo-swarm/SKILL.md",
+      "git_blob_sha": "094ae3f87c362ef5fe333e6fa6fa07bc3e983083",
+      "bytes": 1455,
+      "scope": "chatgpt-plugin"
+    },
+    {
+      "path": "chatgpt-plugin/skills/federation-audit/SKILL.md",
+      "git_blob_sha": "7ec9c00e3271f2ad2590ff620d2ee645c69d2e12",
+      "bytes": 1296,
+      "scope": "chatgpt-plugin"
+    },
+    {
+      "path": "chatgpt-plugin/skills/federation-init/SKILL.md",
+      "git_blob_sha": "795074790382899275fe1bb326e9a33cdf4369fd",
+      "bytes": 1294,
+      "scope": "chatgpt-plugin"
+    },
+    {
+      "path": "chatgpt-plugin/skills/federation-status/SKILL.md",
+      "git_blob_sha": "b1ddaf298ba84e800f7ae75964e46eac67a72e82",
+      "bytes": 1233,
+      "scope": "chatgpt-plugin"
+    },
+    {
+      "path": "chatgpt-plugin/skills/publish-ruflo-update/SKILL.md",
+      "git_blob_sha": "e8a8ed01244d9a94fa4e17795335c741b152dd24",
+      "bytes": 1360,
+      "scope": "chatgpt-plugin"
+    },
+    {
+      "path": "chatgpt-plugin/skills/triage-ruflo-work/SKILL.md",
+      "git_blob_sha": "f3610de558a5f1638f22a46b6431bcdcfd2caf02",
+      "bytes": 1238,
+      "scope": "chatgpt-plugin"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-create/SKILL.md",
+      "git_blob_sha": "bc851af5e96b2ab748343ab4a7996398b0a836b4",
+      "bytes": 2720,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-index/SKILL.md",
+      "git_blob_sha": "ed970e1830fd43c28e3ae33497b2c0367860b3ce",
+      "bytes": 3464,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-reindex/SKILL.md",
+      "git_blob_sha": "949095706f811415b86771629c94050c5d09af47",
+      "bytes": 4626,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-review/SKILL.md",
+      "git_blob_sha": "81972c908176a94802777a3a57706d18b75d987c",
+      "bytes": 2659,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-verify/SKILL.md",
+      "git_blob_sha": "810ef3c4f1ac46ed488fcc5382e2e5a129b29a86",
+      "bytes": 2014,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/managed-agent/SKILL.md",
+      "git_blob_sha": "2175b7ab78b886d68926a4778ed4fa1aaba5c5e7",
+      "bytes": 8422,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/managed-workflow/SKILL.md",
+      "git_blob_sha": "ef88e9524e98be5353c63465b465fb616c8fe4f5",
+      "bytes": 5232,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/nested-subagents/SKILL.md",
+      "git_blob_sha": "1dde618541446060aba56a38537518a7996150c9",
+      "bytes": 4162,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/wasm-agent/SKILL.md",
+      "git_blob_sha": "f5d928c31e39c0afb7f89c0b0c724854a2d78400",
+      "bytes": 1764,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/wasm-gallery/SKILL.md",
+      "git_blob_sha": "79a032fcb984b3810cf69bc78c9ca11729f4b188",
+      "bytes": 1128,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-agentdb/skills/agentdb-query/SKILL.md",
+      "git_blob_sha": "d16fac2500e81ff2892c7b77ef6691ba83b12b48",
+      "bytes": 4767,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-agentdb/skills/vector-search/SKILL.md",
+      "git_blob_sha": "4d1dcaf6e26c8945e631af8f95ac34a9d77b202a",
+      "bytes": 6138,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-agntcy/skills/agntcy-status/SKILL.md",
+      "git_blob_sha": "41630be7e506196f75b78c578722eb8ae04e380d",
+      "bytes": 2211,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/directory/skills/coordinate-team-work/SKILL.md",
+      "git_blob_sha": "bb3b3d0e4f3c9c8b94d623a1c95f81a30bc255e5",
+      "bytes": 1096,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/directory/skills/launch-ai-team/SKILL.md",
+      "git_blob_sha": "7d7344ff5c1c8241b9a2d85edbd0362c5f29dfe2",
+      "bytes": 1500,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/directory/skills/manage-team-lifecycle/SKILL.md",
+      "git_blob_sha": "33c02f3838ce9da632d28720688e604fbb1175b2",
+      "bytes": 1035,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/directory/skills/monitor-ai-team/SKILL.md",
+      "git_blob_sha": "cffab1de2cb061758d578d42c0b1c1c7faa58d4b",
+      "bytes": 1036,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/directory/skills/remember-team-context/SKILL.md",
+      "git_blob_sha": "df5c152f4e98660b1342d9878a856bf5961a3557",
+      "bytes": 1183,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/directory/skills/review-team-deliverables/SKILL.md",
+      "git_blob_sha": "25a3e16df8733c951617c05b81a873b0bee40620",
+      "bytes": 1013,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/coordinate-team-work/SKILL.md",
+      "git_blob_sha": "bb3b3d0e4f3c9c8b94d623a1c95f81a30bc255e5",
+      "bytes": 1096,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/launch-ai-team/SKILL.md",
+      "git_blob_sha": "7d7344ff5c1c8241b9a2d85edbd0362c5f29dfe2",
+      "bytes": 1500,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/manage-team-lifecycle/SKILL.md",
+      "git_blob_sha": "33c02f3838ce9da632d28720688e604fbb1175b2",
+      "bytes": 1035,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/monitor-ai-team/SKILL.md",
+      "git_blob_sha": "cffab1de2cb061758d578d42c0b1c1c7faa58d4b",
+      "bytes": 1036,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/remember-team-context/SKILL.md",
+      "git_blob_sha": "df5c152f4e98660b1342d9878a856bf5961a3557",
+      "bytes": 1183,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/review-team-deliverables/SKILL.md",
+      "git_blob_sha": "25a3e16df8733c951617c05b81a873b0bee40620",
+      "bytes": 1013,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-aidefence/skills/pii-detect/SKILL.md",
+      "git_blob_sha": "a25f610eee84b204d61c96f0cf462fde52eb7103",
+      "bytes": 1406,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-aidefence/skills/safety-scan/SKILL.md",
+      "git_blob_sha": "0edbe2f1202ba5bfbcca773c0885416cc7ab0b78",
+      "bytes": 1643,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-autopilot/skills/autopilot-loop/SKILL.md",
+      "git_blob_sha": "b0c158af3c8a5a56f84cacd85c0c3895c4b6bf8f",
+      "bytes": 1423,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-autopilot/skills/autopilot-predict/SKILL.md",
+      "git_blob_sha": "e4520d52ca1cff80c28a03db71ef960542dfe55c",
+      "bytes": 1348,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-bbs-federation/skills/cross-host-federation/SKILL.md",
+      "git_blob_sha": "bf177f8faf0505aa45bb5d579f66eddfd86bf21f",
+      "bytes": 4176,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-auth-flow/SKILL.md",
+      "git_blob_sha": "1874755bd48ee904191040ade038b3d46dbaff1a",
+      "bytes": 3809,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-extract/SKILL.md",
+      "git_blob_sha": "35a22498c01293ce94935da271377f3308cddda6",
+      "bytes": 3587,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-form-fill/SKILL.md",
+      "git_blob_sha": "2d2bbef1cfce9d09a60671088057f79cbbe7ed71",
+      "bytes": 2999,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-intent/SKILL.md",
+      "git_blob_sha": "a85120006b01eea74e6e972e116d57d81cc130be",
+      "bytes": 4813,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-login/SKILL.md",
+      "git_blob_sha": "c75c2cdb7594e38b63fdf4f47c9f1bb52d62d4e8",
+      "bytes": 3784,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-record/SKILL.md",
+      "git_blob_sha": "5fdfb3eecf0435c019cd65860da4c8b08c62f80a",
+      "bytes": 2913,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-replay/SKILL.md",
+      "git_blob_sha": "df4821cfb34bd0b979ca7dfd221f68a501cf5e90",
+      "bytes": 3429,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-scrape/SKILL.md",
+      "git_blob_sha": "78d8c0112f67d1f4f8bc8d8644f3869c74f95736",
+      "bytes": 1714,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-screenshot-diff/SKILL.md",
+      "git_blob_sha": "3d261679f7c32283bd21ff5947d105513185298f",
+      "bytes": 2493,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-test/SKILL.md",
+      "git_blob_sha": "75be24ae179e06741bd595fa383e9abc3ff9098f",
+      "bytes": 3632,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-business-pods/skills/pod-sales/SKILL.md",
+      "git_blob_sha": "06d9c640c2a56c59bd4cec433c57974e9ac0c6db",
+      "bytes": 2784,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-console/skills/generate-console-theme/SKILL.md",
+      "git_blob_sha": "66361efbdc70afa7bd2238821c98a86fceffdb23",
+      "bytes": 2006,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/discover-plugins/SKILL.md",
+      "git_blob_sha": "14b970ede8e7d3513ba2219484ad6ade0d21ae90",
+      "bytes": 8268,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/init-project/SKILL.md",
+      "git_blob_sha": "cc56ccfba2565c772c593f72ee61fac154c20f70",
+      "bytes": 702,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/ruflo-doctor/SKILL.md",
+      "git_blob_sha": "1db4ca3ee6b02e03f61585dd295cf309457f1915",
+      "bytes": 562,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/ruflo-status/SKILL.md",
+      "git_blob_sha": "4f7c05c0b9a6f6d26c25a3c2e36017f23483468d",
+      "bytes": 1026,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/witness/SKILL.md",
+      "git_blob_sha": "9c848b3c36f9fb8bec8c3ef778eebf822c24d020",
+      "bytes": 5287,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-advise/SKILL.md",
+      "git_blob_sha": "a7d24d524fe3731e0da8057aa41da92925260262",
+      "bytes": 1173,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-anomaly/SKILL.md",
+      "git_blob_sha": "cb09143e50679a6656dea1740011b05d1d2519da",
+      "bytes": 3724,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-benchmark/SKILL.md",
+      "git_blob_sha": "107c2e6f008cdbbb2dd1cbab06b9a191e20a0e11",
+      "bytes": 3037,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-booster-edit/SKILL.md",
+      "git_blob_sha": "cbe3a6afe4f09084fa360894a03e5287695480e7",
+      "bytes": 5804,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-booster-route/SKILL.md",
+      "git_blob_sha": "485be3f070b42919a02898dce3626ee81cd22802",
+      "bytes": 2749,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-budget-check/SKILL.md",
+      "git_blob_sha": "0ad55f0c06ec15491916c17d528a73ba55e5d5e4",
+      "bytes": 2619,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-burn/SKILL.md",
+      "git_blob_sha": "4b2e8879c116bf242c43cc5ca46c3cf9906d690b",
+      "bytes": 3346,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-compact-context/SKILL.md",
+      "git_blob_sha": "d07af87cb64f4cb069f25b40a8b70e3afdec8cba",
+      "bytes": 2658,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-conversation/SKILL.md",
+      "git_blob_sha": "34ffad0efa56ee4073e71cf412ede335c9d8d1a0",
+      "bytes": 1678,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-counterfactual/SKILL.md",
+      "git_blob_sha": "926f614e60502ebd692cd317b614ea185bb20671",
+      "bytes": 3199,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-diff/SKILL.md",
+      "git_blob_sha": "d954c60e89da8880a91adf8ab3553bee3c15b194",
+      "bytes": 5060,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-export/SKILL.md",
+      "git_blob_sha": "3f70c325d992d0daf160a801ff3968d6a0529565",
+      "bytes": 2793,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-federation/SKILL.md",
+      "git_blob_sha": "4f92936a585312b2d582648d1ec13fbbd246025a",
+      "bytes": 2404,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-health/SKILL.md",
+      "git_blob_sha": "ccc788a4f81a7031279fd27a0e608cf2b149a33f",
+      "bytes": 3678,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-ledger/SKILL.md",
+      "git_blob_sha": "5cb08adf5f07fc3c1d2de8da9a36ede4a4dd54ef",
+      "bytes": 1982,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-local/SKILL.md",
+      "git_blob_sha": "65f29da6ecdfdbbc31a683292e60439a48d5dc58",
+      "bytes": 1343,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-openrouter/SKILL.md",
+      "git_blob_sha": "8de1434cd9302848fd0267eb1784f140bcad2670",
+      "bytes": 1564,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-optimize/SKILL.md",
+      "git_blob_sha": "983ea3bd1690f9ab5e0fe3c2c40853c01d4f3e0e",
+      "bytes": 4002,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-projection/SKILL.md",
+      "git_blob_sha": "9960a70bea9aaacbba3ceee1dde7d994cd9156a2",
+      "bytes": 2845,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-report/SKILL.md",
+      "git_blob_sha": "657ab2953312aa5e194e64f3eb0a15f38cb8a8a7",
+      "bytes": 3360,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-session/SKILL.md",
+      "git_blob_sha": "355313333505c7edeeea3fcb4d8cc61928ae6c59",
+      "bytes": 3178,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-summary/SKILL.md",
+      "git_blob_sha": "7f2bfafe4427b4aa4338ed5334865cc7a8bbf4c8",
+      "bytes": 2419,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-track/SKILL.md",
+      "git_blob_sha": "1d29a2d92c6923ad067038756855c5580f8633ce",
+      "bytes": 3107,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-trend/SKILL.md",
+      "git_blob_sha": "c1ff1d23b38f03cd30db6e1865e15801a43d295d",
+      "bytes": 2028,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-daa/skills/cognitive-pattern/SKILL.md",
+      "git_blob_sha": "ba1550a51dece6dd7048244aea1f5745a70d0013",
+      "bytes": 1554,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-daa/skills/daa-agent/SKILL.md",
+      "git_blob_sha": "8de355868f380a62c8c638e2749175f9cc563e0f",
+      "bytes": 1647,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ddd/skills/ddd-aggregate/SKILL.md",
+      "git_blob_sha": "26270bd4d6675e6a4c8badadac245deb522d76b2",
+      "bytes": 3353,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ddd/skills/ddd-context/SKILL.md",
+      "git_blob_sha": "657d4c77ed70c569ed443e7d9f03fe4e8827308a",
+      "bytes": 2503,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ddd/skills/ddd-validate/SKILL.md",
+      "git_blob_sha": "ea6694e8579f46da4c3a6a4c2a83597cbdc69534",
+      "bytes": 2570,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-deepseek-harness/skills/deepseek-chat/SKILL.md",
+      "git_blob_sha": "b9913d304fd3fb6f1291a38762fd69c7cd0bc0fe",
+      "bytes": 2447,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-deepseek-harness/skills/deepseek-reason/SKILL.md",
+      "git_blob_sha": "71d8b80609ca4ff501e4cff76b2bfd421e7f0e5e",
+      "bytes": 2647,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-docs/skills/api-docs/SKILL.md",
+      "git_blob_sha": "12f7642672ca4afa6115762487589ca5fc962147",
+      "bytes": 957,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-docs/skills/doc-gen/SKILL.md",
+      "git_blob_sha": "f3d8feed4f4c8af289bb48fc332ff1729ff000ec",
+      "bytes": 1085,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-federation/skills/federation-audit/SKILL.md",
+      "git_blob_sha": "16e3c6014fc60e6ea25b00e41f36bfc7316bf238",
+      "bytes": 1050,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-federation/skills/federation-init/SKILL.md",
+      "git_blob_sha": "e320fa706f4b9215b0220dc17e7ab887dbf3ec33",
+      "bytes": 916,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-federation/skills/federation-status/SKILL.md",
+      "git_blob_sha": "9b88c5dc43399746bd5427b80dc74b9b019c251a",
+      "bytes": 868,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/deep-research/SKILL.md",
+      "git_blob_sha": "70d9351a33acd6133c099bf1ee2bd5cf03e37138",
+      "bytes": 5140,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/dossier-collect/SKILL.md",
+      "git_blob_sha": "ccab15cdddd4663846067a8e5de6e90255fe240d",
+      "bytes": 5697,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/goal-plan/SKILL.md",
+      "git_blob_sha": "83a8de652dd590e65fc474e82ebe1954e889e91c",
+      "bytes": 3253,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/horizon-track/SKILL.md",
+      "git_blob_sha": "307161b46c932f57968797afedd43ca9cb2df8b7",
+      "bytes": 2997,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/research-synthesize/SKILL.md",
+      "git_blob_sha": "b33a9b19d4e74b128f69dd19d118962177d1a276",
+      "bytes": 3097,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-graph-intelligence/skills/sublinear-core/SKILL.md",
+      "git_blob_sha": "f678c7f6ad7a1befe1e75064ddddbc25cd7ab3fc",
+      "bytes": 3531,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-intelligence/skills/intelligence-route/SKILL.md",
+      "git_blob_sha": "c2e2f53ef1359f68628e0ce99cce0eda880aafac",
+      "bytes": 4134,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-intelligence/skills/intelligence-transfer/SKILL.md",
+      "git_blob_sha": "522a57e023017c43515271b4b282bb8fcb12603c",
+      "bytes": 4369,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-intelligence/skills/neural-train/SKILL.md",
+      "git_blob_sha": "2060feec86a89253eb4dea01db85dded95186128",
+      "bytes": 6658,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-anomalies/SKILL.md",
+      "git_blob_sha": "259c76bb326e71bb9845ce27ab8c2f2a8ede45f1",
+      "bytes": 836,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-firmware/SKILL.md",
+      "git_blob_sha": "1687e8fb381f853dd5e46f3b7db28183bce1fda7",
+      "bytes": 1723,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-fleet/SKILL.md",
+      "git_blob_sha": "c49be71080de895ee0672ade88b7f3e95f7e74d3",
+      "bytes": 982,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-register/SKILL.md",
+      "git_blob_sha": "0fbf084209cc6b0847b26cbe38d6ef0da8cd5d81",
+      "bytes": 1050,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-witness-verify/SKILL.md",
+      "git_blob_sha": "7b6aef36af627ece395dd9f75a17e67c6589e046",
+      "bytes": 639,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-jujutsu/skills/diff-analyze/SKILL.md",
+      "git_blob_sha": "fd1c84e85e1e20619bd27232f8886ebfa35a8463",
+      "bytes": 2261,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-jujutsu/skills/git-workflow/SKILL.md",
+      "git_blob_sha": "734464cdf6fe9b34eb3dc61fc15b490f670c485d",
+      "bytes": 1930,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-knowledge-graph/skills/kg-extract/SKILL.md",
+      "git_blob_sha": "9156ceb16de654e63f2b1a649b1b9842b80fbf05",
+      "bytes": 3012,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-knowledge-graph/skills/kg-traverse/SKILL.md",
+      "git_blob_sha": "40b2eda07d5b2c0ba3e55f226323265ea0a54fd9",
+      "bytes": 3063,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-loop-workers/skills/cron-schedule/SKILL.md",
+      "git_blob_sha": "0d2a52d29dd39306ba55ac9232338f1559e67d94",
+      "bytes": 1747,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-loop-workers/skills/loop-worker/SKILL.md",
+      "git_blob_sha": "2e112c29137cf1c1fd71667cca498e57d3a3a516",
+      "bytes": 2564,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-market-data/skills/market-ingest/SKILL.md",
+      "git_blob_sha": "7b423cc486a400bd89f1f31906891447aa7e894c",
+      "bytes": 2788,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-market-data/skills/market-pattern/SKILL.md",
+      "git_blob_sha": "50e013bcf58561bfcec6c241a394604b0e66bde8",
+      "bytes": 2673,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-bench/SKILL.md",
+      "git_blob_sha": "c00c484d25cf23c8836b71322489356624d558fe",
+      "bytes": 2236,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-drift-from-history/SKILL.md",
+      "git_blob_sha": "f51900db9c35d7dabb87fd6fd7feee663cf7fc03",
+      "bytes": 2450,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-evolve/SKILL.md",
+      "git_blob_sha": "224469780ff5e17ca57d0104dcac62afc2f0c54a",
+      "bytes": 6191,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-genome/SKILL.md",
+      "git_blob_sha": "a9b4d68053d2eb17c3dfd147efe6ca48674d3df3",
+      "bytes": 2238,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-gepa/SKILL.md",
+      "git_blob_sha": "fc83dad43092e606b5ff99d593eb382dde2f5acc",
+      "bytes": 3108,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-learn/SKILL.md",
+      "git_blob_sha": "488f281176b84159453dc06c98200685a0be7185",
+      "bytes": 3104,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-mcp-scan/SKILL.md",
+      "git_blob_sha": "189f6b7c91ddab29129b0812eada16099e42bbb5",
+      "bytes": 1717,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-mint/SKILL.md",
+      "git_blob_sha": "53ed3ca0687b855b18818d604cdf4501a9664a4e",
+      "bytes": 2832,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-oia-audit/SKILL.md",
+      "git_blob_sha": "9d6023af7b9e5bf64797d05caeb9c99e8aadb793",
+      "bytes": 2927,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-score/SKILL.md",
+      "git_blob_sha": "e97d65fd9479b819fae59c7d926d7dbf442f55f6",
+      "bytes": 2377,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-security-bench/SKILL.md",
+      "git_blob_sha": "45d74693c06c2a6542f1aff8ca0ead2314744aba",
+      "bytes": 4408,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-similarity/SKILL.md",
+      "git_blob_sha": "7e098895be44e17b356bc729267fa6fea4182e1e",
+      "bytes": 3350,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-threat-model/SKILL.md",
+      "git_blob_sha": "fd6178a83c9d9f9d359f005c6da1e88d7b4aa53d",
+      "bytes": 1452,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-migrations/skills/migrate-create/SKILL.md",
+      "git_blob_sha": "524033203474726e3feee0e1c8cd99b99148d6f2",
+      "bytes": 2334,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-migrations/skills/migrate-validate/SKILL.md",
+      "git_blob_sha": "70e9c758768b2165e2ab0894d421c7f8b369279a",
+      "bytes": 2641,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-connect/SKILL.md",
+      "git_blob_sha": "41686254784a62e0607b62d786a9418a4dff6b87",
+      "bytes": 3543,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-generate/SKILL.md",
+      "git_blob_sha": "9f976669ffbdba3d72522889e29ce501eb3c254b",
+      "bytes": 4322,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-get/SKILL.md",
+      "git_blob_sha": "3f85fab8c6ef3fe878c350b15600d549ce65724a",
+      "bytes": 1202,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-list/SKILL.md",
+      "git_blob_sha": "13f74ad01464a07f1c79fe66dbe0919f59fa595f",
+      "bytes": 1333,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-master/SKILL.md",
+      "git_blob_sha": "3d9cda545435e1bbc41fc2e3d164624558954e78",
+      "bytes": 1084,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-midi/SKILL.md",
+      "git_blob_sha": "a60d1db46998698594d4d989806428c36af11931",
+      "bytes": 945,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-stems/SKILL.md",
+      "git_blob_sha": "f28ed9fc721e9a730775c199d10f16dc2280ae69",
+      "bytes": 1598,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-backtest/SKILL.md",
+      "git_blob_sha": "8d05c982e7135a38ac4f16edf796cd9b363fef16",
+      "bytes": 6080,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-cloud-backtest/SKILL.md",
+      "git_blob_sha": "8def68527acd1fd421758a80d6b445183541ef39",
+      "bytes": 7292,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-explain/SKILL.md",
+      "git_blob_sha": "0761dc03f3923e7c8a2775ea137e1f82a73bef30",
+      "bytes": 8087,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-portfolio-cg/SKILL.md",
+      "git_blob_sha": "cfd57403eecbd3ced52d0145b86baeeaf1e539c5",
+      "bytes": 6794,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-portfolio/SKILL.md",
+      "git_blob_sha": "69c5b26b5f9f4d1d78dc23c850278113870221ec",
+      "bytes": 2336,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-regime/SKILL.md",
+      "git_blob_sha": "7bd6153e31e5fca8f9c2a42ac1ca468532dd63b9",
+      "bytes": 2135,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-risk/SKILL.md",
+      "git_blob_sha": "e26507cf2af12a9eca5ffd9ff5f3224e549613d1",
+      "bytes": 1969,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-signal/SKILL.md",
+      "git_blob_sha": "a2601a721c58fc4bc44202d12b141673d79e4afb",
+      "bytes": 2824,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-train/SKILL.md",
+      "git_blob_sha": "2e7305f5e372db84de990c93372c99e939d71780",
+      "bytes": 2083,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-observability/skills/observe-metrics/SKILL.md",
+      "git_blob_sha": "f8835364f37b277566cba1235b43ac27d54b6399",
+      "bytes": 2630,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-observability/skills/observe-trace/SKILL.md",
+      "git_blob_sha": "f36463ad96ccc4145af3e02ed3a06f110dc1ebb4",
+      "bytes": 2544,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-plugin-creator/skills/create-mod/SKILL.md",
+      "git_blob_sha": "dd72f6d531aec7a39a91caf81eb8f63827c4430c",
+      "bytes": 4803,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-plugin-creator/skills/create-plugin/SKILL.md",
+      "git_blob_sha": "3f8e08430d888b7f390c561650e41f23f120d20a",
+      "bytes": 6104,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-plugin-creator/skills/validate-plugin/SKILL.md",
+      "git_blob_sha": "c72ac626bbdd731b4acaad5808c41e0c3c2643ec",
+      "bytes": 2555,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-rag-memory/skills/memory-bridge/SKILL.md",
+      "git_blob_sha": "c5e2e59101a86916ab1b69b121fdd453b7b690e0",
+      "bytes": 2419,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-rag-memory/skills/memory-search/SKILL.md",
+      "git_blob_sha": "9c49a245c1011d25b5abcf27da4bca36210544a1",
+      "bytes": 3639,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ruos/skills/ruos-host-run/SKILL.md",
+      "git_blob_sha": "d56b13c63994ca70f557d093c5737d52c212a6c2",
+      "bytes": 4170,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-rure/skills/analyze-app/SKILL.md",
+      "git_blob_sha": "a914413273bc64998139acfb7c7d7b6fd6d815c3",
+      "bytes": 5935,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ruvector/skills/vector-cluster/SKILL.md",
+      "git_blob_sha": "4e0d9cae1532c9c795c45d616a2ddf12da6f79bd",
+      "bytes": 2162,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ruvector/skills/vector-embed/SKILL.md",
+      "git_blob_sha": "95ff49636e6f1927d83387b2f088550a42889a05",
+      "bytes": 2371,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ruvector/skills/vector-hyperbolic/SKILL.md",
+      "git_blob_sha": "7f84d01a0c0b36b3751cd414d61b5fae123aeeba",
+      "bytes": 3377,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ruvector/skills/vector-setup/SKILL.md",
+      "git_blob_sha": "a9d5c64275b2e784b891bd5fee5d60dac3f8de8d",
+      "bytes": 4056,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ruvllm/skills/chat-format/SKILL.md",
+      "git_blob_sha": "b5004a59a576c5b56703dd0bee13706930255537",
+      "bytes": 2237,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ruvllm/skills/llm-config/SKILL.md",
+      "git_blob_sha": "3e16d007d1f3f108348dbe403a7bc707b9e1fcfe",
+      "bytes": 2630,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-ruvllm/skills/ruvllm-runtime/SKILL.md",
+      "git_blob_sha": "453296529d51f14f3bca732c7294a3f384003621",
+      "bytes": 3493,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-rvf/skills/rvf-manage/SKILL.md",
+      "git_blob_sha": "9275354f121be5f0d94c741cc09c461f6990b36c",
+      "bytes": 2526,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-rvf/skills/session-persist/SKILL.md",
+      "git_blob_sha": "d5bd8680a47a6cc4742b94d8d454ad34536249d5",
+      "bytes": 1674,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-security-audit/skills/dependency-check/SKILL.md",
+      "git_blob_sha": "ff713b49005c6a4475db3a52d91a85c265d45c14",
+      "bytes": 1398,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-security-audit/skills/security-scan/SKILL.md",
+      "git_blob_sha": "e5cebc7e17753ae75f035927a3e920f30b17cc73",
+      "bytes": 1961,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-sparc/skills/sparc-implement/SKILL.md",
+      "git_blob_sha": "9887af0a94cada568db408b3bc91d23758234f41",
+      "bytes": 5522,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-sparc/skills/sparc-refine/SKILL.md",
+      "git_blob_sha": "96c5d9ce6a1046b9752dc26b1dd7a843885de633",
+      "bytes": 8620,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-sparc/skills/sparc-spec/SKILL.md",
+      "git_blob_sha": "d5dd02347eedc8054fb2fa1be34a6f9e2d75c88d",
+      "bytes": 4596,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-swarm/skills/monitor-stream/SKILL.md",
+      "git_blob_sha": "b4b76259ef209747d2d8111ae287743032cab1a3",
+      "bytes": 978,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-swarm/skills/swarm-init/SKILL.md",
+      "git_blob_sha": "071b4c9c16ffd2d553e3009fe59e4247f7f5b853",
+      "bytes": 1274,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-testgen/skills/tdd-repair/SKILL.md",
+      "git_blob_sha": "b5d368487e40488ec0da0818751d7fe1133c9fd3",
+      "bytes": 6467,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-testgen/skills/tdd-workflow/SKILL.md",
+      "git_blob_sha": "c099a704c9d935d3aa9d3a8121e68ec3267a438d",
+      "bytes": 2369,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-testgen/skills/test-gaps/SKILL.md",
+      "git_blob_sha": "65860d64706fe88f0638967ecbcb709be6f8f649",
+      "bytes": 927,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/gaia-architecture-comparison/SKILL.md",
+      "git_blob_sha": "df864e333e29d674165291204898390cdbedade1",
+      "bytes": 5190,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/gaia-debugging/SKILL.md",
+      "git_blob_sha": "1f40e09a243bdd5daeca24e6a2ebe6a0a3440cce",
+      "bytes": 5437,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/gaia-submission/SKILL.md",
+      "git_blob_sha": "d46b13083ae13e859905d2a2d7b79e86eb70960c",
+      "bytes": 5080,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/workflow-create/SKILL.md",
+      "git_blob_sha": "06e2072a58fb594b235e85cc7bf6d3777ddfef44",
+      "bytes": 4813,
+      "scope": "plugins"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/workflow-run/SKILL.md",
+      "git_blob_sha": "df8bbcc614e0f629759efd9614cc2a4b10fb33a2",
+      "bytes": 2847,
+      "scope": "plugins"
+    },
+    {
+      "path": "ruflo/src/ruvocal/.claude/skills/add-model-descriptions/SKILL.md",
+      "git_blob_sha": "8c82b6ec2df321a7a74fcb25214c13d1e6f1f2be",
+      "bytes": 2400,
+      "scope": "ruflo"
+    },
+    {
+      "path": "SKILL.md",
+      "git_blob_sha": "b41415aafb2ca8c073edad92b0bd4f46d231c9a4",
+      "bytes": 3939,
+      "scope": "SKILL.md"
+    },
+    {
+      "path": "v3/@claude-flow/browser/skills/browser/SKILL.md",
+      "git_blob_sha": "4f0b216e5a8fa928c23a41378da241f8da4a1703",
+      "bytes": 5286,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/agentdb-advanced/SKILL.md",
+      "git_blob_sha": "1caa8bc88bf02a40495b0fed404d6c7af1542d83",
+      "bytes": 13066,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/agentdb-learning/SKILL.md",
+      "git_blob_sha": "e21b17ff2f4374b3dffe8fa04a7d2900d09f2937",
+      "bytes": 11906,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/agentdb-memory-patterns/SKILL.md",
+      "git_blob_sha": "64d0ef99aa9da227f9b24c55f95e2fcd9ed3cbd8",
+      "bytes": 8690,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/agentdb-optimization/SKILL.md",
+      "git_blob_sha": "dd8ae59826312a11f8148782820a81ca0f436e5e",
+      "bytes": 12151,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/agentdb-vector-search/SKILL.md",
+      "git_blob_sha": "fe0740e7572af7eb40ca239cdd1113192c6ec938",
+      "bytes": 8961,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/browser/SKILL.md",
+      "git_blob_sha": "4f0b216e5a8fa928c23a41378da241f8da4a1703",
+      "bytes": 5286,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/fast-code-edits/SKILL.md",
+      "git_blob_sha": "47ab44a57dae9d33be2a9162322afbdfb44b9b0c",
+      "bytes": 2177,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/flow-nexus-neural/SKILL.md",
+      "git_blob_sha": "c76b6ca12cfc64872da0c239e8b48cd5b316bd57",
+      "bytes": 16126,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/flow-nexus-platform/SKILL.md",
+      "git_blob_sha": "a1e43a6328c7bdb2e2bca9ae356d787a83c3d3e1",
+      "bytes": 25516,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/flow-nexus-swarm/SKILL.md",
+      "git_blob_sha": "f7b9b6ff64bee7393731bbc0349f23fa884fa395",
+      "bytes": 16557,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/github-code-review/SKILL.md",
+      "git_blob_sha": "42ec8f2631521b091b69610d73f863a278c731ac",
+      "bytes": 25680,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/github-multi-repo/SKILL.md",
+      "git_blob_sha": "53f827f0fd84526109849d0cf00a88e997820cd9",
+      "bytes": 22638,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/github-project-management/SKILL.md",
+      "git_blob_sha": "8e53128559247ba70eabf205b4eaaa362441928e",
+      "bytes": 29536,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/github-release-management/SKILL.md",
+      "git_blob_sha": "a715b63a2d222b78a08b5453347599246a493348",
+      "bytes": 29368,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/github-workflow-automation/SKILL.md",
+      "git_blob_sha": "c1fdfface93b8821de1cb290f5821ae4c0f0cba0",
+      "bytes": 23619,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/graph-mincut/SKILL.md",
+      "git_blob_sha": "6f50b12cd7ee8916d588eba4cc9d342a99b95bc9",
+      "bytes": 2107,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/hooks-automation/SKILL.md",
+      "git_blob_sha": "931a45ab2b8e5ee9bee812635c5247298ea2f139",
+      "bytes": 32143,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/injection-defense/SKILL.md",
+      "git_blob_sha": "9a25c363c9feeaa1990ee0807d0a2a4498aaba60",
+      "bytes": 1967,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/lora-learning/SKILL.md",
+      "git_blob_sha": "e757a7e6b16e46f813c83ea6d3c81ba108431e84",
+      "bytes": 1955,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/pair-programming/SKILL.md",
+      "git_blob_sha": "ff377d077ce3e14d374c41c49118d47849f04ff7",
+      "bytes": 24862,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/reasoningbank-agentdb/SKILL.md",
+      "git_blob_sha": "057ac09a6af1cfc89d861ffd845fdabdd206cc1a",
+      "bytes": 10923,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/reasoningbank-intelligence/SKILL.md",
+      "git_blob_sha": "74930e73a4557043009178e6025fa11dd2407682",
+      "bytes": 4828,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/skill-builder/SKILL.md",
+      "git_blob_sha": "62c3c9192847d51c7b3fbc6a0c13a754628f1195",
+      "bytes": 21899,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/sparc-methodology/SKILL.md",
+      "git_blob_sha": "a3658df972342b431cdf14a682addfec0b27f65f",
+      "bytes": 25268,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/stream-chain/SKILL.md",
+      "git_blob_sha": "5ca1e610c79d7020b99502f57a17cb0ed40d1b5d",
+      "bytes": 12613,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/sublinear-solver/SKILL.md",
+      "git_blob_sha": "93f377d6cdb3f0d30ea323b4526cb85dc81e823a",
+      "bytes": 2039,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/swarm-advanced/SKILL.md",
+      "git_blob_sha": "cae7bc16c86a31f3e8dee21fde51f168e6dacf18",
+      "bytes": 23736,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/swarm-orchestration/SKILL.md",
+      "git_blob_sha": "50d7fce3c901b2d2e73536985d9c3758501e67b9",
+      "bytes": 4308,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/v3-cli-modernization/SKILL.md",
+      "git_blob_sha": "adf30ed62c385026228f8086a248175dd503c52d",
+      "bytes": 25722,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/v3-core-implementation/SKILL.md",
+      "git_blob_sha": "b1d2eda9f8e74af6fe03d8ee6ab396abd3aadbc5",
+      "bytes": 22017,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/v3-ddd-architecture/SKILL.md",
+      "git_blob_sha": "a2829891c1f3ac9a0f399847a07435789b98a43f",
+      "bytes": 12164,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/v3-integration-deep/SKILL.md",
+      "git_blob_sha": "1981bb8020bbbc1f32745a7a89844c77213fdbdb",
+      "bytes": 7276,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/v3-mcp-optimization/SKILL.md",
+      "git_blob_sha": "7450cbab380b07c7f94f18848df2603c57f4f3ab",
+      "bytes": 21426,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/v3-memory-unification/SKILL.md",
+      "git_blob_sha": "4e0d15e56d2ef8619f14724927d9f0bd79e49dd9",
+      "bytes": 5227,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/v3-performance-optimization/SKILL.md",
+      "git_blob_sha": "6d71b0de4171e3afb12ae9b15dc32f483935fe01",
+      "bytes": 11437,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/v3-security-overhaul/SKILL.md",
+      "git_blob_sha": "fe7c79d232b585791c80464176b6c346cc2d9f62",
+      "bytes": 2438,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/v3-swarm-coordination/SKILL.md",
+      "git_blob_sha": "aa9ec507ccfe2e023e008cf3b228858a9a775b18",
+      "bytes": 12135,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/vector-quantization/SKILL.md",
+      "git_blob_sha": "179a9f4e389ff09994b52bf0dc56698c00e6df1a",
+      "bytes": 2427,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/.claude/skills/verification-quality/SKILL.md",
+      "git_blob_sha": "e8016df8f5e85c4ae58a3ab3b7f5a3c9e5cd6134",
+      "bytes": 20624,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/cli/templates/grok/skills/agent-teams-grok/SKILL.md",
+      "git_blob_sha": "a444d15bf15bfca737de9520619ad7304ac45dd2",
+      "bytes": 4433,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/fast-code-edits/SKILL.md",
+      "git_blob_sha": "13c7e6bf9e6cc5329fcffb4a2f5d7651a408ebab",
+      "bytes": 1683,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/github-automation/SKILL.md",
+      "git_blob_sha": "e1f2df511a54f09480114bb7d5e84a87f3f025c0",
+      "bytes": 728,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/graph-mincut/SKILL.md",
+      "git_blob_sha": "912058fb84b74ad93014eb36f5567bb65da314f1",
+      "bytes": 1830,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/injection-defense/SKILL.md",
+      "git_blob_sha": "b9349f698ae3bedf6f21d3f8cd2ab9872546436a",
+      "bytes": 1473,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/lora-learning/SKILL.md",
+      "git_blob_sha": "a4c422a304c0bfecfb0167578c1513340ceca3bb",
+      "bytes": 1443,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/memory-management/SKILL.md",
+      "git_blob_sha": "0a2e0a02f6a1f9e851225970f2b5a285dd7b51b2",
+      "bytes": 922,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/performance-analysis/SKILL.md",
+      "git_blob_sha": "e47cd6badfc0cc2330d2d77fb1e91bba7dda7e34",
+      "bytes": 766,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/security-audit/SKILL.md",
+      "git_blob_sha": "f80ceae14954e5dde2092db87058fb17499d4238",
+      "bytes": 914,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/sparc-methodology/SKILL.md",
+      "git_blob_sha": "e99f9d5ed3d7bf3fe1751761531dd3669ff6d5cd",
+      "bytes": 1046,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/sublinear-solver/SKILL.md",
+      "git_blob_sha": "9bfe623dc62c78c6eb2dd25a91acad0ea9e235dd",
+      "bytes": 1697,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/swarm-orchestration/SKILL.md",
+      "git_blob_sha": "6023703db294bc9a7e331287c9e76ed1a6b42665",
+      "bytes": 1044,
+      "scope": "v3"
+    },
+    {
+      "path": "v3/@claude-flow/codex/.agents/skills/vector-quantization/SKILL.md",
+      "git_blob_sha": "dff13eb9f3d4ec976f6dd0da48fdccbe067e425d",
+      "bytes": 1873,
+      "scope": "v3"
+    }
+  ]
+}
