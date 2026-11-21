@@ -68,6 +68,15 @@ describe('guardPublicRequest', () => {
     expect((res as Response).status).toBe(413)
   })
 
+  it('limits UTF-8 bytes when content-length is absent', async () => {
+    const res = await guardPublicRequest(
+      req({ contentType: 'application/json', body: '"😀😀"' }),
+      { route: 'utf8-limit', maxBytes: 9 },
+    )
+    expect(res).toBeInstanceOf(Response)
+    expect((res as Response).status).toBe(413)
+  })
+
   it('rate-limits after exceeding max in window', async () => {
     const opts = {
       route: 'rl',
