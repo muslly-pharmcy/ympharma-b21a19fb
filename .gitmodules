@@ -1,3 +1,7 @@
 [submodule ".agents/marketingskills"]
 	path = .agents/marketingskills
 	url = https://github.com/coreyhaines31/marketingskills.git
+
+[submodule ".agent-toolkit/ruflo/upstream"]
+	path = .agent-toolkit/ruflo/upstream
+	url = https://github.com/ruvnet/ruflo.git
