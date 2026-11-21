@@ -88,6 +88,41 @@ if (scannedSkills !== 336) error('Expected 336 verified archived SKILL.md files'
 const grouped = (catalog.official_featured || []).flatMap(x => x.skills || []);
 if (catalog.official_featured?.length !== 34 || grouped.length !== 134 ||
     new Set(grouped).size !== 134) error('Expected 134 advertised unique skills in 34 groups');
+const deepIndex = process.argv.indexOf('--deep-path');
+let sourceContentChecked = 0, sourceContentBytes = 0, deepIndicators = null;
+if (deepIndex >= 0) {
+  const rawPath = process.argv[deepIndex + 1];
+  if (!rawPath || rawPath.startsWith('--')) throw Error('Missing --deep-path argument');
+  const deepRoot = await realpath(resolve(rawPath));
+  deepIndicators = Object.fromEntries(patterns.map(([name]) => [name, {files: 0, matches: 0, examples: []}]));
+  for (const f of catalog.skill_files) {
+    if (!safePath(f.path)) continue;
+    const absolute = resolve(deepRoot, f.path);
+    if (!absolute.startsWith(deepRoot + sep)) {error('Escaped upstream path: ' + f.path); continue;}
+    let content;
+    try {
+      const st = await lstat(absolute);
+      const real = await realpath(absolute);
+      if (!st.isFile() || !real.startsWith(deepRoot + sep)) {error('Unsafe upstream file: ' + f.path); continue;}
+      content = await readFile(absolute);
+    } catch (e) {error('Missing upstream source: ' + f.path + ' (' + e.code + ')'); continue;}
+    if (content.length > 256 * 1024) {error('Oversized upstream file: ' + f.path); continue;}
+    const sha = createHash('sha1').update('blob ' + content.length + '\0').update(content).digest('hex');
+    if (sha !== f.git_blob_sha) {error('Upstream source SHA-1 mismatch: ' + f.path); continue;}
+    sourceContentChecked++;sourceContentBytes += content.length;
+    const source = content.toString('utf8');
+    for (const [name, re] of patterns) {
+      re.lastIndex = 0;
+      const count = [...source.matchAll(re)].length;
+      if (count) {
+        const record = deepIndicators[name];record.files++;record.matches += count;
+        if (record.examples.length < 12) record.examples.push(f.path);
+      }
+    }
+  }
+  if (sourceContentChecked !== 403) error('Expected to hash-verify and scan 403 upstream SKILL.md files');
+}
+
 const result = {
   upstreamCommit: PIN,
   sourceSkillPaths: catalog.skill_files.length,
@@ -95,9 +130,12 @@ const result = {
   archivedVerifiedFiles: verified,
   archivedSkillFilesScanned: scannedSkills,
   archivedVerifiedBytes: verifiedBytes,
+  fullSourceSkillsVerifiedAndScanned: sourceContentChecked,
+  fullSourceBytes: sourceContentBytes,
+  fullSourceHeuristicIndicators: deepIndicators,
   heuristicIndicators: indicators,
   issues: failures,
-  note: 'Static heuristics are leads, not confirmed vulnerabilities; only the 336 archived skills were scanned. The other 67 source skill paths remain cataloged/submodule-linked, not content-audited here. No runtime or production tests were run.',
+  note: 'Static heuristics are leads, not confirmed vulnerabilities. The 336 archived files are always scanned; all 403 upstream files are additionally source-hash verified and scanned only when --deep-path is provided. No runtime or production tests were run.',
 };
 console.log(JSON.stringify(result, null, 2));
 if (failures.length) process.exitCode = 1;
