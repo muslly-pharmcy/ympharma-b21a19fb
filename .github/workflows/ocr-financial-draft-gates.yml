@@ -32,4 +32,4 @@ jobs:
       - name: Build application bundle
         run: bun run build
       - name: Reject secrets in build artifact files
-        run: bun run check:secrets
+        run: node scripts/check-no-secrets.mjs .output --strict
