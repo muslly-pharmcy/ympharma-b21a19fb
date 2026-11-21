@@ -1,0 +1,62 @@
+name: Ruflo pinned skill integrity
+
+on:
+  pull_request:
+    paths:
+      - '.agent-toolkit/ruflo/**'
+      - 'third_party/ruflo/**'
+      - '.agents/skills/ruflo-*/**'
+      - 'scripts/ruflo-skills.mjs'
+      - 'scripts/sync-ruflo-skills.mjs'
+      - 'scripts/verify-ruflo-inventory.mjs'
+      - '.github/workflows/ruflo-integrity.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.agent-toolkit/ruflo/**'
+      - 'third_party/ruflo/**'
+      - '.agents/skills/ruflo-*/**'
+      - 'scripts/verify-ruflo-inventory.mjs'
+      - '.github/workflows/ruflo-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check pinned Git submodule pointer (without running it)
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='87f612cef121b50c2e31e2d3f88e46d88963a377'
+          actual="$(git ls-tree HEAD .agent-toolkit/ruflo/upstream | awk '{print $3}')"
+          test "$actual" = "$expected"
+      - name: Check audit script syntax
+        run: node --check scripts/verify-ruflo-inventory.mjs
+      - name: Verify archived hashes and report source risk indicators
+        run: node scripts/verify-ruflo-inventory.mjs
+      - name: Download only pinned upstream SKILL.md blobs into isolated sparse checkout
+        shell: bash
+        env:
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set -euo pipefail
+          source="$RUNNER_TEMP/ruflo-scan-source"
+          git init -q "$source"
+          git -C "$source" remote add origin https://github.com/ruvnet/ruflo.git
+          git -C "$source" fetch -q --depth=1 --filter=blob:none origin 87f612cef121b50c2e31e2d3f88e46d88963a377
+          git -C "$source" sparse-checkout init --no-cone
+          git -C "$source" sparse-checkout set --no-cone '**/SKILL.md'
+          git -C "$source" checkout -q --detach FETCH_HEAD
+          test "$(git -C "$source" rev-parse HEAD)" = '87f612cef121b50c2e31e2d3f88e46d88963a377'
+      - name: Verify and heuristically scan all 403 pinned upstream skill files
+        shell: bash
+        run: node scripts/verify-ruflo-inventory.mjs --deep-path "$RUNNER_TEMP/ruflo-scan-source"
