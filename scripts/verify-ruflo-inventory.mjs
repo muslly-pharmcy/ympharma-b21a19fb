@@ -13,7 +13,6 @@ const project = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendor = resolve(project, 'third_party/ruflo');
 const PIN = '87f612cef121b50c2e31e2d3f88e46d88963a377';
 const failures = [];
-const warn = [];
 const patterns = [
   ['pipe-to-shell', /(?:curl|wget)[^\n]{0,180}\|\s*(?:sh|bash|pwsh|powershell)\b/gi],
   ['shell-or-code-execution', /\b(?:eval\s*\(|exec\s*\(|subprocess\.run|Invoke-Expression|child_process)\b/gi],
@@ -25,7 +24,7 @@ const indicators = Object.fromEntries(patterns.map(([name]) => [name, {files: 0,
 const error = (message) => {failures.push(message);};
 function safePath(p) {
   return typeof p === 'string' && p.length > 0 && !p.startsWith('/') &&
-    !p.includes('\\') && !/[\u0000-\u001f\u007f]/.test(p) &&
+    !p.includes('\\') && ![...p].some(ch => ch.charCodeAt(0) < 32 || ch.charCodeAt(0) === 127) &&
     p.split('/').every(s => s !== '' && s !== '.' && s !== '..');
 }
 function assertFileRecords(records, label) {
@@ -51,6 +50,9 @@ assertFileRecords(catalog.skill_files, 'source-catalog');
 assertFileRecords(manifest.files, 'vendor-manifest');
 let verified = 0, scannedSkills = 0, verifiedBytes = 0;
 const catalogPaths = new Set(catalog.skill_files.map(f => f.path));
+const catalogBlobShas = new Map(catalog.skill_files.map(f => [f.path, f.git_blob_sha]));
+let lineEndingReconstructions = 0;
+let canonicalSourceBlobMatches = 0;
 for (const f of catalog.skill_files) {
   if (!f.path.endsWith('SKILL.md') || !/^[a-f0-9]{40}$/.test(f.git_blob_sha || ''))
     error('Invalid upstream git-blob metadata: ' + f.path);
@@ -66,13 +68,28 @@ for (const f of manifest.files) {
     if (!st.isFile() || !real.startsWith(vendor + sep)) {error('Non-regular or escaped source: ' + f.path); continue;}
     content = await readFile(absolute);
   } catch (e) {error('Missing or unreadable: ' + f.path + ' (' + e.code + ')'); continue;}
-  if (content.length !== f.bytes || createHash('sha256').update(content).digest('hex') !== f.sha256) {
-    error('Byte count or SHA-256 mismatch: ' + f.path); continue;
+  const checksum = data => createHash('sha256').update(data).digest('hex');
+  const rawMatch = content.length === f.bytes && checksum(content) === f.sha256;
+  if (!rawMatch) {
+    // Original MANIFEST was generated on Windows. Git can retain canonical LF
+    // blobs while the source checkout used CRLF; accept only the exact recorded
+    // bytes reconstructed by LF -> CRLF, never arbitrary normalization.
+    const windowsBytes = Buffer.from(content.toString('utf8').replace(/\r?\n/g, '\r\n'), 'utf8');
+    if (windowsBytes.length !== f.bytes || checksum(windowsBytes) !== f.sha256) {
+      error('Neither raw nor deterministic CRLF bytes match manifest: ' + f.path); continue;
+    }
+    lineEndingReconstructions++;
   }
   verified++;verifiedBytes += content.length;
   if (!f.path.endsWith('/SKILL.md')) continue;
   scannedSkills++;
   if (!catalogPaths.has(f.path)) error('Snapshot skill absent in complete upstream inventory: ' + f.path);
+  // Verify actual source Git object independent of the Windows manifest's
+  // checkout line endings. Upstream is pinned to its immutable Git commit.
+  const canonical = Buffer.from(content.toString('utf8').replace(/\r\n/g, '\n'), 'utf8');
+  const gitSha = createHash('sha1').update('blob ' + canonical.length + '\0').update(canonical).digest('hex');
+  if (gitSha !== catalogBlobShas.get(f.path)) error('Canonical upstream blob mismatch: ' + f.path);
+  else canonicalSourceBlobMatches++;
   const source = content.toString('utf8');
   if (!source.startsWith('---\n')) error('Missing frontmatter: ' + f.path);
   for (const [name, re] of patterns) {
@@ -84,7 +101,7 @@ for (const f of manifest.files) {
     }
   }
 }
-if (scannedSkills !== 336) error('Expected 336 verified archived SKILL.md files');
+if (scannedSkills !== 336 || canonicalSourceBlobMatches !== 336) error('Expected 336 verified canonical archived source Git blobs');
 const grouped = (catalog.official_featured || []).flatMap(x => x.skills || []);
 if (catalog.official_featured?.length !== 34 || grouped.length !== 134 ||
     new Set(grouped).size !== 134) error('Expected 134 advertised unique skills in 34 groups');
@@ -130,6 +147,8 @@ const result = {
   archivedVerifiedFiles: verified,
   archivedSkillFilesScanned: scannedSkills,
   archivedVerifiedBytes: verifiedBytes,
+  verifiedCanonicalSourceBlobShas: canonicalSourceBlobMatches,
+  checkoutLineEndingReconstructions: lineEndingReconstructions,
   fullSourceSkillsVerifiedAndScanned: sourceContentChecked,
   fullSourceBytes: sourceContentBytes,
   fullSourceHeuristicIndicators: deepIndicators,
