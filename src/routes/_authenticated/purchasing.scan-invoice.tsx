@@ -29,7 +29,7 @@ function ScanInvoicePage() {
   const [jobId, setJobId] = useState<string | null>(null)
   const [supplierId, setSupplierId] = useState('')
   const [warehouseId, setWarehouseId] = useState('')
-  const [currency, setCurrency] = useState<'YER' | 'SAR' | 'USD'>('YER')
+  const [currency, setCurrency] = useState<'YER' | 'SAR' | 'USD' | ''>('')
 
   const uploadFn = useServerFn(createVisionUploadUrl)
   const analyzeFn = useServerFn(analyzeInvoiceImage)
@@ -228,6 +228,7 @@ function ScanInvoicePage() {
                 onChange={(e) => setCurrency(e.target.value as 'YER' | 'SAR' | 'USD')}
                 className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
               >
+                <option value="" disabled>اختر عملة الفاتورة بعد مراجعة الصورة…</option>
                 <option value="YER">ريال يمني (YER)</option>
                 <option value="SAR">ريال سعودي (SAR)</option>
                 <option value="USD">دولار أمريكي (USD)</option>
@@ -236,7 +237,7 @@ function ScanInvoicePage() {
             <button
               type="button"
               onClick={() => draft.mutate()}
-              disabled={!supplierId || !warehouseId || matchedCount === 0 || incompleteMatchedCount > 0 || draft.isPending}
+              disabled={!supplierId || !warehouseId || !currency || matchedCount === 0 || incompleteMatchedCount > 0 || draft.isPending}
               className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
             >
               {draft.isPending ? (
