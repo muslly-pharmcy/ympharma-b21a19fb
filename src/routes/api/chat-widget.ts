@@ -10,13 +10,14 @@
 // Response contract is unchanged (`{ reply }`) so existing clients keep working.
 
 import { createFileRoute } from '@tanstack/react-router'
+import { normalizeClientMessages, type ClientMessage } from '@/lib/ai/client-messages'
 import { AiError, callOpenAi, type AiInputItem } from '@/lib/ai/provider.server'
 import { modelFor, fallbackFor, type AiTask } from '@/lib/ai/model-policy'
 import { PATIENT_ASSISTANT_V1, PATIENT_ASSISTANT_VERSION } from '@/lib/ai/prompts/patient-assistant.v1'
 import { PATIENT_TOOLS, executePatientTool } from '@/lib/ai/tools/patient-tools.server'
 import { recordModuleRun } from '@/lib/ai/runtime/telemetry.server'
 
-type Msg = { role: 'user' | 'assistant' | 'system'; content: string }
+type Msg = ClientMessage
 
 const MAX_TURNS = 10
 const MAX_CHARS = 2000
@@ -99,7 +100,7 @@ function pickTask(lastUserText: string): AiTask {
 
 function toInputItems(messages: Msg[]): AiInputItem[] {
   return messages.map((m) => ({
-    role: m.role === 'system' ? 'user' : m.role,
+    role: m.role,
     content: [
       {
         type: m.role === 'assistant' ? 'output_text' : 'input_text',
@@ -132,10 +133,7 @@ export const Route = createFileRoute('/api/chat-widget')({
           )
         }
 
-        const raw = Array.isArray(body.messages) ? body.messages : []
-        const messages = raw
-          .filter((m) => m && typeof m.content === 'string' && m.content.trim().length > 0)
-          .slice(-MAX_TURNS)
+        const messages = normalizeClientMessages(body.messages, MAX_TURNS, MAX_CHARS)
         if (messages.length === 0) {
           return Response.json({ error: 'empty_conversation' }, { status: 400 })
         }

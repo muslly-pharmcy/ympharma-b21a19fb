@@ -63,12 +63,44 @@ function pickIp(request: Request): string {
 
 async function hashIp(ip: string): Promise<string> {
   const g = globalThis as { crypto?: { subtle?: SubtleCrypto } }
-  if (!g.crypto?.subtle) return `plain:${ip.slice(0, 12)}`
+  if (!g.crypto?.subtle) return 'crypto-unavailable'
   const bytes = new TextEncoder().encode(`muslly:${ip}`)
   const digest = await g.crypto.subtle.digest('SHA-256', bytes)
   return Array.from(new Uint8Array(digest).slice(0, 8))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
+}
+
+
+/**
+ * Read a request body with a hard byte cap even when content-length is absent.
+ * This avoids buffering an unbounded stream and counts actual UTF-8 bytes.
+ */
+async function readBoundedBody(
+  request: Request,
+  maxBytes: number,
+): Promise<{ body: string; bytes: number } | null> {
+  const reader = request.body?.getReader()
+  if (!reader) return { body: '', bytes: 0 }
+  const decoder = new TextDecoder()
+  const chunks: string[] = []
+  let bytes = 0
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      bytes += value.byteLength
+      if (bytes > maxBytes) {
+        await reader.cancel().catch(() => undefined)
+        return null
+      }
+      chunks.push(decoder.decode(value, { stream: true }))
+    }
+    chunks.push(decoder.decode())
+    return { body: chunks.join(''), bytes }
+  } finally {
+    reader.releaseLock()
+  }
 }
 
 function checkRateLimit(
@@ -157,10 +189,8 @@ export async function guardPublicRequest(
     )
   }
 
-  const text = await request.text()
-  if (text.length > maxBytes) {
-    return jsonError(413, 'payload_too_large', correlationId, { maxBytes })
-  }
+  const bodyResult = await readBoundedBody(request, maxBytes)
+  if (!bodyResult) return jsonError(413, 'payload_too_large', correlationId, { maxBytes })
 
   // Structured admission log — never includes body or raw IP.
    
@@ -169,10 +199,10 @@ export async function guardPublicRequest(
     method: request.method,
     ipHash,
     correlationId,
-    bytes: text.length,
+    bytes: bodyResult.bytes,
   })
 
-  return { correlationId, ipHash, body: text, contentType }
+  return { correlationId, ipHash, body: bodyResult.body, contentType }
 }
 
 /** Test-only: clear the in-memory rate-limit buckets. */
