@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
+import { validateOcrPurchaseDraft } from './ocr-purchase-draft-validation'
 
 export interface InvoiceJobRow {
   id: string
@@ -30,6 +31,14 @@ export const listInvoiceJobRows = createServerFn({ method: 'GET' })
   .validator((raw: unknown) => z.object({ jobId: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }): Promise<InvoiceJobRow[]> => {
     await assertAdmin(context.supabase as never, context.userId)
+    // Admin role alone must not disclose another user's private OCR upload.
+    const { data: job, error: jobError } = await context.supabase
+      .from('catalog_import_jobs')
+      .select('id')
+      .eq('id', data.jobId)
+      .eq('uploaded_by', context.userId)
+      .maybeSingle()
+    if (jobError || !job) throw new Error('الفاتورة غير موجودة أو ليست ضمن حسابك')
     const { data: rows, error } = await context.supabase
       .from('catalog_import_rows')
       .select('id, row_index, decision, reason, matched_product_id, payload')
@@ -69,7 +78,7 @@ const draftInput = z.object({
   jobId: z.string().uuid(),
   supplierId: z.string().uuid(),
   warehouseId: z.string().uuid(),
-  currency: z.string().length(3).default('YER'),
+  currency: z.enum(['YER', 'SAR', 'USD']),
   notes: z.string().max(2000).optional().nullable(),
 })
 
@@ -95,15 +104,43 @@ export const createDraftPoFromInvoice = createServerFn({ method: 'POST' })
       await assertAdmin(context.supabase as never, context.userId)
       const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
 
-      const { data: mem } = await context.supabase
+      const { getActorFromSupabase, requirePermission } = await import('./session.server')
+      const actor = await getActorFromSupabase(context.supabase, context.userId)
+      requirePermission(actor, 'purchase.write')
+      const organizationId = actor.organizationId
+
+      // The legacy OCR job does not store an organization_id. Do not guess
+      // an organization for a user with multiple active memberships.
+      const { data: memberships, error: membershipsError } = await context.supabase
         .from('organization_members')
         .select('organization_id')
         .eq('user_id', context.userId)
         .eq('status', 'active')
-        .limit(1)
+        .limit(2)
+      if (membershipsError) return { ok: false, error: 'تعذّر التحقق من المؤسسة' }
+      if ((memberships ?? []).length !== 1) {
+        return { ok: false, error: 'لا يمكن تحديد مؤسسة واحدة للفاتورة؛ تحتاج مطابقة المؤسسة يدويًا' }
+      }
+
+      const { data: job, error: jobError } = await context.supabase
+        .from('catalog_import_jobs')
+        .select('id, uploaded_by, status, dry_run')
+        .eq('id', data.jobId)
+        .eq('uploaded_by', context.userId)
         .maybeSingle()
-      const organizationId = (mem as { organization_id: string } | null)?.organization_id
-      if (!organizationId) return { ok: false, error: 'لا توجد مؤسسة نشطة للمستخدم' }
+      if (jobError || !job || job.status !== 'analyzed' || job.dry_run !== true) {
+        return { ok: false, error: 'مهمة الفاتورة غير موجودة أو لم تكتمل مراجعتها' }
+      }
+
+      const [supplierCheck, warehouseCheck] = await Promise.all([
+        supabaseAdmin.from('sup_suppliers').select('id')
+          .eq('id', data.supplierId).eq('organization_id', organizationId).maybeSingle(),
+        supabaseAdmin.from('wh_warehouses').select('id')
+          .eq('id', data.warehouseId).eq('organization_id', organizationId).maybeSingle(),
+      ])
+      if (supplierCheck.error || !supplierCheck.data || warehouseCheck.error || !warehouseCheck.data) {
+        return { ok: false, error: 'المورد أو المستودع لا يتبع المؤسسة المحددة' }
+      }
 
       const { data: rows, error: rowsErr } = await supabaseAdmin
         .from('catalog_import_rows')
@@ -118,26 +155,29 @@ export const createDraftPoFromInvoice = createServerFn({ method: 'POST' })
         matched_product_id: string | null
         payload: Record<string, unknown> | null
       }>
-      const usable = all.filter((r) => r.decision === 'matched' && r.matched_product_id)
-      if (usable.length === 0) {
-        return { ok: false, error: 'لا توجد أصناف مطابقة يمكن تحويلها لأمر شراء' }
+      const verified = validateOcrPurchaseDraft(all)
+      if (!verified.ok) {
+        return {
+          ok: false,
+          error: 'بيانات OCR غير مكتملة؛ صحح الفاتورة قبل إنشاء الأمر: ' +
+            verified.errors.slice(0, 4).map((e) => `صف ${e.rowIndex + 1}: ${e.reason}`).join('؛ '),
+        }
       }
 
-      const code = `PO-OCR-${Date.now().toString(36).toUpperCase()}`
-      const lines = usable.map((r, idx) => {
-        const p = r.payload ?? {}
-        const qty = typeof p['_quantity'] === 'number' && p['_quantity']! > 0 ? (p['_quantity'] as number) : 1
-        const cost = typeof p['_unit_cost'] === 'number' ? (p['_unit_cost'] as number) : 0
-        return {
-          line_no: idx + 1,
-          product_id: r.matched_product_id as string,
-          qty_ordered: qty,
-          unit_cost: cost,
-          batch_no: typeof p['_batch_no'] === 'string' ? p['_batch_no'] : null,
-          expiry_date: typeof p['_expiry_date'] === 'string' ? p['_expiry_date'] : null,
-        }
-      })
-      const total = lines.reduce((s, l) => s + l.qty_ordered * l.unit_cost, 0)
+      const { lines, totalAmount } = verified
+      const productIds = [...new Set(lines.map((l) => l.product_id))]
+      const { data: products, error: productsError } = await supabaseAdmin
+        .from('catalog_products')
+        .select('id')
+        .eq('organization_id', organizationId)
+        .in('id', productIds)
+      if (productsError || (products ?? []).length !== productIds.length) {
+        return { ok: false, error: 'يوجد صنف خارج مؤسسة الفاتورة أو غير موجود في الكتالوج' }
+      }
+
+      // Stable per-job code prevents creating multiple draft POs on retries.
+      // This is not a substitute for a fully transactional PO+lines RPC.
+      const code = `PO-OCR-${data.jobId}`
 
       const { data: po, error: poErr } = await supabaseAdmin
         .from('purchase_orders')
@@ -148,8 +188,9 @@ export const createDraftPoFromInvoice = createServerFn({ method: 'POST' })
           code,
           currency: data.currency,
           notes: data.notes ?? `مُنشأ من فاتورة ممسوحة ضوئيًا (job ${data.jobId})`,
-          total_amount: total,
+          total_amount: totalAmount,
           status: 'draft',
+          metadata: { source: 'invoice-ocr', source_job_id: data.jobId, review_state: 'needs_confirmation' },
           created_by: context.userId,
         } as never)
         .select('id')
@@ -167,7 +208,7 @@ export const createDraftPoFromInvoice = createServerFn({ method: 'POST' })
         poId,
         code,
         linesCreated: lines.length,
-        skipped: all.length - lines.length,
+        skipped: verified.skipped,
       }
     } catch (err) {
       console.error('[createDraftPoFromInvoice]', err)

@@ -1,0 +1,35 @@
+name: OCR financial draft safety gates
+
+on:
+  pull_request:
+    paths:
+      - 'src/lib/ocr-purchase-draft-validation.ts'
+      - 'src/lib/invoice-intake.functions.ts'
+      - 'src/routes/_authenticated/purchasing.scan-invoice.tsx'
+      - 'tests/ocr-purchase-draft-validation.test.ts'
+      - '.github/workflows/ocr-financial-draft-gates.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ocr-financial-draft:
+    name: OCR draft unit, lint and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+      - name: Test OCR decimal and missing-field safety
+        run: bunx vitest run tests/ocr-purchase-draft-validation.test.ts
+      - name: Lint changed production files and focused test
+        run: bunx eslint src/lib/ocr-purchase-draft-validation.ts src/lib/invoice-intake.functions.ts src/routes/_authenticated/purchasing.scan-invoice.tsx tests/ocr-purchase-draft-validation.test.ts
+      - name: Build application bundle
+        run: bun run build
+      - name: Reject secrets in build artifact files
+        run: node scripts/check-no-secrets.mjs .output --strict
