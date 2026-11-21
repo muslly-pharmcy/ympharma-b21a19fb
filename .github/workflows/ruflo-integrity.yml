@@ -1,0 +1,45 @@
+name: Ruflo pinned skill integrity
+
+on:
+  pull_request:
+    paths:
+      - '.agent-toolkit/ruflo/**'
+      - 'third_party/ruflo/**'
+      - '.agents/skills/ruflo-*/**'
+      - 'scripts/ruflo-skills.mjs'
+      - 'scripts/sync-ruflo-skills.mjs'
+      - 'scripts/verify-ruflo-inventory.mjs'
+      - '.github/workflows/ruflo-integrity.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.agent-toolkit/ruflo/**'
+      - 'third_party/ruflo/**'
+      - '.agents/skills/ruflo-*/**'
+      - 'scripts/verify-ruflo-inventory.mjs'
+      - '.github/workflows/ruflo-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check pinned Git submodule pointer (without running it)
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='87f612cef121b50c2e31e2d3f88e46d88963a377'
+          actual="$(git ls-tree HEAD .agent-toolkit/ruflo/upstream | awk '{print $3}')"
+          test "$actual" = "$expected"
+      - name: Check audit script syntax
+        run: node --check scripts/verify-ruflo-inventory.mjs
+      - name: Verify archived hashes and report source risk indicators
+        run: node scripts/verify-ruflo-inventory.mjs
