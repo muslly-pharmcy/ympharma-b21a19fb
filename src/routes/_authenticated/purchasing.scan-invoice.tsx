@@ -74,10 +74,12 @@ function ScanInvoicePage() {
   })
 
   const draft = useMutation({
-    mutationFn: () =>
-      draftFn({
+    mutationFn: () => {
+      if (!currency) throw new Error('اختر عملة الفاتورة أولاً')
+      return draftFn({
         data: { jobId: jobId as string, supplierId, warehouseId, currency },
-      }),
+      })
+    },
     onSuccess: (res) => {
       if (!res.ok) {
         toast.error(res.error ?? 'تعذّر إنشاء أمر الشراء')
