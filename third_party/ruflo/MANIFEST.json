@@ -1,0 +1,1750 @@
+{
+  "format": 1,
+  "source": "https://github.com/ruvnet/ruflo.git",
+  "sourceCommit": "87f612cef121b50c2e31e2d3f88e46d88963a377",
+  "skills": 336,
+  "bytes": 2599173,
+  "files": [
+    {
+      "path": ".agents/skills/agent-adaptive-coordinator/SKILL.md",
+      "bytes": 16464,
+      "sha256": "107f849ab6b2a8d6338067652b82327635cb1bae0e2a42b3c055fbc5234a26a6"
+    },
+    {
+      "path": ".agents/skills/agent-agent/SKILL.md",
+      "bytes": 26006,
+      "sha256": "debb402d5f00903d9d092c3528f3468e9d3132914ab6f554a4e1064c48daf75b"
+    },
+    {
+      "path": ".agents/skills/agent-agentic-payments/SKILL.md",
+      "bytes": 5413,
+      "sha256": "4dc470a2a53ec3add4807bfb123525f87d0de67c1ddcc415cdcbdc1350a3409d"
+    },
+    {
+      "path": ".agents/skills/agent-analyze-code-quality/SKILL.md",
+      "bytes": 4909,
+      "sha256": "ff807109346b81a8ec9795f285dc9278fa0812a4293d36f698104880e305c802"
+    },
+    {
+      "path": ".agents/skills/agent-app-store/SKILL.md",
+      "bytes": 4116,
+      "sha256": "0a02898bc6362d6f2ef502c3960bd43af72470291b0040803a5ce030756d9f1e"
+    },
+    {
+      "path": ".agents/skills/agent-arch-system-design/SKILL.md",
+      "bytes": 5079,
+      "sha256": "af9638a4f9ca20e5e9feb918289d034ece7d857ecf516d3b4fbe3878e1f8f779"
+    },
+    {
+      "path": ".agents/skills/agent-architecture/SKILL.md",
+      "bytes": 11470,
+      "sha256": "3377a6dc01d91148362d9e8399483e7f823b3c9675ae4b55140c3739dd92b120"
+    },
+    {
+      "path": ".agents/skills/agent-authentication/SKILL.md",
+      "bytes": 2914,
+      "sha256": "3fa62918aa4a368a94c72227cc5b1f4bf1b925ae9b82332df768cf9f909547e4"
+    },
+    {
+      "path": ".agents/skills/agent-automation-smart-agent/SKILL.md",
+      "bytes": 5684,
+      "sha256": "2903d86ecd6d1c516ffe7ec91471a038c84321288685beb32b3fd17f34ece320"
+    },
+    {
+      "path": ".agents/skills/agent-base-template-generator/SKILL.md",
+      "bytes": 4026,
+      "sha256": "66281bb5d293fff3a6164b0781aca1a5111fd9fb0b9d419f792d58aaaa3ba639"
+    },
+    {
+      "path": ".agents/skills/agent-benchmark-suite/SKILL.md",
+      "bytes": 20402,
+      "sha256": "1bdfcd742a5ce47f642415dcb52305d7d99813a5c2f89163339b21b1f913b1a3"
+    },
+    {
+      "path": ".agents/skills/agent-byzantine-coordinator/SKILL.md",
+      "bytes": 2518,
+      "sha256": "7977a23d157d327fe1d77e1c36b137dd3e6ea65515cd7ebe4a58c4fc320ca4ec"
+    },
+    {
+      "path": ".agents/skills/agent-challenges/SKILL.md",
+      "bytes": 4062,
+      "sha256": "8638d567d5fcf02a34c6c5fce071b924713833853db86f8256046a93b57d4d0b"
+    },
+    {
+      "path": ".agents/skills/agent-code-analyzer/SKILL.md",
+      "bytes": 6127,
+      "sha256": "37562dc6ce98a3625f06c4e8787ea05f2fd22273dd31942a3c929f7485d0a7f5"
+    },
+    {
+      "path": ".agents/skills/agent-code-goal-planner/SKILL.md",
+      "bytes": 14770,
+      "sha256": "1591aae67a08e964046bb6b60ee21600fd45a5a51d1dd1a58d0e370e67e1ae52"
+    },
+    {
+      "path": ".agents/skills/agent-code-review-swarm/SKILL.md",
+      "bytes": 12733,
+      "sha256": "1d6e78f5692a3ca35b9cb9099af0302b1c27bddd66ec4dcad6e6629401973c5b"
+    },
+    {
+      "path": ".agents/skills/agent-coder/SKILL.md",
+      "bytes": 6861,
+      "sha256": "fdaeb58d9efeb2911ff85b19e5b98e4f9c169f25123293bbbf01141a82d58c93"
+    },
+    {
+      "path": ".agents/skills/agent-collective-intelligence-coordinator/SKILL.md",
+      "bytes": 4179,
+      "sha256": "8567c909b28ac93a68458843e3af91403f039eb73469d8bb7810e0c8c54a9dfe"
+    },
+    {
+      "path": ".agents/skills/agent-consensus-coordinator/SKILL.md",
+      "bytes": 12959,
+      "sha256": "7f3508a7de6edc3960c02c1d39aec8e17101cf7c887f4d378bdf47e532bf31e8"
+    },
+    {
+      "path": ".agents/skills/agent-coordination/SKILL.md",
+      "bytes": 2154,
+      "sha256": "a06c547e2793f63d230e9a5c33ac771dd3518ddcb7d9c0195160168df7492767"
+    },
+    {
+      "path": ".agents/skills/agent-coordinator-swarm-init/SKILL.md",
+      "bytes": 4114,
+      "sha256": "624612acf819d86c59a1f33e233fe2a2a06ff33ab1685f4fd207e46a9de0f0f8"
+    },
+    {
+      "path": ".agents/skills/agent-crdt-synchronizer/SKILL.md",
+      "bytes": 26152,
+      "sha256": "3fff37102443861842532d416ced59ebb7edc5ff2e6b88a050358074bdcc5f74"
+    },
+    {
+      "path": ".agents/skills/agent-data-ml-model/SKILL.md",
+      "bytes": 5489,
+      "sha256": "93395f3455890004cc4e9b470f8597810b96ff88dcee9e8900cc8d681598b356"
+    },
+    {
+      "path": ".agents/skills/agent-dev-backend-api/SKILL.md",
+      "bytes": 10589,
+      "sha256": "9b012fe1cd3cab8258c6fdc412c5ee7a36fcee9b0448a95d47912bd38210deef"
+    },
+    {
+      "path": ".agents/skills/agent-docs-api-openapi/SKILL.md",
+      "bytes": 5250,
+      "sha256": "939eb5625d1ecbb80eb1b23952a69b73e0912241a220e263880000362f59f7b1"
+    },
+    {
+      "path": ".agents/skills/agent-github-modes/SKILL.md",
+      "bytes": 6967,
+      "sha256": "d22e2d8636163e4e07f877d8a203287ea8ee9c360b68cb8deaddd0067b5ec125"
+    },
+    {
+      "path": ".agents/skills/agent-github-pr-manager/SKILL.md",
+      "bytes": 4807,
+      "sha256": "888323fb4932c577d42f3c96ed474d5751f1761765416f1b362c19639cc1ec3c"
+    },
+    {
+      "path": ".agents/skills/agent-goal-planner/SKILL.md",
+      "bytes": 3444,
+      "sha256": "0dd558b540b9728692d555edf688e8b90b487e0236037b056106e3b68d0d2b2b"
+    },
+    {
+      "path": ".agents/skills/agent-gossip-coordinator/SKILL.md",
+      "bytes": 2581,
+      "sha256": "861725646ae373a47ea571fa6687b5f2f28eedb37ff781c2db599cbfbbbcd48c"
+    },
+    {
+      "path": ".agents/skills/agent-hierarchical-coordinator/SKILL.md",
+      "bytes": 11487,
+      "sha256": "7ffb24a216441e621a8d5f7873ea21167243063ad938b5311851204a66659a09"
+    },
+    {
+      "path": ".agents/skills/agent-implementer-sparc-coder/SKILL.md",
+      "bytes": 6917,
+      "sha256": "8ef4a064c4a29f1c572b681a7b5946d389eb71c72c114a79e3669e1e6aa30cb0"
+    },
+    {
+      "path": ".agents/skills/agent-issue-tracker/SKILL.md",
+      "bytes": 9816,
+      "sha256": "ba0c1ef1a742edcaefeb57149bbeab7ce1968b59e38e11a7b87f3e71000ceba8"
+    },
+    {
+      "path": ".agents/skills/agent-load-balancer/SKILL.md",
+      "bytes": 12793,
+      "sha256": "968ac25da7a326cfe6a02144af15df37c5bcee96fc2b0c8b890c04d73e1b69b7"
+    },
+    {
+      "path": ".agents/skills/agent-matrix-optimizer/SKILL.md",
+      "bytes": 7339,
+      "sha256": "b9aaf5e37e7b36855cdcc1f461bf8f797e12115f7a62dde6cefde8709a4539cf"
+    },
+    {
+      "path": ".agents/skills/agent-memory-coordinator/SKILL.md",
+      "bytes": 4823,
+      "sha256": "db8917c18ab155b76e0a4dad6db99c5fc3287cb3cdfe85036ec377c995ff796f"
+    },
+    {
+      "path": ".agents/skills/agent-mesh-coordinator/SKILL.md",
+      "bytes": 13379,
+      "sha256": "32adc5bf58dc05f38a1c6977707d55780a6dd4b5829ab5c5030574f383b3f1c2"
+    },
+    {
+      "path": ".agents/skills/agent-migration-plan/SKILL.md",
+      "bytes": 19179,
+      "sha256": "45df56401b0fa9cbe4a98a8c8f5be9af4970e6c428738133192dee9fb0f17e96"
+    },
+    {
+      "path": ".agents/skills/agent-multi-repo-swarm/SKILL.md",
+      "bytes": 13427,
+      "sha256": "39b346cef140514cfcaa6ebc6df368c7aeff4319e0e3aa2f1ac78cff826b0db0"
+    },
+    {
+      "path": ".agents/skills/agent-neural-network/SKILL.md",
+      "bytes": 3950,
+      "sha256": "fb6d5bd262644a1b0aba1d2bfee31f0d9addd11fc069058b99e8ccc09926eff3"
+    },
+    {
+      "path": ".agents/skills/agent-ops-cicd-github/SKILL.md",
+      "bytes": 4760,
+      "sha256": "a7db4ae4a74c948bfd659bc8eaa057d21305fcc3952cc7878948cf362f69d5b6"
+    },
+    {
+      "path": ".agents/skills/agent-orchestrator-task/SKILL.md",
+      "bytes": 4281,
+      "sha256": "1e5cc714b88d86be10c8caff33c17beec2c3a73af33826768c76a7ea72a2b2e3"
+    },
+    {
+      "path": ".agents/skills/agent-pagerank-analyzer/SKILL.md",
+      "bytes": 11725,
+      "sha256": "a90844ea6f758d6d6462b7ba574418b41e6d07cfb45ae2ded01d03bce21221d7"
+    },
+    {
+      "path": ".agents/skills/agent-payments/SKILL.md",
+      "bytes": 3924,
+      "sha256": "dd192b1b84b00d223ea9582d3be4ef66f5f9df972d994e75496d1ddde35ab99a"
+    },
+    {
+      "path": ".agents/skills/agent-performance-analyzer/SKILL.md",
+      "bytes": 5545,
+      "sha256": "0a88db2c0109ef1c2fe6081f5d968bcfa9d808bd6be43d5a85537a2c826b0805"
+    },
+    {
+      "path": ".agents/skills/agent-performance-benchmarker/SKILL.md",
+      "bytes": 28225,
+      "sha256": "db56333ae5da9b6a6a99db1b29edd4b5f9c3fc1f5ee826d3f7cfe0c2f4596210"
+    },
+    {
+      "path": ".agents/skills/agent-performance-monitor/SKILL.md",
+      "bytes": 20371,
+      "sha256": "9bcc631640d40e281b8490412590730315d2b3a1d4cc33a69c8d7e7dba340ae5"
+    },
+    {
+      "path": ".agents/skills/agent-performance-optimizer/SKILL.md",
+      "bytes": 14877,
+      "sha256": "6b366c80429b188f1488df062fd05748d8b211297b931d5abf1c9acb3117a3b5"
+    },
+    {
+      "path": ".agents/skills/agent-planner/SKILL.md",
+      "bytes": 4869,
+      "sha256": "d3e1fffdc8ec4e41d6400e0e0c4393c72291420fe171bbf6f81d9a48c1016e15"
+    },
+    {
+      "path": ".agents/skills/agent-pr-manager/SKILL.md",
+      "bytes": 6428,
+      "sha256": "da82d83b22118cdd3213ef5a45fcd10701c7c981a9cc598c7bc40a8ea75a228c"
+    },
+    {
+      "path": ".agents/skills/agent-production-validator/SKILL.md",
+      "bytes": 12271,
+      "sha256": "f732e06de0672a89799b6da9dc169afe62986c34c69a0ad974e509ec0a5b4948"
+    },
+    {
+      "path": ".agents/skills/agent-project-board-sync/SKILL.md",
+      "bytes": 12008,
+      "sha256": "574a80d667002d30e94eb0efa8f7dacc93ef4070472a7c28036c67ab30b54c88"
+    },
+    {
+      "path": ".agents/skills/agent-pseudocode/SKILL.md",
+      "bytes": 8786,
+      "sha256": "894185df8d18eec855124cd2e6725264bfb54b1d2b9eb4e94d3025f397b81501"
+    },
+    {
+      "path": ".agents/skills/agent-queen-coordinator/SKILL.md",
+      "bytes": 5464,
+      "sha256": "4509138c4378f2bcb90a155f4282d34c4092308b8240eb401eed0b7a8494f0c8"
+    },
+    {
+      "path": ".agents/skills/agent-quorum-manager/SKILL.md",
+      "bytes": 28935,
+      "sha256": "92286a7b2acb0d82d548acd70e759611edf3c60950e775afa520c37d77dfc5f6"
+    },
+    {
+      "path": ".agents/skills/agent-raft-manager/SKILL.md",
+      "bytes": 2455,
+      "sha256": "0c0f429beeb1bdccc61af2af801d95549ae4df500aeb3807dacc94ac7b847b89"
+    },
+    {
+      "path": ".agents/skills/agent-refinement/SKILL.md",
+      "bytes": 14398,
+      "sha256": "8ff02c37c40196de9bab4deddc4695f50228b13fd37ab6d0450acee0c1f778ed"
+    },
+    {
+      "path": ".agents/skills/agent-release-manager/SKILL.md",
+      "bytes": 12910,
+      "sha256": "ba717a0ef50623ade57feb8301b75970ab7d3e529ef77a7d8251fcf3fdf851be"
+    },
+    {
+      "path": ".agents/skills/agent-release-swarm/SKILL.md",
+      "bytes": 14614,
+      "sha256": "3eb814e17ae45d89a7bcfba93bbbabdf383cf2192598b901488a3e34cbb441ec"
+    },
+    {
+      "path": ".agents/skills/agent-repo-architect/SKILL.md",
+      "bytes": 12930,
+      "sha256": "e19622aef3dfb16b4eb37783a4916d60586e7d0107497fd13a9802cfc4427f6a"
+    },
+    {
+      "path": ".agents/skills/agent-researcher/SKILL.md",
+      "bytes": 5675,
+      "sha256": "706e00e6ccd830aeda5edba215b959f4ada3baf9b54dd248fc939720061387fd"
+    },
+    {
+      "path": ".agents/skills/agent-resource-allocator/SKILL.md",
+      "bytes": 20195,
+      "sha256": "b3ff589326bdc07bbd43912f36086f5602368cf41b3cefe8dd7762d48b8ad777"
+    },
+    {
+      "path": ".agents/skills/agent-reviewer/SKILL.md",
+      "bytes": 8305,
+      "sha256": "ee1626981dde2ecbec1e641845528d36efe291f8ed1ba541e9371265726c7e61"
+    },
+    {
+      "path": ".agents/skills/agent-safla-neural/SKILL.md",
+      "bytes": 2962,
+      "sha256": "94359e42e712f71166169ccd03dd97eef34cf0c92b49542474b93832e524600d"
+    },
+    {
+      "path": ".agents/skills/agent-sandbox/SKILL.md",
+      "bytes": 3185,
+      "sha256": "3b80ffaa3adf79baa1cad15718c7003662566e3a66d45e377fd84533469b6070"
+    },
+    {
+      "path": ".agents/skills/agent-scout-explorer/SKILL.md",
+      "bytes": 6555,
+      "sha256": "edf8c99c6ffce0bc4770ffaad4216887665d249756f29f9f64550effa3572704"
+    },
+    {
+      "path": ".agents/skills/agent-security-manager/SKILL.md",
+      "bytes": 20379,
+      "sha256": "469d4e240496794d16714d2fc5f797433239b579a1faeee5e4599a1db2224c71"
+    },
+    {
+      "path": ".agents/skills/agent-sona-learning-optimizer/SKILL.md",
+      "bytes": 2142,
+      "sha256": "34f0f833fe725bc4d21e0e16e3d62ca9d271fb1b97ac8b03b4330e75a2cc0f1f"
+    },
+    {
+      "path": ".agents/skills/agent-sparc-coordinator/SKILL.md",
+      "bytes": 4954,
+      "sha256": "02c487dfc284dba23ae8d48baec99535ae60146fea4b92f4b0d4d51f15bc85df"
+    },
+    {
+      "path": ".agents/skills/agent-spec-mobile-react-native/SKILL.md",
+      "bytes": 5912,
+      "sha256": "087e57aff79906a9d349b6e1e4413cffcd02a6a4e90c769e81eed2bfe16b4524"
+    },
+    {
+      "path": ".agents/skills/agent-specification/SKILL.md",
+      "bytes": 7389,
+      "sha256": "540eccc9796200f9b2a1e41096550719a1bc9680e2e231f1a6eb1aec9c9e0082"
+    },
+    {
+      "path": ".agents/skills/agent-swarm-issue/SKILL.md",
+      "bytes": 15047,
+      "sha256": "96346437bca624104e4e53f6ec4887b69f5bdb3eee33d31dbe5ad5f96b832030"
+    },
+    {
+      "path": ".agents/skills/agent-swarm-memory-manager/SKILL.md",
+      "bytes": 5139,
+      "sha256": "ac16b684ea40d25872868d0885fac80e9dc7c052771ae504ffdbc6dcbcbe07dc"
+    },
+    {
+      "path": ".agents/skills/agent-swarm-pr/SKILL.md",
+      "bytes": 11726,
+      "sha256": "9b081f7ff2002fa9eacc765251196b3d6cf39956bb0e259edd63bbb343062951"
+    },
+    {
+      "path": ".agents/skills/agent-swarm/SKILL.md",
+      "bytes": 3642,
+      "sha256": "c1247e8fd7b28dd6b6a001656755fde5a0f2c599a49700887a6d87ab4afd9075"
+    },
+    {
+      "path": ".agents/skills/agent-sync-coordinator/SKILL.md",
+      "bytes": 16757,
+      "sha256": "4bf0890a65d2d275aec20b7611f8d1e723f6612237eeda94f79e2dc35d8b21cb"
+    },
+    {
+      "path": ".agents/skills/agent-tdd-london-swarm/SKILL.md",
+      "bytes": 7386,
+      "sha256": "2bf04b2092ce4d95682097589d347ce7501daeefeb4c01f075bce0d7ac98e75f"
+    },
+    {
+      "path": ".agents/skills/agent-test-long-runner/SKILL.md",
+      "bytes": 1751,
+      "sha256": "c9dd85c968854a1209659c3b89170d26649103ae42e5bfa7244bac0db1481571"
+    },
+    {
+      "path": ".agents/skills/agent-tester/SKILL.md",
+      "bytes": 8903,
+      "sha256": "39d479926ef46a6f5c57f294ef2aa1841b938e191311cb6270f23f9ef2db7f63"
+    },
+    {
+      "path": ".agents/skills/agent-topology-optimizer/SKILL.md",
+      "bytes": 25480,
+      "sha256": "b64b2106d57f17dc31ccbfa460e8ac320652f6db2eca67d9cb2f51e1d80a799b"
+    },
+    {
+      "path": ".agents/skills/agent-trading-predictor/SKILL.md",
+      "bytes": 10065,
+      "sha256": "8a8ae901d3aae52532d1a26a422e2bafc37972237ad404d614da6c7812946984"
+    },
+    {
+      "path": ".agents/skills/agent-user-tools/SKILL.md",
+      "bytes": 4470,
+      "sha256": "828e469d44b4157b5adcb9e0a3d95e13e8110405426a30a90785e3548ba6e9ac"
+    },
+    {
+      "path": ".agents/skills/agent-v3-integration-architect/SKILL.md",
+      "bytes": 11381,
+      "sha256": "dce1c35005d6f2cb350631e58303aca4635ab7bccd9cfea0f29f3da0f88a0666"
+    },
+    {
+      "path": ".agents/skills/agent-v3-memory-specialist/SKILL.md",
+      "bytes": 10135,
+      "sha256": "10635548d572ac58352b3474a2069e92cd66dcc39ef6614e8e28c09bd3384461"
+    },
+    {
+      "path": ".agents/skills/agent-v3-performance-engineer/SKILL.md",
+      "bytes": 14000,
+      "sha256": "a12900976b180893e3cec7e3f9fd61f2476db14c8102a1b866aa2a06a621f3ab"
+    },
+    {
+      "path": ".agents/skills/agent-v3-queen-coordinator/SKILL.md",
+      "bytes": 4134,
+      "sha256": "b4064f99e4eccbec7af2c2bd41743b0a0dd748b9a5cbfdabb6be01ab8dbd57b6"
+    },
+    {
+      "path": ".agents/skills/agent-v3-security-architect/SKILL.md",
+      "bytes": 6596,
+      "sha256": "1c9f3555fd4576dbe87018f9a7018e7ed5b6e71e474efb576f419c901ef2e389"
+    },
+    {
+      "path": ".agents/skills/agent-worker-specialist/SKILL.md",
+      "bytes": 5658,
+      "sha256": "c773d43a31f5901c0f26e993cac68b2a4431befa905cd8e19d6ab78a43740ce4"
+    },
+    {
+      "path": ".agents/skills/agent-workflow-automation/SKILL.md",
+      "bytes": 16666,
+      "sha256": "0deebda5e4ba55ac81fcd3f684bdaeccb64cc8cf95e31909cc9daa2b08cc76bc"
+    },
+    {
+      "path": ".agents/skills/agent-workflow/SKILL.md",
+      "bytes": 3878,
+      "sha256": "84f6ad751340ad74a8e30b7dd446ad2d985c203c352a3857ccd7eac76301cfa9"
+    },
+    {
+      "path": ".agents/skills/agentdb-advanced/SKILL.md",
+      "bytes": 13691,
+      "sha256": "8114476fdb664420620a9fcebeac2212216b47135f66c61870c778febaf73a67"
+    },
+    {
+      "path": ".agents/skills/agentdb-learning/SKILL.md",
+      "bytes": 12461,
+      "sha256": "ec1761431fb942f9bfcfe3479c2ca4fb7a60eac0be4ed8e51a25a6cf31bfbc5c"
+    },
+    {
+      "path": ".agents/skills/agentdb-memory-patterns/SKILL.md",
+      "bytes": 9031,
+      "sha256": "bd8e7bc13a61c6d6e957b96deb1a6969af309256ca00d062224dd2b9ec7674b3"
+    },
+    {
+      "path": ".agents/skills/agentdb-optimization/SKILL.md",
+      "bytes": 12674,
+      "sha256": "4bece2fd5772725ad4db3d4f592e27609727bd79431ee03cb4147fc7745abe02"
+    },
+    {
+      "path": ".agents/skills/agentdb-vector-search/SKILL.md",
+      "bytes": 9302,
+      "sha256": "a259a30bfbc86760703508bb0b897a3ef3056a501029997b84b93c13f55b2197"
+    },
+    {
+      "path": ".agents/skills/agentic-jujutsu/SKILL.md",
+      "bytes": 19493,
+      "sha256": "5783f86bcc64f9bd9c888c0a481a4d4385a026ed5f227a363cb389c223ef7b6a"
+    },
+    {
+      "path": ".agents/skills/claims/SKILL.md",
+      "bytes": 4406,
+      "sha256": "43a2ecabebcd321ad74d0ff29cb094d2f477fcb069dc77f5d75f1b9a9b186de1"
+    },
+    {
+      "path": ".agents/skills/embeddings/SKILL.md",
+      "bytes": 1886,
+      "sha256": "54bb698b49e9ee384ea6bf6f244724accc0e0769f3f4145564be859bc72d9cdf"
+    },
+    {
+      "path": ".agents/skills/flow-nexus-neural/SKILL.md",
+      "bytes": 17061,
+      "sha256": "cadf950496ed3a7e6d112519c7d75550eaa8e2286ce634620d91ccb2a9f36c9e"
+    },
+    {
+      "path": ".agents/skills/flow-nexus-platform/SKILL.md",
+      "bytes": 26799,
+      "sha256": "6a47bfaab4eab09ca5df15a1f00c2d0acb20df5f459caf13026708f523907074"
+    },
+    {
+      "path": ".agents/skills/flow-nexus-swarm/SKILL.md",
+      "bytes": 17370,
+      "sha256": "fa9b4292bf3c35e2c9654961aa7316c6768d5b09256c1b75b038e8aa4ce93d0b"
+    },
+    {
+      "path": ".agents/skills/github-automation/SKILL.md",
+      "bytes": 1534,
+      "sha256": "2cac22a439ce22d43f6790a61e56f49b6cfb7c0492131d4540eac2b6b78d8511"
+    },
+    {
+      "path": ".agents/skills/github-code-review/SKILL.md",
+      "bytes": 27203,
+      "sha256": "e33b9158bd9db7130deeea8c8b9bf006b148b44d3fb49427be475038b5de4c64"
+    },
+    {
+      "path": ".agents/skills/github-multi-repo/SKILL.md",
+      "bytes": 23670,
+      "sha256": "7e95b4d0665d14b75980c8e7d7cba0f75767d562bee5f8796de58238319edd05"
+    },
+    {
+      "path": ".agents/skills/github-project-management/SKILL.md",
+      "bytes": 29695,
+      "sha256": "6c90199ecaa0880777c0271b6431008ce16e98b8e7d13575eeff87bc6e33658f"
+    },
+    {
+      "path": ".agents/skills/github-release-management/SKILL.md",
+      "bytes": 30754,
+      "sha256": "d2ce663595bce9a5c4f3ba4452c08b0739d5d7179b28a88eccbae75ab58db2ca"
+    },
+    {
+      "path": ".agents/skills/github-workflow-automation/SKILL.md",
+      "bytes": 24982,
+      "sha256": "5afa277784d562e48e5806503d03780343c911ebd71ea101781958af8583748f"
+    },
+    {
+      "path": ".agents/skills/hive-mind-advanced/SKILL.md",
+      "bytes": 17435,
+      "sha256": "458ac42c7e4af722abebdf30a2af5c35b8cb9ec1c1322c188cd19e2799624a4e"
+    },
+    {
+      "path": ".agents/skills/hive-mind/SKILL.md",
+      "bytes": 1933,
+      "sha256": "95a6c81876cd08b66682893441dbeef2a850c062e24173e7e269747b6bfbc7ef"
+    },
+    {
+      "path": ".agents/skills/hooks-automation/SKILL.md",
+      "bytes": 32552,
+      "sha256": "9c0d24be84ee0eabd8354be2ecb33bec4c11e5983502817be2ff90d28b3cd6c0"
+    },
+    {
+      "path": ".agents/skills/memory-management/SKILL.md",
+      "bytes": 3444,
+      "sha256": "5bfd7c270049e071a4ff411e52f27e20a56e4404b7102fef419aea8610709c35"
+    },
+    {
+      "path": ".agents/skills/memory-management/scripts/memory-backup.sh",
+      "bytes": 379,
+      "sha256": "7fb389149944c701598b7ecfaf4f0c91bb1892099603335c5c8dc231825d1caa"
+    },
+    {
+      "path": ".agents/skills/memory-management/scripts/memory-consolidate.sh",
+      "bytes": 272,
+      "sha256": "13e1f3aaef8f808d898a319ec75add827bd620219bb497562dfb17c498b5ef53"
+    },
+    {
+      "path": ".agents/skills/neural-training/SKILL.md",
+      "bytes": 1803,
+      "sha256": "05887449fcc70b1507e8797e011b8d601148bc8f17dfb33f2d81eb1ba8d0659f"
+    },
+    {
+      "path": ".agents/skills/open-federation/SKILL.md",
+      "bytes": 6508,
+      "sha256": "a1b548905a166f36447160a8b512e18fc49caf775cd4eb81bedb582c2dd68f7b"
+    },
+    {
+      "path": ".agents/skills/pair-programming/SKILL.md",
+      "bytes": 26075,
+      "sha256": "955ebf69c7c119266dd6de27a78d72e3e991e9d27598ffffe09f6af211e6835f"
+    },
+    {
+      "path": ".agents/skills/performance-analysis/SKILL.md",
+      "bytes": 15234,
+      "sha256": "6509aeb384ef4a530a5bdef52d0b492e6b05151dccab76e5bf4531997bbbd4c0"
+    },
+    {
+      "path": ".agents/skills/reasoningbank-agentdb/SKILL.md",
+      "bytes": 11376,
+      "sha256": "3ad221b16040fa695caa048bca8c9b3bcac012dab92344c8779acde27cf30186"
+    },
+    {
+      "path": ".agents/skills/reasoningbank-intelligence/SKILL.md",
+      "bytes": 5031,
+      "sha256": "50302324b0a7c83011747ffb68b10055f45868c1a924ab340333947d4f383a10"
+    },
+    {
+      "path": ".agents/skills/security-audit/SKILL.md",
+      "bytes": 3426,
+      "sha256": "8ec310bd78ed16793d9d7258747b2182a01b48348bfe2812330cac1563c5bdba"
+    },
+    {
+      "path": ".agents/skills/security-audit/scripts/cve-remediate.sh",
+      "bytes": 344,
+      "sha256": "b12c793f604dc327cc3563c3034d96f94e428811cfdf404177aed1b005453f80"
+    },
+    {
+      "path": ".agents/skills/security-audit/scripts/security-scan.sh",
+      "bytes": 779,
+      "sha256": "bc89d3f00f4a414ebdd010875566ba28459cc33e13af6a416af22581c60c26cc"
+    },
+    {
+      "path": ".agents/skills/skill-builder/SKILL.md",
+      "bytes": 22811,
+      "sha256": "1c81ab42c975e0229c2833ad837351ac4e8357f0ed433be2a06119e5c973f90b"
+    },
+    {
+      "path": ".agents/skills/sparc-methodology/SKILL.md",
+      "bytes": 3433,
+      "sha256": "9619681c09e4d1e04576685b9f01635f1329c8066e7f306b327342d3391c8df9"
+    },
+    {
+      "path": ".agents/skills/sparc-methodology/scripts/sparc-init.sh",
+      "bytes": 614,
+      "sha256": "40145fe52c2b173ced137da01afa6b214f243ec1328514c3cbd26d6993023d11"
+    },
+    {
+      "path": ".agents/skills/sparc-methodology/scripts/sparc-review.sh",
+      "bytes": 390,
+      "sha256": "af9139154dd3de024f42913ad8afdb5e999ec6b880fe6fdd58879b9f2a24f487"
+    },
+    {
+      "path": ".agents/skills/stream-chain/SKILL.md",
+      "bytes": 13271,
+      "sha256": "957cd70186925ca837bc5e1c57800d2eaa6fe4e0a10012dec17df81870c276a5"
+    },
+    {
+      "path": ".agents/skills/swarm-advanced/SKILL.md",
+      "bytes": 24816,
+      "sha256": "b61fd4291387a13ed31392325a9b929c60e6f9fc98cfb7a941b981f15eb76ab4"
+    },
+    {
+      "path": ".agents/skills/swarm-orchestration/SKILL.md",
+      "bytes": 3228,
+      "sha256": "5f573c72f8902db4df421f47a0cb79171ede572e10a4b75fcf4ae16abc31b774"
+    },
+    {
+      "path": ".agents/skills/swarm-orchestration/scripts/swarm-monitor.sh",
+      "bytes": 177,
+      "sha256": "56d24067c0ebb5beeec2b4649ba54d4bdc0a0d952c1540d09238a4b5d9876d73"
+    },
+    {
+      "path": ".agents/skills/swarm-orchestration/scripts/swarm-start.sh",
+      "bytes": 331,
+      "sha256": "fbe427d02102115a95c664133cbdc4aadc2dafd9a6cff89fb25824c92259d9d9"
+    },
+    {
+      "path": ".agents/skills/v3-cli-modernization/SKILL.md",
+      "bytes": 26595,
+      "sha256": "d872d87ce13d9c6128ebaa19ace7d1a59491c1cb2d14ba28d02e6a588ff39797"
+    },
+    {
+      "path": ".agents/skills/v3-core-implementation/SKILL.md",
+      "bytes": 22815,
+      "sha256": "4cd916676e4d5d4f055c6a71463080c61f0676545b266c06455347143da494be"
+    },
+    {
+      "path": ".agents/skills/v3-ddd-architecture/SKILL.md",
+      "bytes": 12607,
+      "sha256": "75e3ae3739367d574198df5a16117917e9eadd404aef181a5e0522b43a810bf0"
+    },
+    {
+      "path": ".agents/skills/v3-integration-deep/SKILL.md",
+      "bytes": 7518,
+      "sha256": "8fa37d3d6874005e0be452952f4ae079564ec20474ae02b4e58c05cd9ed4036e"
+    },
+    {
+      "path": ".agents/skills/v3-mcp-optimization/SKILL.md",
+      "bytes": 22204,
+      "sha256": "ed2cf15ca3fa60b6486543e41e7fbda33bd9a48e654f2415a67d26f28c7d462a"
+    },
+    {
+      "path": ".agents/skills/v3-memory-unification/SKILL.md",
+      "bytes": 5402,
+      "sha256": "4a37d3deb57123100460791bd898410d356b2ff8b183922865cf5cf480a9ac58"
+    },
+    {
+      "path": ".agents/skills/v3-performance-optimization/SKILL.md",
+      "bytes": 11828,
+      "sha256": "9ab2ad97945238ba958ce6e5fb303debd1c811f09c609d789c9f3c9f3e2ce3c9"
+    },
+    {
+      "path": ".agents/skills/v3-security-overhaul/SKILL.md",
+      "bytes": 2521,
+      "sha256": "d2318297dabdc78bb959d8dcdb0d72f0720238aa87f2365029415897602a42ac"
+    },
+    {
+      "path": ".agents/skills/v3-swarm-coordination/SKILL.md",
+      "bytes": 12476,
+      "sha256": "c111765e137b970d67c1265e6a8a422c5f75dcae7736e8336b9b44bdf8b1a50f"
+    },
+    {
+      "path": ".agents/skills/verification-quality/SKILL.md",
+      "bytes": 20474,
+      "sha256": "768ead9ab1af8ddc5d32664a13275431898d28456add947aced20cfc1e48b57b"
+    },
+    {
+      "path": ".agents/skills/worker-benchmarks/SKILL.md",
+      "bytes": 4386,
+      "sha256": "d1bec85857a7ef921c7b157ad8e21350fcdd789f9cc791a8ce89fa7b0421d5f4"
+    },
+    {
+      "path": ".agents/skills/worker-integration/SKILL.md",
+      "bytes": 4048,
+      "sha256": "bcb372949706adf7dba2e75645d3696415ee4ca0e52c1c63ac4b783d6d7836fb"
+    },
+    {
+      "path": ".agents/skills/workflow-automation/SKILL.md",
+      "bytes": 1838,
+      "sha256": "f2a46fb5f20333404b218ecc9a4804aadcb60a117b81a37aac7c7e91fed3e325"
+    },
+    {
+      "path": ".claude/skills/agentdb-advanced/SKILL.md",
+      "bytes": 13616,
+      "sha256": "af7e38dbbd9e59f25ee6cdaaafc09ca27c175927fad28d517b69147bbad4d11b"
+    },
+    {
+      "path": ".claude/skills/agentdb-learning/SKILL.md",
+      "bytes": 12451,
+      "sha256": "ea483ee3cd64c45eb60217f8c557b20212bc66241307e330c09e4798c718bc3d"
+    },
+    {
+      "path": ".claude/skills/agentdb-memory-patterns/SKILL.md",
+      "bytes": 9029,
+      "sha256": "df97307b082445ed2f7579ac493f993088b3c0fa611b8b6ec982ad1f745ad7ed"
+    },
+    {
+      "path": ".claude/skills/agentdb-optimization/SKILL.md",
+      "bytes": 12660,
+      "sha256": "37deb0ea9b4b95ed5f9f3f33ff0dbce3c75d499f2b3c8a64e2710cff393a19cb"
+    },
+    {
+      "path": ".claude/skills/agentdb-vector-search/SKILL.md",
+      "bytes": 9300,
+      "sha256": "a073ac2925689a5101493a494524fe74622fe6a0d0e3c49af9b1bc820e20c956"
+    },
+    {
+      "path": ".claude/skills/agentic-jujutsu/SKILL.md",
+      "bytes": 19482,
+      "sha256": "c5c50424669a10c1fccbbc7d7bf33a0be829e8bf3997ad8a4c52996cdb9cf658"
+    },
+    {
+      "path": ".claude/skills/browser/SKILL.md",
+      "bytes": 5490,
+      "sha256": "49280f10778703dd2dcc453c3abf89832d0a0d1cadeaed6e5203500f25ad9372"
+    },
+    {
+      "path": ".claude/skills/flow-nexus-neural/SKILL.md",
+      "bytes": 16853,
+      "sha256": "3497b87ad0150f84941af7a13d9165ba1238be91b24b05f9c53321199b0bd3e4"
+    },
+    {
+      "path": ".claude/skills/flow-nexus-platform/SKILL.md",
+      "bytes": 26670,
+      "sha256": "d72ebda63b8f40777b64f9ca6d46a77f24debe9a12fbba03147a79b93e51cfb8"
+    },
+    {
+      "path": ".claude/skills/flow-nexus-swarm/SKILL.md",
+      "bytes": 17161,
+      "sha256": "d2c3c1f02e7dbbdf7923219382efed52f3190076eb550be8361322c204b8f644"
+    },
+    {
+      "path": ".claude/skills/github-code-review/SKILL.md",
+      "bytes": 26805,
+      "sha256": "d1233fe30a638f3e8c3a9f3da017b12d518c7a11857e8bdcc8413fc358d271d2"
+    },
+    {
+      "path": ".claude/skills/github-multi-repo/SKILL.md",
+      "bytes": 23245,
+      "sha256": "57567e50242a36dc33d006c736c71c4dffe439f4b21a40d24b045e8c15cc9ecc"
+    },
+    {
+      "path": ".claude/skills/github-project-management/SKILL.md",
+      "bytes": 30798,
+      "sha256": "c909972314e72a66a9c05196d0a1272380f40da0396dc839ca03a8f00128afc0"
+    },
+    {
+      "path": ".claude/skills/github-release-management/SKILL.md",
+      "bytes": 30202,
+      "sha256": "90f88356c7381f7508d59cd7f4aa29df7cce25c7efc8f2f9ec375aa7719c7b75"
+    },
+    {
+      "path": ".claude/skills/github-workflow-automation/SKILL.md",
+      "bytes": 24666,
+      "sha256": "5a19f7d9ef8f5bb9060dbd740d61bfb7ed7cc0c5824eade685b1283991cbfb2c"
+    },
+    {
+      "path": ".claude/skills/hive-mind-advanced/SKILL.md",
+      "bytes": 17271,
+      "sha256": "ff70ecad3cd03915cea322088edc5e1a3194107d52c3b3303ab8b636d365ff9a"
+    },
+    {
+      "path": ".claude/skills/hooks-automation/SKILL.md",
+      "bytes": 32042,
+      "sha256": "15b7855d082a3e383fb4ed556df8fb5a0f7d5bbf244d6c40459538d9876990cb"
+    },
+    {
+      "path": ".claude/skills/pair-programming/SKILL.md",
+      "bytes": 26075,
+      "sha256": "34c617f29490ebbb7dd48771800f4f30e09e4d9faafc2c14a1b35ccd3f0f0d7b"
+    },
+    {
+      "path": ".claude/skills/performance-analysis/SKILL.md",
+      "bytes": 15098,
+      "sha256": "c805f28f13c7896a85e66d681a7c942ad02a29722ca41c7762b4eb3ef21ca1c1"
+    },
+    {
+      "path": ".claude/skills/reasoningbank-agentdb/SKILL.md",
+      "bytes": 11369,
+      "sha256": "78d06a83de0c6ae01d6d103092f24c5b4b2b7471daaf72df815ec764d4d15a03"
+    },
+    {
+      "path": ".claude/skills/reasoningbank-intelligence/SKILL.md",
+      "bytes": 5029,
+      "sha256": "2593d1e3314c8dae4fa1964b1424390c57fe14ea7a7fc9edb142fe2c77027a04"
+    },
+    {
+      "path": ".claude/skills/skill-builder/SKILL.md",
+      "bytes": 22809,
+      "sha256": "814efaa1f42fb7b335da01a0ad87eb1e1c77896d1881c8d28941310a6eb5c0ff"
+    },
+    {
+      "path": ".claude/skills/sparc-methodology/SKILL.md",
+      "bytes": 26062,
+      "sha256": "db3a739bdd831418e6270803d77b8b2f88d71c71654f1ea9992ee454fe2d7898"
+    },
+    {
+      "path": ".claude/skills/stream-chain/SKILL.md",
+      "bytes": 13173,
+      "sha256": "a497e1b7565cdf77fb43c2e341852d961281bbb053b1ca23988d0b676fb06b21"
+    },
+    {
+      "path": ".claude/skills/swarm-advanced/SKILL.md",
+      "bytes": 24670,
+      "sha256": "de3e3f12ce238ac1a4a888aeb1ec1245856b8a740c4d1bb377f61569ecb7fd1e"
+    },
+    {
+      "path": ".claude/skills/swarm-orchestration/SKILL.md",
+      "bytes": 4487,
+      "sha256": "eb257092d0d9b7f6ce09fc08a87b4c02be704167de81ac9b81c700d7788d45b8"
+    },
+    {
+      "path": ".claude/skills/v3-cli-modernization/SKILL.md",
+      "bytes": 26593,
+      "sha256": "ed9dab00f019347d5149b44883211913dd96c50f9abecdfa21095e39567450bb"
+    },
+    {
+      "path": ".claude/skills/v3-core-implementation/SKILL.md",
+      "bytes": 22813,
+      "sha256": "06d81fa482f1ccd88e21b0296a9adc7946d2339762bbe394e12295da7273dbae"
+    },
+    {
+      "path": ".claude/skills/v3-ddd-architecture/SKILL.md",
+      "bytes": 12605,
+      "sha256": "ed2737582d4eb80df6bf2ff45c31e2b1afdc8c50f01f1070b0f90498498ed023"
+    },
+    {
+      "path": ".claude/skills/v3-integration-deep/SKILL.md",
+      "bytes": 7516,
+      "sha256": "1eec5eb819e24fdb31b8baac177d9ea0cf46ea36bb0035d4e5e8cd994104015c"
+    },
+    {
+      "path": ".claude/skills/v3-mcp-optimization/SKILL.md",
+      "bytes": 22202,
+      "sha256": "04df0bf1ac8101d620b64a8d1361cd80fa73356d84984a1f453058645dbbc0ee"
+    },
+    {
+      "path": ".claude/skills/v3-memory-unification/SKILL.md",
+      "bytes": 5400,
+      "sha256": "367301134526c1883fa51c226c029c78ef32a5ed6d36dec3dfaedd3fbc9b758b"
+    },
+    {
+      "path": ".claude/skills/v3-performance-optimization/SKILL.md",
+      "bytes": 11826,
+      "sha256": "10e9572ca9c45f4e3c67f94145a25f5ba4f0c2cb8edb2c15712a9970832927df"
+    },
+    {
+      "path": ".claude/skills/v3-security-overhaul/SKILL.md",
+      "bytes": 2519,
+      "sha256": "d5f5174e24d6bc6b87154d308448e72cb6d01bbfb01d0280c09bd4ae2bb14024"
+    },
+    {
+      "path": ".claude/skills/v3-swarm-coordination/SKILL.md",
+      "bytes": 12474,
+      "sha256": "790139dcaa5068f40ec0bfc41bd7c77ec5a811efe50efa2375d82023aae814fb"
+    },
+    {
+      "path": ".claude/skills/verification-quality/SKILL.md",
+      "bytes": 21318,
+      "sha256": "3f84077b4558cc3840f6ce0f51249e6f46510cb5490303872040269900f78f1e"
+    },
+    {
+      "path": ".claude/skills/worker-benchmarks/SKILL.md",
+      "bytes": 4255,
+      "sha256": "da3a80ff5176c079adc385c2afb774f29e41f8fa06e6eff99b55ca8c3313df5e"
+    },
+    {
+      "path": ".claude/skills/worker-integration/SKILL.md",
+      "bytes": 3909,
+      "sha256": "a09acccb930012d4a3143a770c643eeb455eab4740fea7ed093d692c9af9212c"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-create/SKILL.md",
+      "bytes": 2720,
+      "sha256": "5a7334223fa826f2ca75be0446b3e7d6c358aa02e795fd1f42599ea7d4d43153"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-index/SKILL.md",
+      "bytes": 3464,
+      "sha256": "ca645d97e04c1ae779e636e877e4261a4361312a5aca87e4132840acc401c106"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-reindex/SKILL.md",
+      "bytes": 4626,
+      "sha256": "e45a05056d98205970296d4538603cd1e09be7dd13b5fde64f202d814215d041"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-review/SKILL.md",
+      "bytes": 2659,
+      "sha256": "bd7f7b4f55dc83e18c3703bed2e74b79e4bcfcd22518a7724ffbfe380393b7f2"
+    },
+    {
+      "path": "plugins/ruflo-adr/skills/adr-verify/SKILL.md",
+      "bytes": 2014,
+      "sha256": "34ff999473abdd1af9c562e0d4be56ba0dfd37ca6c64ad6ac50565e1053d88b3"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/managed-agent/SKILL.md",
+      "bytes": 8422,
+      "sha256": "af4c79b18f960469a30e06900f04689b05cf541d8c858be2c2232fce1e4a16f9"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/managed-workflow/SKILL.md",
+      "bytes": 5232,
+      "sha256": "b5a92788d2ab601e32f5f7e8f7960bd98b2feac340dfe3fa9f82916c296ad788"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/nested-subagents/SKILL.md",
+      "bytes": 4162,
+      "sha256": "9c375cad2c1063bbaa94bf7eb92bb2fce1b0f82faa4519ecf9c0f7aed5d6264b"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/wasm-agent/SKILL.md",
+      "bytes": 1764,
+      "sha256": "45d68b54e2e9187febbd2cd45618978226b7d74a9a387e83bd39a6b794da2f20"
+    },
+    {
+      "path": "plugins/ruflo-agent/skills/wasm-gallery/SKILL.md",
+      "bytes": 1128,
+      "sha256": "01d65eb295ff45b191a78ff38d75b0ae9973f436a98483a804f134d494eefad7"
+    },
+    {
+      "path": "plugins/ruflo-agentdb/skills/agentdb-query/SKILL.md",
+      "bytes": 4767,
+      "sha256": "f71bb866c85999b335432dd2480eb0b523ba68522b4c1d7d17f27eb04a6a8e73"
+    },
+    {
+      "path": "plugins/ruflo-agentdb/skills/vector-search/SKILL.md",
+      "bytes": 6138,
+      "sha256": "5cde42d8793ea554d9fc9bcd86bf594b486feca1d9d175a87ba411483a33b77b"
+    },
+    {
+      "path": "plugins/ruflo-agntcy/skills/agntcy-status/SKILL.md",
+      "bytes": 2211,
+      "sha256": "b5c252880b67c6a6ea8447dadeefadaa3ff37162b531c07aecf3639a35f0d0ff"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/coordinate-team-work/SKILL.md",
+      "bytes": 1096,
+      "sha256": "1cd2857f130eca1a69cafa266dd8a0509e4692776fc41b4087e66a0dd6bc4ccf"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/launch-ai-team/SKILL.md",
+      "bytes": 1500,
+      "sha256": "0eb6b395e0825b8f5d764d5113869770d23d59114fe0b4d386144ef50e771b5e"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/manage-team-lifecycle/SKILL.md",
+      "bytes": 1035,
+      "sha256": "01036a76b5ce8035678efad8ba5a18c0c28936376771b1d0526ba27ddb49539d"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/monitor-ai-team/SKILL.md",
+      "bytes": 1036,
+      "sha256": "5221d7b2641b6be216884c91a6494c818aa19ab13872792cf62ba5704b5bc769"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/remember-team-context/SKILL.md",
+      "bytes": 1183,
+      "sha256": "c3e742a93afc5904ca34b74bbb04891fcacbe96fb2d985f25de03716bfd8213a"
+    },
+    {
+      "path": "plugins/ruflo-ai-team/skills/review-team-deliverables/SKILL.md",
+      "bytes": 1013,
+      "sha256": "994628ec2a00424731a505c9a940ecbfcd47a41f540598e9b637633b3143df27"
+    },
+    {
+      "path": "plugins/ruflo-aidefence/skills/pii-detect/SKILL.md",
+      "bytes": 1406,
+      "sha256": "cc79176c9db8dcd2999d60b739c9836cdd964417540b0b29e43f281de2bd33dc"
+    },
+    {
+      "path": "plugins/ruflo-aidefence/skills/safety-scan/SKILL.md",
+      "bytes": 1643,
+      "sha256": "e739ddbab7f6435e8eebcbca056dce89bd44ebbbf9fd64483b297f1e86b76c8f"
+    },
+    {
+      "path": "plugins/ruflo-autopilot/skills/autopilot-loop/SKILL.md",
+      "bytes": 1423,
+      "sha256": "c54e6c5debe0a9ba6248f742e5fa71dc6ea349f0cfa75f8f4f254fd69466deb5"
+    },
+    {
+      "path": "plugins/ruflo-autopilot/skills/autopilot-predict/SKILL.md",
+      "bytes": 1348,
+      "sha256": "50380b112544dd239edde8d429f1588d3cb8be8af40e3e00d0030fa9353cc4ec"
+    },
+    {
+      "path": "plugins/ruflo-bbs-federation/skills/cross-host-federation/SKILL.md",
+      "bytes": 4176,
+      "sha256": "9ecbef425fe21585d1d48419e4682ecd31724b018e11adb36e08c9bf0e553a43"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-auth-flow/SKILL.md",
+      "bytes": 3809,
+      "sha256": "9dfbc0ac0655c0868e6bab5062dc1d2a52cb036d1f8dbc950abbf381751c0993"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-extract/SKILL.md",
+      "bytes": 3587,
+      "sha256": "86cdca4e62a314b0e9a525bafdad4ec82dbd01f8a823c9aac7c87394c8c99c8f"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-form-fill/SKILL.md",
+      "bytes": 2999,
+      "sha256": "1d3688c4ce9aede76cd314e656f497d4b64fb7380904e00adfbbbd4ff04820dd"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-intent/SKILL.md",
+      "bytes": 4813,
+      "sha256": "4eec2d5d1b4a170d5a71dc43eed3f5f733ae70b1dce7a256558e401fbd7a1dcd"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-login/SKILL.md",
+      "bytes": 3784,
+      "sha256": "43f492c1445cdbe17f75e708287a98fbf0bb773b9dffc077d641953d929514f9"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-record/SKILL.md",
+      "bytes": 2913,
+      "sha256": "073637ee976b9d868e3cc32288a370abaf59295afa81cc1cbebc12e936ec73fb"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-replay/SKILL.md",
+      "bytes": 3429,
+      "sha256": "6bac6591c49ba0d41563e55a1adc3dabde251baff73977e406f1cd4b346e5dca"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-scrape/SKILL.md",
+      "bytes": 1714,
+      "sha256": "f27be254b7608ea49d2a8e2a62fef39c1439f6e3476e1a8fdaef60a2de83b6e4"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-screenshot-diff/SKILL.md",
+      "bytes": 2493,
+      "sha256": "8ca9064fd94658ed8001dc03a9bf0d4ecd611a791f6bd7dfea2c62b2bc7322f6"
+    },
+    {
+      "path": "plugins/ruflo-browser/skills/browser-test/SKILL.md",
+      "bytes": 3632,
+      "sha256": "431c097fb49679f0c65532b64c6cb745f299dbce1f862c7a95577b6a64178a98"
+    },
+    {
+      "path": "plugins/ruflo-business-pods/skills/pod-sales/SKILL.md",
+      "bytes": 2784,
+      "sha256": "1d8bc564e43fbc06171006cef385fb2d9cbbf1bc199955058008adb804d1dab0"
+    },
+    {
+      "path": "plugins/ruflo-console/skills/generate-console-theme/SKILL.md",
+      "bytes": 2006,
+      "sha256": "dac8e3eec174406f417593366d032c883aed03657f841b57a4c883081d04940f"
+    },
+    {
+      "path": "plugins/ruflo-console/skills/generate-console-theme/agents/openai.yaml",
+      "bytes": 253,
+      "sha256": "29c72f025ab430cb77617abcdb2eb568dd207e8d31efa961cc6f703e99fddfee"
+    },
+    {
+      "path": "plugins/ruflo-console/skills/generate-console-theme/references/preset.md",
+      "bytes": 1738,
+      "sha256": "0d31500aefefe4b926a7efa459c75090600e6f9782cdb15b15f682c29a11f9b7"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/discover-plugins/SKILL.md",
+      "bytes": 8268,
+      "sha256": "8851d8c9d28b94aeb8411c5af7485b0d1cbf59a9800069d4ddece6f3e3fe11c8"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/init-project/SKILL.md",
+      "bytes": 702,
+      "sha256": "ff3941eca1340e11b4e28fa0151781b2761174a915d1e316167396e346557741"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/ruflo-doctor/SKILL.md",
+      "bytes": 562,
+      "sha256": "f67e5a87a1206537bca31e17b05a239e940d67d2d04558cb5a0f0e07691bc9b7"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/ruflo-status/SKILL.md",
+      "bytes": 1026,
+      "sha256": "56299a3a708d3b0d51a871d76772b52adce31777cea29963f9e442294a4d66d7"
+    },
+    {
+      "path": "plugins/ruflo-core/skills/witness/SKILL.md",
+      "bytes": 5287,
+      "sha256": "19da46b2191540166c6b7b219406a55238a03ce89cbdc49ee189ef64518f952c"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-advise/SKILL.md",
+      "bytes": 1173,
+      "sha256": "d9c4207d8053f9615f997ff748526f83ec04b1f086f1c5ee4ee7682a0d4d5088"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-anomaly/SKILL.md",
+      "bytes": 3724,
+      "sha256": "6ef0c505d28c221f1f38c218253126c6fff9b7f65a462350741f9f7183f57090"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-benchmark/SKILL.md",
+      "bytes": 3037,
+      "sha256": "1782dee152514a5e2efc9efb4057a23663c39f526b1bcf7f2d96d7eaa42bddd7"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-booster-edit/SKILL.md",
+      "bytes": 5804,
+      "sha256": "253b6323e79f8aa56316bab7e8653fff9b12bc48da4353dad8fd1d44a020c067"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-booster-route/SKILL.md",
+      "bytes": 2749,
+      "sha256": "0774f9db48d9c6750688e7398d6fb3ae8c2b9e3758b28d78536e8baa83b95113"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-budget-check/SKILL.md",
+      "bytes": 2619,
+      "sha256": "3f5b16b1ddc80444e9e625eed132fcd3cca0f0f38c8f2af06c5a65feaa7d4a28"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-burn/SKILL.md",
+      "bytes": 3346,
+      "sha256": "db9169d6f2bc3fb6ce0e7068f6efd2dec5669b86ab81e8e0447a41d1d024c826"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-compact-context/SKILL.md",
+      "bytes": 2658,
+      "sha256": "03b6b6ca0a5edda01ec5ed184511c18d3f2583205046c38c0ba6c4c3723a5984"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-conversation/SKILL.md",
+      "bytes": 1678,
+      "sha256": "416aac657cd1e2fbcd5b499f77a5205b3d01641f2049d24858d2ef174960000d"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-counterfactual/SKILL.md",
+      "bytes": 3199,
+      "sha256": "96bf746fc9ac4921b39afec485a404491a727ce9409a0f20f7ba33159bf70680"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-diff/SKILL.md",
+      "bytes": 5060,
+      "sha256": "c70f72e6a1ce53e88f874e41a170956ea6e9bbc7c2cea1c615cc2d80a1ee9e4d"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-export/SKILL.md",
+      "bytes": 2793,
+      "sha256": "474fe05e48bbc6d147500bfbf302ae6472f2854fecaa6dcd67370f0f80743153"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-federation/SKILL.md",
+      "bytes": 2404,
+      "sha256": "e8e0b1048bebd814ea5b9c4a1b5f279c6fbe885f8a36241aa9ebcf63ed84d552"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-health/SKILL.md",
+      "bytes": 3678,
+      "sha256": "8d04655f59d238dab33c49fc1cfa4c46aca7445e39fd2b691e03a05dd45febc2"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-ledger/SKILL.md",
+      "bytes": 1982,
+      "sha256": "81de978d251e9f68083ab62eb72cd5eb771a6977e8a5990f0f7d729b37bdcb78"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-local/SKILL.md",
+      "bytes": 1343,
+      "sha256": "7f1b3762566144b40e7cc3f1c8cc19288dd7df6781f68899e3ab27706c625ca0"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-openrouter/SKILL.md",
+      "bytes": 1564,
+      "sha256": "031e59cd1d6d03c883e515d86d3032af0fedce7b16a1d594332dfc45be4474f5"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-optimize/SKILL.md",
+      "bytes": 4002,
+      "sha256": "2dfc28cd77efd75ba5d1905896fb57116e9a3c5fb2d8f2dcae83ee22ca710919"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-projection/SKILL.md",
+      "bytes": 2845,
+      "sha256": "034b8d40aa431e5c9dda7604ae7343f6f7fb2ac6ea737b11927a93838a732adc"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-report/SKILL.md",
+      "bytes": 3360,
+      "sha256": "f00d570ef4a8c36ea9aa65b9f88a3b0a7646fbc2c732d56887c9eddd4273fb60"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-session/SKILL.md",
+      "bytes": 3178,
+      "sha256": "afc33799525746605e45c38258af9881c46cb884c12e760b7cc040da60e71ecf"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-summary/SKILL.md",
+      "bytes": 2419,
+      "sha256": "b22cbf07de53c93e3a06de07d1447a244c044059ff353c96e0acb1807a9fe3a3"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-track/SKILL.md",
+      "bytes": 3107,
+      "sha256": "f5d415cc3aa786ac0d98e1d226c5cebd5460253cf459faf7d3e9c83910c13532"
+    },
+    {
+      "path": "plugins/ruflo-cost-tracker/skills/cost-trend/SKILL.md",
+      "bytes": 2028,
+      "sha256": "b20d74033e48fdfe04772cf8f693ebf41a9ab1d4c51e51919450dd79e101f5b8"
+    },
+    {
+      "path": "plugins/ruflo-daa/skills/cognitive-pattern/SKILL.md",
+      "bytes": 1554,
+      "sha256": "0b99c4f6906d406538b108cf3987d0312e58237b311a89ff6a2825207144f7cc"
+    },
+    {
+      "path": "plugins/ruflo-daa/skills/daa-agent/SKILL.md",
+      "bytes": 1647,
+      "sha256": "7bf642a5459e248abf2d01960aee7600274501470f7608aaca65750cb0bac21a"
+    },
+    {
+      "path": "plugins/ruflo-ddd/skills/ddd-aggregate/SKILL.md",
+      "bytes": 3353,
+      "sha256": "2e9e4dde76e21afa8a3cfa47d4163772ab30f6b9d346d18d28582ea579539006"
+    },
+    {
+      "path": "plugins/ruflo-ddd/skills/ddd-context/SKILL.md",
+      "bytes": 2503,
+      "sha256": "86a0b9f77478e961e1bc6e58e2b6602b7c33af8bbf424320319efb7bb7370954"
+    },
+    {
+      "path": "plugins/ruflo-ddd/skills/ddd-validate/SKILL.md",
+      "bytes": 2570,
+      "sha256": "6d2202d2a3d74c1a429d68d7b7e95327f888935070f0dc92082671853cd71e6c"
+    },
+    {
+      "path": "plugins/ruflo-deepseek-harness/skills/deepseek-chat/SKILL.md",
+      "bytes": 2447,
+      "sha256": "1563b60cc8b775ce32ec040def7c5f9496ef135d730e5ab349d88e7f663711b2"
+    },
+    {
+      "path": "plugins/ruflo-deepseek-harness/skills/deepseek-reason/SKILL.md",
+      "bytes": 2647,
+      "sha256": "4c3a6301747b1e440e3aab517846f3435b1e7e43afa3f39930af48d00d8dba2f"
+    },
+    {
+      "path": "plugins/ruflo-docs/skills/api-docs/SKILL.md",
+      "bytes": 957,
+      "sha256": "04365aa4e80a2d7e7bc4beebe81a38a30fe3ad377f6b49464ab59b644f3aed6a"
+    },
+    {
+      "path": "plugins/ruflo-docs/skills/doc-gen/SKILL.md",
+      "bytes": 1085,
+      "sha256": "ccb53627f7836e46e5d83b4b95a168f771bbb31d68f1a229bc09538649057161"
+    },
+    {
+      "path": "plugins/ruflo-federation/skills/federation-audit/SKILL.md",
+      "bytes": 1050,
+      "sha256": "4644aeca65c2ef5b82906d9bf842e651797bb8d63b96d16522888c4e27725a4e"
+    },
+    {
+      "path": "plugins/ruflo-federation/skills/federation-init/SKILL.md",
+      "bytes": 916,
+      "sha256": "9cc0f2d4a81b8b68b1f6999eb3061b65c7a5f67163480dc5c9e97af75e0e2948"
+    },
+    {
+      "path": "plugins/ruflo-federation/skills/federation-status/SKILL.md",
+      "bytes": 868,
+      "sha256": "d39792a7e69a04b1e489caa09b549d7d966d9ceca2e14c5434500aac499fc0b0"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/deep-research/SKILL.md",
+      "bytes": 5140,
+      "sha256": "243a9fb52836ad2d87d721220c4d2275723065c22ddd4afa7ee80a7baa24b821"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/dossier-collect/SKILL.md",
+      "bytes": 5697,
+      "sha256": "d23edc5437536959c8cb83d8fb88b4a6a0319907a1240f21b5419c8efe6a16f9"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/goal-plan/SKILL.md",
+      "bytes": 3253,
+      "sha256": "43d20adda3a91e58b2448d68bcdadd94add13be925b49dcf075c4e73b476d008"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/horizon-track/SKILL.md",
+      "bytes": 2997,
+      "sha256": "8952e9c8ae20d75dc0811e85d1d03bfeaef506554e43c9ee04d58ebb9a109a7b"
+    },
+    {
+      "path": "plugins/ruflo-goals/skills/research-synthesize/SKILL.md",
+      "bytes": 3097,
+      "sha256": "0436f89f068474eb816ca31fdf98f90529a86cf44d3312a7762a08cc9fe68848"
+    },
+    {
+      "path": "plugins/ruflo-graph-intelligence/skills/sublinear-core/SKILL.md",
+      "bytes": 3531,
+      "sha256": "e18208dcde3989afc85436f86dc180ea8bc79a0b0318fe1ebbc5f2880c8a385f"
+    },
+    {
+      "path": "plugins/ruflo-intelligence/skills/intelligence-route/SKILL.md",
+      "bytes": 4134,
+      "sha256": "251380bbcfcdcc1db8db069834c966b4704eacdff1671ed1b538ef217e848a2c"
+    },
+    {
+      "path": "plugins/ruflo-intelligence/skills/intelligence-transfer/SKILL.md",
+      "bytes": 4369,
+      "sha256": "1c34808e42101e648601d62461b923efe16c76b53e67ef5d07240dfdb899e665"
+    },
+    {
+      "path": "plugins/ruflo-intelligence/skills/neural-train/SKILL.md",
+      "bytes": 6658,
+      "sha256": "e7da2d4ff72f0e5d995c3101f7f34a74826d769217d8d14407bad655f3c941d5"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-anomalies/SKILL.md",
+      "bytes": 836,
+      "sha256": "27376160d257eb685f54f3c16b0962580d2708cde70c549edb68491e284b384b"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-firmware/SKILL.md",
+      "bytes": 1723,
+      "sha256": "e236df6552b10bd3315465dafcb4739ad47943d46106260b14ae5c8517d57b4e"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-fleet/SKILL.md",
+      "bytes": 982,
+      "sha256": "122c61c3d1dbc03ee24610b467798aa6d176c148b4577022ebc9ea396402c224"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-register/SKILL.md",
+      "bytes": 1050,
+      "sha256": "04c98fead3d70c21abcb58c97578463d0303f5d7502a4fbbecd9d4f84501b5fe"
+    },
+    {
+      "path": "plugins/ruflo-iot-cognitum/skills/iot-witness-verify/SKILL.md",
+      "bytes": 639,
+      "sha256": "083882e9c24625bb6ad96c461b350d4472da38d1e7020186018157df34c454c4"
+    },
+    {
+      "path": "plugins/ruflo-jujutsu/skills/diff-analyze/SKILL.md",
+      "bytes": 2261,
+      "sha256": "5dab102e7d4d6cbfdbeb4ba0e2ae53d568a83aa99a1027160ebc8c58c62f8e72"
+    },
+    {
+      "path": "plugins/ruflo-jujutsu/skills/git-workflow/SKILL.md",
+      "bytes": 1930,
+      "sha256": "1c95f766a759ab000e42ca8924e34d4238d1b7bdf990c5871bf93f842ab6b6d2"
+    },
+    {
+      "path": "plugins/ruflo-knowledge-graph/skills/kg-extract/SKILL.md",
+      "bytes": 3012,
+      "sha256": "4c226d637953b5312bb81c2a092e7fee3c204fe2376c451fffdca476e97c1a9d"
+    },
+    {
+      "path": "plugins/ruflo-knowledge-graph/skills/kg-traverse/SKILL.md",
+      "bytes": 3063,
+      "sha256": "e96688c3639d2500a5c6c7edcba814ddc736f0b19850676cd233a7c2f4512ce9"
+    },
+    {
+      "path": "plugins/ruflo-loop-workers/skills/cron-schedule/SKILL.md",
+      "bytes": 1747,
+      "sha256": "13a63c25a6968e3b3095ceccff16575bf6768360773f9d280ff600b5edb5c55d"
+    },
+    {
+      "path": "plugins/ruflo-loop-workers/skills/loop-worker/SKILL.md",
+      "bytes": 2564,
+      "sha256": "2d055779d6b49c879df5323d7c270c85c9cda8db54b96e234ccc2c2733d21b7e"
+    },
+    {
+      "path": "plugins/ruflo-market-data/skills/market-ingest/SKILL.md",
+      "bytes": 2788,
+      "sha256": "001a06545919c0d445ca8c5850ad10fbee8fe4c9c8f71b70bf0faff49360da47"
+    },
+    {
+      "path": "plugins/ruflo-market-data/skills/market-pattern/SKILL.md",
+      "bytes": 2673,
+      "sha256": "d42948bb9da398644c297429f53d5fb06af8fb47ca2d6d2cd3e85e7ca36d365f"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-bench/SKILL.md",
+      "bytes": 2236,
+      "sha256": "4a2725c14992774296e0d6652eb53007dc591f0a8faefbb765d10ee3b28a4674"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-drift-from-history/SKILL.md",
+      "bytes": 2450,
+      "sha256": "fce1d9abf68fe64d92873008b36887508e37d17c492397b54e6d46f3cf616b34"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-evolve/SKILL.md",
+      "bytes": 6191,
+      "sha256": "f454ed134c3259013a9e66f849c06237e34ddd9934735d751f891cac77827121"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-genome/SKILL.md",
+      "bytes": 2238,
+      "sha256": "1e64d5136f5007ff4271e9dd9b4ce2d10f03b2f8f5a14957bc95df4ec0174097"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-gepa/SKILL.md",
+      "bytes": 3108,
+      "sha256": "6ed6189f9bb75ff35a7b5124a7a8b3c209ef32c6b76c54dc00cfbf2886272011"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-learn/SKILL.md",
+      "bytes": 3104,
+      "sha256": "721e084458e68010ac6a157696396b4912585e63060dc8ac5242d3f823fc9570"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-mcp-scan/SKILL.md",
+      "bytes": 1717,
+      "sha256": "aed2c6edc405e9638630ac7c7ec1693d04a56897d39c494787759062a7630620"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-mint/SKILL.md",
+      "bytes": 2832,
+      "sha256": "c8a262095dac482f66642b560043d2e35518f572285fdbe72b0420b3aea68fde"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-oia-audit/SKILL.md",
+      "bytes": 2927,
+      "sha256": "2d8d25acc37ff064b2b7aa00bf7f88c90e26467a75cccb3a4144a42b21c47470"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-score/SKILL.md",
+      "bytes": 2377,
+      "sha256": "d5a7420f92c09be4781232a57c800af993eabfaf6be841d2d501526c0bda2ad0"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-security-bench/SKILL.md",
+      "bytes": 4408,
+      "sha256": "f0587061ec00d920575325d37ee007ce4395599052b4875af7a44d6b9868ae66"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-similarity/SKILL.md",
+      "bytes": 3350,
+      "sha256": "81915887aa367d996226e880cd01d7dede62974beab95fa88b5be1c941174f1d"
+    },
+    {
+      "path": "plugins/ruflo-metaharness/skills/harness-threat-model/SKILL.md",
+      "bytes": 1452,
+      "sha256": "73ed909c2968c451f220d3da111f6c511e4c0ed3936e398ebebc288e9166c790"
+    },
+    {
+      "path": "plugins/ruflo-migrations/skills/migrate-create/SKILL.md",
+      "bytes": 2334,
+      "sha256": "c986052f21745778b72fcbc544b9dd6a8d35b1e4490ec1956e01cf9d7accf17f"
+    },
+    {
+      "path": "plugins/ruflo-migrations/skills/migrate-validate/SKILL.md",
+      "bytes": 2641,
+      "sha256": "0742d1afda75c7fbd573102c9a215ee98431a6f99bd5bd4b14d891d68a35920b"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-connect/SKILL.md",
+      "bytes": 3543,
+      "sha256": "8b78eb47524dfe8c713338f1dfd9c7cf5b79466ee773dd3df6847d648ba6235b"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-generate/SKILL.md",
+      "bytes": 4322,
+      "sha256": "6829449fb37f843b38593ff2d43e1db0a71a85856b51a4652d90042631761a43"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-get/SKILL.md",
+      "bytes": 1202,
+      "sha256": "3078b7a3257058dfdfaabdd5365401048d95b21e1f46b7deb6aebfc3054bd6e9"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-list/SKILL.md",
+      "bytes": 1333,
+      "sha256": "c376e142e256756be691c272b255e5d8a1528d20ad93daed6b8b8b176c2fa4dc"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-master/SKILL.md",
+      "bytes": 1084,
+      "sha256": "b6300f65265e75e84a82caca652d89e77f70d82cfea23a64474ea028efe4204d"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-midi/SKILL.md",
+      "bytes": 945,
+      "sha256": "e19329e4573d76f92b2216656f13653ae5ccf122cae83d15b9e637d5d2c94701"
+    },
+    {
+      "path": "plugins/ruflo-music/skills/music-stems/SKILL.md",
+      "bytes": 1598,
+      "sha256": "c88bf91b99652f6f094cb3c02d04aa57ea63eed420d23dfc28403fe952f25b78"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-backtest/SKILL.md",
+      "bytes": 6080,
+      "sha256": "cc2b0d2ed651816f468c5882018fd15eddaa66d94a51705f9504f6a29561d738"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-cloud-backtest/SKILL.md",
+      "bytes": 7292,
+      "sha256": "8838cfa8da2fd5a9d98318fe0a0a2b6b76252c36a75d488b2971a78d87075b2e"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-explain/SKILL.md",
+      "bytes": 8087,
+      "sha256": "c23b425cb3df7a0e8174ea0b3e1b2097410467fb324398e37beaaf117fbd478c"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-portfolio-cg/SKILL.md",
+      "bytes": 6794,
+      "sha256": "384d7ad2e923b69c4455fc910060ac36f97a27bf7c433e1441c132104c2a030a"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-portfolio/SKILL.md",
+      "bytes": 2336,
+      "sha256": "718965b6176626fded12b6f3d7fc7322698837aafedc10554851d75a2337630b"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-regime/SKILL.md",
+      "bytes": 2135,
+      "sha256": "0c5b2f91589f1be0673ea4dc9b4e7100c6a34a60ce6217044275537e57609754"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-risk/SKILL.md",
+      "bytes": 1969,
+      "sha256": "0ab6ef3ae59dc88650b2cfe7d97a8101088818352b0f335d8f0fd5c876520bf6"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-signal/SKILL.md",
+      "bytes": 2824,
+      "sha256": "b5c47236761cd31ba5227e06feb183b745a44f0699dbaef8aa7374aa2249dc19"
+    },
+    {
+      "path": "plugins/ruflo-neural-trader/skills/trader-train/SKILL.md",
+      "bytes": 2083,
+      "sha256": "01d961e234f1be26705920a08122b98e38116292f560415fa064afa66b09273f"
+    },
+    {
+      "path": "plugins/ruflo-observability/skills/observe-metrics/SKILL.md",
+      "bytes": 2630,
+      "sha256": "be78056e9a65770aa4afb1c9dd9cdb09955e937a8fe80c8d39391bc90ff724aa"
+    },
+    {
+      "path": "plugins/ruflo-observability/skills/observe-trace/SKILL.md",
+      "bytes": 2544,
+      "sha256": "34276f38dfc610c64cc9e6f384d9bac7a0cd6f8523e5e40a00a49024a17b1cf0"
+    },
+    {
+      "path": "plugins/ruflo-plugin-creator/skills/create-mod/SKILL.md",
+      "bytes": 4803,
+      "sha256": "c34e69081f81628cac5306159c09007154018b9dead49a7c228e528308f59d41"
+    },
+    {
+      "path": "plugins/ruflo-plugin-creator/skills/create-plugin/SKILL.md",
+      "bytes": 6104,
+      "sha256": "c9f6e55571ef2a3c2e5aa3f668646894c90273580002d4607fee60bb9da4f6ce"
+    },
+    {
+      "path": "plugins/ruflo-plugin-creator/skills/validate-plugin/SKILL.md",
+      "bytes": 2555,
+      "sha256": "aa55f98323f0648ae8bea6065cbb6336448210f6777e8121f419f14deabf1ce4"
+    },
+    {
+      "path": "plugins/ruflo-rag-memory/skills/memory-bridge/SKILL.md",
+      "bytes": 2419,
+      "sha256": "021fdaaeda7347e240520b9493a441c0a8aa08883a03cb44d211b76b7657573a"
+    },
+    {
+      "path": "plugins/ruflo-rag-memory/skills/memory-search/SKILL.md",
+      "bytes": 3639,
+      "sha256": "fa721c69aefe8028d745a6535567194d0be838056578f02ec2b8c69533921aea"
+    },
+    {
+      "path": "plugins/ruflo-ruos/skills/ruos-host-run/SKILL.md",
+      "bytes": 4170,
+      "sha256": "56b206347e400ee3bb5ad00a51ab801f54200e510bb9bd670480d1102299a2c3"
+    },
+    {
+      "path": "plugins/ruflo-rure/skills/analyze-app/SKILL.md",
+      "bytes": 5935,
+      "sha256": "712c8531dbaa4d5d7ae3115a5e96ad694b2aa9dc0e52b6be541533566dbffb58"
+    },
+    {
+      "path": "plugins/ruflo-ruvector/skills/vector-cluster/SKILL.md",
+      "bytes": 2162,
+      "sha256": "064f5d306ec7394ac9634384295da2e2660865e19b570c369029ac227bb3a2a2"
+    },
+    {
+      "path": "plugins/ruflo-ruvector/skills/vector-embed/SKILL.md",
+      "bytes": 2371,
+      "sha256": "84cce22f74d75a538d66458baed407237fe30eed18a2f24b8192c803c99eee7e"
+    },
+    {
+      "path": "plugins/ruflo-ruvector/skills/vector-hyperbolic/SKILL.md",
+      "bytes": 3377,
+      "sha256": "ac54225cfcc5ee077a7ba49086aacce747c881df6ac1e00977309e989a695d98"
+    },
+    {
+      "path": "plugins/ruflo-ruvector/skills/vector-setup/SKILL.md",
+      "bytes": 4056,
+      "sha256": "615961cacddb6aeacbab9da655a10aaa96a7bcaac984e8ecd441d4e794115732"
+    },
+    {
+      "path": "plugins/ruflo-ruvllm/skills/chat-format/SKILL.md",
+      "bytes": 2237,
+      "sha256": "1718b257a88bc59bf08a014b1ca8f36d9b422efa25796ebece5d0d80ecf2ec6d"
+    },
+    {
+      "path": "plugins/ruflo-ruvllm/skills/llm-config/SKILL.md",
+      "bytes": 2630,
+      "sha256": "e3dd9cf613439c3593c62a096cecba0b213991e23dc0c8c90662056f7802c717"
+    },
+    {
+      "path": "plugins/ruflo-ruvllm/skills/ruvllm-runtime/SKILL.md",
+      "bytes": 3493,
+      "sha256": "3cdf66ea6507b1287bea7c0eccac70a5d7bed9e8353e0dc56421fb8378a1c0ec"
+    },
+    {
+      "path": "plugins/ruflo-rvf/skills/rvf-manage/SKILL.md",
+      "bytes": 2526,
+      "sha256": "500ee529e6108ff496d783324f1f9a40a3e12e024912b99a719c7566dc5b0c1f"
+    },
+    {
+      "path": "plugins/ruflo-rvf/skills/session-persist/SKILL.md",
+      "bytes": 1674,
+      "sha256": "1c299adf9eab4dcbea27156fe0e0d36b18c42de429bceb6d3ad6bee451fd217b"
+    },
+    {
+      "path": "plugins/ruflo-security-audit/skills/dependency-check/SKILL.md",
+      "bytes": 1398,
+      "sha256": "5f40ffd2ac2119e4a3041908460c99aa54afd07d893ee4d1cb0471cb621936eb"
+    },
+    {
+      "path": "plugins/ruflo-security-audit/skills/security-scan/SKILL.md",
+      "bytes": 1961,
+      "sha256": "29bf85f4de4ecda0e0859b1fb00e7a2e9dbed3bfdace4cc8c40b69bdb8e904aa"
+    },
+    {
+      "path": "plugins/ruflo-sparc/skills/sparc-implement/SKILL.md",
+      "bytes": 5522,
+      "sha256": "6045d3935db44c5ef7b8894e2f5b64fa3026d23f3fb2b9bddfae6d1bf3cc7035"
+    },
+    {
+      "path": "plugins/ruflo-sparc/skills/sparc-refine/SKILL.md",
+      "bytes": 8620,
+      "sha256": "a8715151546e13364c675eb5b05ee2fcb01ccf00e814fb78145c4b999d108450"
+    },
+    {
+      "path": "plugins/ruflo-sparc/skills/sparc-spec/SKILL.md",
+      "bytes": 4596,
+      "sha256": "7fbdc9421c1615710b055726631f9d4c254d4ccc86b027e7741c0f106d9f9785"
+    },
+    {
+      "path": "plugins/ruflo-swarm/skills/monitor-stream/SKILL.md",
+      "bytes": 978,
+      "sha256": "62122850c88f3880e563be3ae1692a636c68d05aa1e80593ddaea7c99b757fed"
+    },
+    {
+      "path": "plugins/ruflo-swarm/skills/swarm-init/SKILL.md",
+      "bytes": 1274,
+      "sha256": "3e2944e8b589ab43f2e8fbaed88fea334e68f6a1f6778b499fb61635a6e4f4fe"
+    },
+    {
+      "path": "plugins/ruflo-testgen/skills/tdd-repair/SKILL.md",
+      "bytes": 6467,
+      "sha256": "038e5e44e5e8de56e4dd139d1d88deaeefcd48569fe583bc9691346cb4615b48"
+    },
+    {
+      "path": "plugins/ruflo-testgen/skills/tdd-workflow/SKILL.md",
+      "bytes": 2369,
+      "sha256": "cdda45b22786949b0fa6b868f6359bc7b076e50103324e36629734f404258698"
+    },
+    {
+      "path": "plugins/ruflo-testgen/skills/test-gaps/SKILL.md",
+      "bytes": 927,
+      "sha256": "af23a403e73b7267203727e1810a1e821e54efbca20091d8a540ea08be73c15a"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/gaia-architecture-comparison/SKILL.md",
+      "bytes": 5190,
+      "sha256": "8ff502ff2314a59747f284e41e836d763242355d80f496583407470325285c54"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/gaia-debugging/SKILL.md",
+      "bytes": 5437,
+      "sha256": "66c91cd767096ebebadc91174e65e14a35cdbfeae4c323d2021c3a7fd9f0e8f3"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/gaia-submission/SKILL.md",
+      "bytes": 5080,
+      "sha256": "39d9ac6e2b7f115ef98313ab29333d192a480285d050609b444309bdb40c65d1"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/workflow-create/SKILL.md",
+      "bytes": 4813,
+      "sha256": "8357fe4a3e3c0d2f4dcf8297cd0e24d34e1e7a45174aed2506086f235663c2d0"
+    },
+    {
+      "path": "plugins/ruflo-workflows/skills/workflow-run/SKILL.md",
+      "bytes": 2847,
+      "sha256": "687d2fd44f5b11836020d8039a81ed3c3c2435f93ecf775cd81169c4a5a5ffb7"
+    },
+    {
+      "path": "UPSTREAM_LICENSE.txt",
+      "bytes": 1089,
+      "sha256": "d5f6d91ba2e65a09f157cd1336034804e850fcac3296684221368b3f26fa6ccf"
+    },
+    {
+      "path": "README.md",
+      "bytes": 421,
+      "sha256": "a61db71f88c638c421c6162092f7a7f51561b728dfa73be6dc38f63b559deddf"
+    }
+  ],
+  "installedAt": "2026-11-21T07:29:14.435Z"
+}
