@@ -27,3 +27,21 @@ QuoteLLM: safety-scan, dependency-check, harness-mcp-scan, test-gaps, cost-budge
 ## Follow-up validation
 Review the inventory and staging tool, run syntax checks, stage an exact revision in a disposable local checkout, hash-verify its contents, scan selected skills, then run existing project CI.
 All third-party skills remain INACTIVE until specifically reviewed; the inventory is not evidence of functional installation or deployment.
+
+## Pinned full repository submodule
+The complete Ruflo source tree is also referenced as an inert Git submodule at .agent-toolkit/ruflo/upstream, pinned to the same commit as the manifest. This covers ALL original agents, plugins, skill files and scripts without copying or running them in the application.
+
+On a reviewed Windows developer checkout:
+    git submodule update --init -- .agent-toolkit/ruflo/upstream
+    node --check scripts/ruflo-skills.mjs
+    node scripts/ruflo-skills.mjs list
+    node scripts/ruflo-skills.mjs verify
+
+Optional verified staging from the official raw source:
+    node scripts/ruflo-skills.mjs stage-all
+    node scripts/ruflo-skills.mjs verify
+    node scripts/ruflo-skills.mjs audit
+
+Stage-all needs network access and can download 403 skill text files. No upstream commands are executed. The submodule may be large; initialize only when needed. A fetched submodule does not mean its agents are installed or active.
+Ruflo is MIT-licensed; preserve its upstream LICENSE and any separate third-party component license requirements.
+Unit tests and SkillSpector analysis were NOT run in the connected GitHub environment; treat this as a proposed integration pending validation.
