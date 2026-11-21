@@ -5,7 +5,7 @@ description: Safely coordinate task-focused agents for multi-file YmPharma devel
 # Ruflo coordination — YmPharma adapter
 Use for multi-module changes where independent reviewers, programmers and testers can reduce errors. This is a project skill, **not** an activation of the full Ruflo runtime.
 
-1. Read the repository's `AGENTS.md` and inspect `.agents/skills/` for relevant pharmacy-specific guidance before planning any changes.
+1. Read the repository's `AGENTS.md` and inspect `.agents/skills/` for relevant pharmacy-specific guidance before planning any changes. If `ruflo-safe-orchestration` is present, it is the existing orchestration entrypoint; this adapter adds pharmacy-specific QA gates only and must not create a duplicate swarm.
 2. Bound work to an explicit issue and branch. Start with evidence collection and a threat/impact map. Never assume a requested agent, tool, model, subscription or connected device is available.
 3. Fan out at most four independent *analysis* roles: architecture/data-flow, pharmacy domain correctness, security/RLS, and tests/performance. If no multi-agent runner is available, perform these as sequential independent reviews. Don't claim parallel execution without task receipts.
 4. Consolidate findings with exact source paths, confidence, regression risk and rollback plan. Deduplicate overlapping recommendations.
