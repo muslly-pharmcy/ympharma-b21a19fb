@@ -29,6 +29,7 @@ function ScanInvoicePage() {
   const [jobId, setJobId] = useState<string | null>(null)
   const [supplierId, setSupplierId] = useState('')
   const [warehouseId, setWarehouseId] = useState('')
+  const [currency, setCurrency] = useState<'YER' | 'SAR' | 'USD'>('YER')
 
   const uploadFn = useServerFn(createVisionUploadUrl)
   const analyzeFn = useServerFn(analyzeInvoiceImage)
@@ -75,7 +76,7 @@ function ScanInvoicePage() {
   const draft = useMutation({
     mutationFn: () =>
       draftFn({
-        data: { jobId: jobId as string, supplierId, warehouseId, currency: 'YER' },
+        data: { jobId: jobId as string, supplierId, warehouseId, currency },
       }),
     onSuccess: (res) => {
       if (!res.ok) {
@@ -95,6 +96,9 @@ function ScanInvoicePage() {
   }
 
   const matchedCount = rows.filter((r) => r.decision === 'matched').length
+  const incompleteMatchedCount = rows.filter((r) => r.decision === 'matched' &&
+    (r.quantity == null || !Number.isFinite(r.quantity) || r.quantity <= 0 ||
+     r.unit_cost == null || !Number.isFinite(r.unit_cost) || r.unit_cost <= 0)).length
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-4 pt-24 md:p-8 md:pt-24" dir="rtl">
@@ -185,7 +189,13 @@ function ScanInvoicePage() {
             </table>
           </div>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {incompleteMatchedCount > 0 && (
+            <p className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900" role="alert">
+              توجد {incompleteMatchedCount} أصناف مطابقة بدون كمية أو تكلفة موثوقة.
+              لا ينشئ النظام قيماً افتراضية؛ صحح الصورة أو البيانات في مسار المراجعة قبل إنشاء المسودة.
+            </p>
+          )}
+          <div className="mt-4 grid gap-3 sm:grid-cols-4">
             <select
               value={supplierId}
               onChange={(e) => setSupplierId(e.target.value)}
@@ -210,10 +220,23 @@ function ScanInvoicePage() {
                 </option>
               ))}
             </select>
+            <label className="flex flex-col gap-1 text-sm text-gray-700">
+              عملة أمر الشراء
+              <select
+                aria-label="عملة أمر الشراء"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value as 'YER' | 'SAR' | 'USD')}
+                className="rounded-xl border border-gray-200 px-3 py-2 text-sm"
+              >
+                <option value="YER">ريال يمني (YER)</option>
+                <option value="SAR">ريال سعودي (SAR)</option>
+                <option value="USD">دولار أمريكي (USD)</option>
+              </select>
+            </label>
             <button
               type="button"
               onClick={() => draft.mutate()}
-              disabled={!supplierId || !warehouseId || matchedCount === 0 || draft.isPending}
+              disabled={!supplierId || !warehouseId || matchedCount === 0 || incompleteMatchedCount > 0 || draft.isPending}
               className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
             >
               {draft.isPending ? (
