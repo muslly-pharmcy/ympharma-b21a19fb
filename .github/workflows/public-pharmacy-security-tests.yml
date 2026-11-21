@@ -1,0 +1,24 @@
+name: Public pharmacy minimization and recovery target guards
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20261116060000_minimize_public_pharmacy_profile.sql'
+      - 'scripts/sql/verify-public-pharmacy-profile.mjs'
+      - 'scripts/sql/verify-recovery-target-guard.mjs'
+      - 'scripts/sql/legacy-stock-rpc-recovery.sh'
+      - '.github/workflows/public-pharmacy-security-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Reject unsafe recovery targets without database access
+        run: node scripts/sql/verify-recovery-target-guard.mjs
+      - name: Install isolated PostgreSQL WASM tooling
+        run: npm install --prefix "$RUNNER_TEMP/pharmacy-sql-tooling" --no-audit --no-fund @electric-sql/pglite@0.5.16
+      - name: Verify response minimization and both deployed ACL contracts
+        run: PG_TEST_TOOLING_ROOT="$RUNNER_TEMP/pharmacy-sql-tooling" node scripts/sql/verify-public-pharmacy-profile.mjs

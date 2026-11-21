@@ -2,6 +2,10 @@
 # Only the synthetic CI database is accepted. Never restore over source data.
 set -euo pipefail
 [[ "${PGDATABASE:-}" == 'ympharma_legacy_stock_test' ]] || { echo 'Synthetic database required'; exit 1; }
+# This script belongs to the disposable hosted CI service, never a remote server.
+[[ "${GITHUB_ACTIONS:-}" == true && "${RUNNER_ENVIRONMENT:-}" == github-hosted ]] || { echo 'Disposable GitHub-hosted CI required'; exit 1; }
+[[ "${PGHOST:-}" == 127.0.0.1 && "${PGPORT:-}" == 5432 && "${PGUSER:-}" == postgres ]] || { echo 'Explicit loopback CI connection required'; exit 1; }
+[[ -z "${PGHOSTADDR:-}${PGSERVICE:-}${PGSERVICEFILE:-}${PGOPTIONS:-}" ]] || { echo 'Connection overrides are forbidden'; exit 1; }
 evidence=$(mktemp -d)
 snapshot() {
   psql -X -v ON_ERROR_STOP=1 -At -d "$1" <<'SQL'
