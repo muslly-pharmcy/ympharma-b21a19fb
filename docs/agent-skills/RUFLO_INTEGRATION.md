@@ -38,3 +38,15 @@ The existing project-specific pharmacy skills and rules in `AGENTS.md` take prec
 - No main branch merge or production deployment is part of this change.
 - Super Chrome agents require separate active access; their availability is not assumed.
 - SOFA hosted credentials stay in its connector; do not copy tokens into the repo.
+
+## 2026-11-21 observed staging verification
+- Import run on an isolated Windows checkout on the `ahmed-almusali` device, not on the previously designated (offline) production workstation.
+- Actual skill files found by the pinned tree: **336** (`.agents/skills` 135, `.claude/skills` 38, plugin skill paths 163). This source includes mirrored and possibly deprecated material; the count does not imply 336 independently vetted agents.
+- Snapshot: **346 original source files**, plus source license, README, `.gitattributes`, and hash manifest (350 Git files overall under vendor).
+- Script syntax check: PASS. `--dry-run`: PASS. `--install`: PASS. `--verify`: PASS, 348 manifest entries with 0 hash mismatches, including after git commit.
+- Basic static triage: 336 SKILL.md headers begin with YAML frontmatter; **4 source-path matches** for risky command or credential mentions, concerning two duplicated skills (`hooks-automation`, `verification-quality`). These are flagged for manual review, *not* proven malicious and *not* the result of a full security audit.
+- Upstream files contain inherited trailing whitespace; byte-for-byte retention takes precedence over rewriting. The vendor `.gitattributes` preserves line endings.
+- **Read-only domain review:** possible check-then-act idempotency race in `src/lib/idempotency.server.ts` was recorded in [issue #85](https://github.com/muslly-pharmcy/ympharma-b21a19fb/issues/85). No live effect claimed, no production data touched.
+- The `main` branch also contains `.agents/skills/ruflo-safe-orchestration/SKILL.md` from PR #83 and a central library reference. Follow that existing router first, rather than creating a duplicate agent swarm.
+- **Remaining:** manual audit of flagged external skills and dependencies, validate effective agent/MCP permissions, run isolated ERP lint/build/unit/integration/e2e and concurrency checks, then review branch divergence before merge.
+
