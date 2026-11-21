@@ -1,0 +1,1046 @@
+[
+  {
+    "path": "drizzle/migrations/0000_oracle_sync_backend.sql",
+    "sha256": "7a3a8f281ab6d4012a938b87ce3b1cccffb11ff4d59ca9b66033ec1c000aa02b"
+  },
+  {
+    "path": "drizzle/migrations/0001_fix_checkout_policies_anon.sql",
+    "sha256": "c9e04f28b3d3a8c7b8ef9b81b7cd25de12b10733c6ee81cb77dc15570cbb39a5"
+  },
+  {
+    "path": "drizzle/migrations/0002_restore_customer_checkout_execute.sql",
+    "sha256": "e80165d7a0007ccff56876f3fa6efbb98d9e8010bf3bfbb3dba3535935ddb499"
+  },
+  {
+    "path": "drizzle/migrations/0003_fix_checkout_search_path.sql",
+    "sha256": "742ce085269eddff22941f38f68b4ed4d4332d3fe15eb75849ee49579141220d"
+  },
+  {
+    "path": "drizzle/migrations/0004_checkout_use_catalog_price.sql",
+    "sha256": "512954494726d3f4468788db3b08eebc1275f0f1698225e12ea1dee7cf9c66f9"
+  },
+  {
+    "path": "drizzle/migrations/0005_erp_integration_foundation.sql",
+    "sha256": "05bfd5cfe307832dd884a9588ce0e1148723e56ece9031ded7fb1fd7df1d8c8e"
+  },
+  {
+    "path": "drizzle/migrations/0006_erp2_org_scoped_foundation.sql",
+    "sha256": "3c39ec9da4524aea5e0514e7b7aeb7074840aba2683549d29ffdfea2106f4ede"
+  },
+  {
+    "path": "supabase/migrations/20260616145852_f06f9d7e-5170-4792-bba4-a9ef2b205502.sql",
+    "sha256": "68a28535cdbbd4b079d847728532017c1f1b6d650ec0fdf46036b2157556a9cd"
+  },
+  {
+    "path": "supabase/migrations/20260616145908_43449aca-e1d4-4e46-a0f9-285c2a854358.sql",
+    "sha256": "e51cb26ebf34a9867467f25e8a762128e5e1e72bf9fbd86de15938f89cc41f26"
+  },
+  {
+    "path": "supabase/migrations/20260616184555_a66c6200-d3c9-4106-bdc1-3f5ae2cb9bf7.sql",
+    "sha256": "088c7ab4d469f8cc7aab546ef42f3760193db7ff6de2c89e7ba58582ff7341e9"
+  },
+  {
+    "path": "supabase/migrations/20260616191558_df13c64f-c9d2-4aeb-84d4-c0aef01cc59f.sql",
+    "sha256": "7bad4a1947495490831e289307e90f9ce2b87f0a9bfec6083c2027ccce7bd0cf"
+  },
+  {
+    "path": "supabase/migrations/20260616191619_8b119126-c5e8-48b8-b9ca-4073a60b5ffe.sql",
+    "sha256": "ab74f33baf556043e874c02f994024c5ac25b349350bdbed8d4489c94653f0ed"
+  },
+  {
+    "path": "supabase/migrations/20260616193006_f1065665-7882-4869-b3e2-b74823a6412a.sql",
+    "sha256": "6c15c1c3b8ccb1590312eac0d953a3df1361cc06018c9899e0273b32d8bea29b"
+  },
+  {
+    "path": "supabase/migrations/20260616215123_23cc8f06-7034-4ae0-8699-8ca56098ce03.sql",
+    "sha256": "9163aa768991c74ffcd5ec82fe2bc1f4e63ef5e06345f94ba7bedfe190ecb33c"
+  },
+  {
+    "path": "supabase/migrations/20260616221210_82ae2f30-862e-4187-b6f2-1c50f27786ac.sql",
+    "sha256": "eef360f29640d5569161b270e2f63856032bb936f10a943caeff7388769afd68"
+  },
+  {
+    "path": "supabase/migrations/20260616221221_24e13f9d-a680-4351-a173-62bc1d689b9d.sql",
+    "sha256": "b69b9b4eb718145983106856d3fdfb83d9f7ae22f62d4704dde04cd626ba47dd"
+  },
+  {
+    "path": "supabase/migrations/20260616230321_070ba0cd-79c3-4a1d-8744-b89e4971701a.sql",
+    "sha256": "8832111f84dff56eff149fc3c5802ed5e97b024e7699fce9929091c5797b419f"
+  },
+  {
+    "path": "supabase/migrations/20260616230356_87c38147-a398-4efe-8569-9295e9bcc175.sql",
+    "sha256": "a65a5f358d94c3b59acfdba1f8246546fc63ea3258a9102b3bb4eec7dcbc4543"
+  },
+  {
+    "path": "supabase/migrations/20260617053509_2211fc58-6a2f-4003-b998-630e25e4d653.sql",
+    "sha256": "7f0fea7ab18c4138984deccb9e3fc1c431729575f06919222b757c72da400ff0"
+  },
+  {
+    "path": "supabase/migrations/20260617061132_88b7629b-0ce0-446d-9d64-e1062c7a0741.sql",
+    "sha256": "cce3c67e8aab43fc3e77e10aebc536f34644e082e50f7fadece8a71bcfc11d77"
+  },
+  {
+    "path": "supabase/migrations/20260617062520_41430ffa-9220-48d6-a409-d7f18f9aec44.sql",
+    "sha256": "84728cd51053b78d292e97c98833c4035e51dcb43e7f0ece8bcd0c1bea77924d"
+  },
+  {
+    "path": "supabase/migrations/20260617064348_cf695d17-de35-4c4a-92ab-52c0efe9f166.sql",
+    "sha256": "5e2355fb20702918d2fff113be4498985ea31527bde3fa3d643669e055e4e1e7"
+  },
+  {
+    "path": "supabase/migrations/20260618060912_0b790ddd-a463-4ca9-b9d3-d302274a0c84.sql",
+    "sha256": "d02a55084d9723d6d69a67196eec06aa7fe9e70608b3f04adb0063e21abf006f"
+  },
+  {
+    "path": "supabase/migrations/20260618061655_35a8d948-b934-47a2-9b19-6f943dac7b8a.sql",
+    "sha256": "f4cb81e68276470290dbb7d5dddb4e0332e87a33aadc55e304cd713b75e1e40c"
+  },
+  {
+    "path": "supabase/migrations/20260618062930_b5b4f363-b322-4195-9ed9-c1e006d927d6.sql",
+    "sha256": "a1b3a6a4c155ce48a021349093b6ffcf85ff76626874e0fd00f258283d116119"
+  },
+  {
+    "path": "supabase/migrations/20260618064555_ef0e771f-df0d-46ff-9a26-35fa948a29f7.sql",
+    "sha256": "7d7638c3045828a9acd16743b9ba138987168c017898d5fb5b97fc45f9078b53"
+  },
+  {
+    "path": "supabase/migrations/20260618065130_fed192ab-2836-4831-90de-99920e41d4c4.sql",
+    "sha256": "996be9d02226edbd2f26e490dcc9d3cde042f05dd8c1906d99e869d32ffdc6d0"
+  },
+  {
+    "path": "supabase/migrations/20260618065149_1e13012b-bece-4695-a14d-24eb012e669c.sql",
+    "sha256": "8fec3e488f0cf2efa5214af878e7d0adf780de92d3fa83761e5cab9d5d1d2e2c"
+  },
+  {
+    "path": "supabase/migrations/20260618070414_b587b246-ac38-4657-9216-1d0217b62cd6.sql",
+    "sha256": "c214c6095ee53b864dc2c949b374e34a867e40cff5a7c63c7c0b0c6c6a160cb9"
+  },
+  {
+    "path": "supabase/migrations/20260618072134_email_infra.sql",
+    "sha256": "634b7d6e73695c3c87a8e1bca8e9dfd2842d9f7aec2e4c897894893b53367854"
+  },
+  {
+    "path": "supabase/migrations/20260618074846_c982beb6-3768-4fe7-98f5-31c036f84ba0.sql",
+    "sha256": "07a7a5700a4c70c39eea8e80c542933098a7469386cfeb920f0394f2496c4b55"
+  },
+  {
+    "path": "supabase/migrations/20260618075110_034880a0-4c76-48b4-b2de-914086ce11c2.sql",
+    "sha256": "5fecd6f0495405be3061e5aeff593c5c8a9d68cde8d66f2ba0bf43061c69b190"
+  },
+  {
+    "path": "supabase/migrations/20260618080335_b3f50875-efef-45d1-9525-1748c3281a30.sql",
+    "sha256": "ccab8dd41d1e4f51cf1199c00392d9d01437151658cf12def6b2afb775f8505d"
+  },
+  {
+    "path": "supabase/migrations/20260618081406_69f97ee6-11df-4801-8af3-b4ac0d50e9f9.sql",
+    "sha256": "34b075d89d8af8b8ff6eda7b11ed187f06c29f189084ba2bad87a51f1ee92a5c"
+  },
+  {
+    "path": "supabase/migrations/20260619193714_e5b150eb-f742-48bd-beb8-7fc808b042c2.sql",
+    "sha256": "77817ba5ee18c2e8a14db8b3f5ada2fa6ce3c3942bbdca9a4d4d53060cadeb0a"
+  },
+  {
+    "path": "supabase/migrations/20260619200506_f6b07f63-1778-4621-aee4-b858e8483c5b.sql",
+    "sha256": "c23e0ff7b99a4c245151233cd4c131977189c88cd81384518aad6e0be84e2ed1"
+  },
+  {
+    "path": "supabase/migrations/20260619211210_cf02ca9f-d0c9-4ad5-8072-db4b1b7664a0.sql",
+    "sha256": "0035ba61d066a1d71b650b17669403066e249043ffc64c9311b82b70f40455dc"
+  },
+  {
+    "path": "supabase/migrations/20260619214023_a3f8f986-2e00-49aa-b549-d94c594947b4.sql",
+    "sha256": "81b5b14f54b70a0cc88eefe48430b016177b4c1fda9a3a44c558a3028ef0bc1d"
+  },
+  {
+    "path": "supabase/migrations/20260619214409_e69884b0-f145-433a-b69f-3b9053f6f017.sql",
+    "sha256": "317a84d544fcedf45a32fe68ef5bf3a27aa485c3f44ea2890d636df8ef6b9d00"
+  },
+  {
+    "path": "supabase/migrations/20260619220258_ab3e5aed-c874-4c22-9d01-e029c9219b81.sql",
+    "sha256": "4576bb872e625a07584779ddff6dce6a55cfbf2c2dfc3771050189fa1aa99d39"
+  },
+  {
+    "path": "supabase/migrations/20260619222054_c06f4e42-c09d-4073-a4f8-1fbf2af72ea8.sql",
+    "sha256": "8ef94e175ee78d2c67290ae583962b4f1d172beaad75718818924bfc820f8268"
+  },
+  {
+    "path": "supabase/migrations/20260619231317_336a2d95-e580-484a-b279-6605266d82a6.sql",
+    "sha256": "62c13456d5f78d367caeb9e99f929cf02577f7dc374b4b965bf2b77289831fc6"
+  },
+  {
+    "path": "supabase/migrations/20260619232411_bf702f20-06c3-4981-b0d5-ec99e7b42bb5.sql",
+    "sha256": "fe3109714c2814d85d4ae5208bc9febba1cce5fb01b05da71714cd9c1fd3587b"
+  },
+  {
+    "path": "supabase/migrations/20260619235527_3738e512-c304-48b9-976d-b1703c6639e7.sql",
+    "sha256": "e4491cd94c1b4bb2811f25783f39ea64e459e9e07ab6bcd0a656fc8372e906e2"
+  },
+  {
+    "path": "supabase/migrations/20260619235544_83c1d94a-d55c-4a0c-8a88-7c319976c5b5.sql",
+    "sha256": "6a2ad31543d70e13ce052f39c33502c5d40455fb1614b66dda0268e360c29f86"
+  },
+  {
+    "path": "supabase/migrations/20260620000727_8938ec52-96ba-47aa-aada-63c4a9cc726e.sql",
+    "sha256": "cedb9eb303b94056a2d52d67cd66630d4b6d3c5f14f9b54f24a408bcb34d0255"
+  },
+  {
+    "path": "supabase/migrations/20260620020528_2c40a34c-b872-4b02-a866-14f2b7859e0d.sql",
+    "sha256": "70e991f3d54f1e43a3c25140d384105f62a92b8567c7c9d962f55938380c8782"
+  },
+  {
+    "path": "supabase/migrations/20260620021501_60f7b064-8915-4b11-af5a-463bc2439f71.sql",
+    "sha256": "214b4d0e9f2863f20371e02d0c38d25cc5df3b00bcb31ff64310df42abfea51d"
+  },
+  {
+    "path": "supabase/migrations/20260620021809_feba8d46-e5dd-4367-bb77-8418b8bcfca6.sql",
+    "sha256": "e66dd1407855b95e44fc13a6ab42f501ecbfed323ba860dd905964a5071609b2"
+  },
+  {
+    "path": "supabase/migrations/20260620022801_ac37b2cc-8324-4221-bc77-9c3de0781332.sql",
+    "sha256": "bad8e5bf7e4356a86c6de33792b1b52c2ee328ece1f11c1e02c9ccd98a951e9a"
+  },
+  {
+    "path": "supabase/migrations/20260620023203_f6777e8a-57b5-43e9-a7d3-00eadeb93ab2.sql",
+    "sha256": "cb2f21611175a12219a9a4f735aa74d78d69a4dfe23f097eb3a7c2bf47a7ac5f"
+  },
+  {
+    "path": "supabase/migrations/20260620023232_646091e7-ea52-488b-bca4-049a4c9a933d.sql",
+    "sha256": "18b1d0a2f9b73cf824b7ea9859fd801fc0b0d326bd1c80372f5768c6908c0a46"
+  },
+  {
+    "path": "supabase/migrations/20260620025004_50ba468d-cb4c-444c-9aec-1a686d933fab.sql",
+    "sha256": "b5601ff591ff8d02e877b022492a87ab24997b18ee44d096f837dbee48c47c3b"
+  },
+  {
+    "path": "supabase/migrations/20260620025918_9928f159-1fd0-44ab-89cf-e728a0db432c.sql",
+    "sha256": "75a0d65f4db5b3c70ef664421736c92152b1283a9472b26856a7c00ebf9c24e4"
+  },
+  {
+    "path": "supabase/migrations/20260620025951_bdf3bb15-0baa-42ca-bafd-e4baed1d191e.sql",
+    "sha256": "48e5480c96498100ccbd7f93856a1a6d71ba594f12a3bd4ad7bbbdd7e0bcc76b"
+  },
+  {
+    "path": "supabase/migrations/20260620033945_78e4a357-e650-4602-956b-414e86ae8e4a.sql",
+    "sha256": "9660ceef2f1304c441b28d133d6a3aff2f0c112761a16b188ac1ed29728c5c99"
+  },
+  {
+    "path": "supabase/migrations/20260620061030_154f6f40-ab2a-4f32-bb43-0ed0c35ba5d8.sql",
+    "sha256": "28d0ee86bfaef6a6e3a805607cab86f5dc6e9caaaa9a75b1330a85e864a3d8da"
+  },
+  {
+    "path": "supabase/migrations/20260620062624_43ab55cc-65cf-4afd-be0b-fbe7d51fbb3d.sql",
+    "sha256": "44fe578dae53a7455c331483e26f4d151514fdaae6597b94635d9349d89f0027"
+  },
+  {
+    "path": "supabase/migrations/20260620065617_6b8bb502-6ac8-4aff-8004-2a8033a07af9.sql",
+    "sha256": "ef1ed145293664fece94eed2c53fa43d0acff6fdba9264739c9d136557e6052b"
+  },
+  {
+    "path": "supabase/migrations/20260620065637_1dd01dab-2777-47d8-97f9-f85518ab4c23.sql",
+    "sha256": "1d5185db35e1a34d0a28548a583c83b6b427d07123e2cb215b41cd2ee4eb1304"
+  },
+  {
+    "path": "supabase/migrations/20260620065718_b4ab925b-29bb-4da5-b91b-59378452b05c.sql",
+    "sha256": "aaad03bc8a8320aa634d573eb58d0ff70930ac36ceb4eb6058581c8d487d3038"
+  },
+  {
+    "path": "supabase/migrations/20260620065809_290d80a1-0708-4eeb-a05b-07e0284eb7da.sql",
+    "sha256": "a888b65dc52641d43bf9e310d9c65c308625b4ff09847a8aef7529393dbbbd54"
+  },
+  {
+    "path": "supabase/migrations/20260620071221_8cb8dd25-7fb3-41a7-bad1-a3ff4586ce0b.sql",
+    "sha256": "0aae654e338aecc946127f63f5d8418d6d0af09fa3c57fd6eee902d8094b8c2c"
+  },
+  {
+    "path": "supabase/migrations/20260620072456_c72036ce-74eb-4d36-bfe1-87026bb12c7c.sql",
+    "sha256": "83b8523e2957e6cb7d33553f15ccd9aeaed83ca76e0243295b191a1ac10ba190"
+  },
+  {
+    "path": "supabase/migrations/20260620074407_ca80da9e-9d44-4fa9-8890-433b8cc6bdcd.sql",
+    "sha256": "7c90eca4c2649ab107cc876e40684edef3ce14706e14f1055851fdcdc1bd18b7"
+  },
+  {
+    "path": "supabase/migrations/20260620074859_cc0693fa-03f7-46b2-b76c-da8f31be7aa5.sql",
+    "sha256": "d94ac11ab4ff8de8e829d82888e8249dc88f61e813cb8a18a2f433c4d85bc59e"
+  },
+  {
+    "path": "supabase/migrations/20260620074913_ad672fd9-2ab8-412a-ab58-dba4c809fe32.sql",
+    "sha256": "889515a4d3471d03d52244c7fcb37fa9d7a172cdea56c261ee0a9249e8cf3257"
+  },
+  {
+    "path": "supabase/migrations/20260620075126_214639f9-a6dd-4676-bff7-c6b8d03f8a84.sql",
+    "sha256": "a5000bdff16dcfd58ef1c4e5c21392fddb75e7bd7c451c3eb44dfc760d5f0fb6"
+  },
+  {
+    "path": "supabase/migrations/20260620075706_d3e077f6-2e76-409f-9fa3-349ad65897c0.sql",
+    "sha256": "bb4d75b6d6be19ec3ebe9070605d69684211b9197a146fd050d30e47cb49975e"
+  },
+  {
+    "path": "supabase/migrations/20260620080340_f4881969-c52e-40fb-bb74-d0bff4013f64.sql",
+    "sha256": "e1c33c5ec7f801c9fd59147efaaec65086d2fb44a1f386f2e0470cebd71bb4b1"
+  },
+  {
+    "path": "supabase/migrations/20260620081558_310c37f0-8b97-4632-b73d-2503734286ea.sql",
+    "sha256": "bf72e01126e9babe7b8c2b522c4fc8819c1e5ebf0972bebc2b4d9ee53f7e958a"
+  },
+  {
+    "path": "supabase/migrations/20260620084156_d6c2bd7a-bbf0-4601-99ed-b081cfd8edfd.sql",
+    "sha256": "025412877658d843114e253fdd860e7669c5af4e0c7f7479fcaaaa0a0631721f"
+  },
+  {
+    "path": "supabase/migrations/20260620090620_533f7680-1cbf-4f90-a191-ccf644744b61.sql",
+    "sha256": "7713bede5a7b105f406a8c900a992226c8ee27c754cb6576b837913d02ab471b"
+  },
+  {
+    "path": "supabase/migrations/20260620100119_adfe2e9d-e068-4761-8079-d8318ff3ee9d.sql",
+    "sha256": "db5d4ecfc73ec8d67f43dbf2cd61e43393c6b27858d729bbc1283aa6e1e03982"
+  },
+  {
+    "path": "supabase/migrations/20260620100941_4da9ae27-605b-487c-9b44-0b1879a6f774.sql",
+    "sha256": "4ccf03e525b3b63ee07cfc61b61d153e5da6dff5043b85d141a5b35b8e7e495f"
+  },
+  {
+    "path": "supabase/migrations/20260620101143_4f4e6073-dc31-4375-b03c-ce2c8dd0c4a0.sql",
+    "sha256": "162241a0bd7172adad54f8ec82c9c2790277a68c11e141191f60f46d18dc8626"
+  },
+  {
+    "path": "supabase/migrations/20260620102620_0e8151b8-cc49-4bb3-ba57-746584a78fed.sql",
+    "sha256": "56ba18760553b3546306fddc5ae212dbe8ae6b0870531c335b686b78e2866341"
+  },
+  {
+    "path": "supabase/migrations/20260620102720_36a2bad3-f3fb-432e-8257-ce7fa17afc99.sql",
+    "sha256": "c16338059bcc490eee31657695cc6c51c5f09471f5c1d4281eb453593e58d3c0"
+  },
+  {
+    "path": "supabase/migrations/20260620102840_955dae4b-45d1-47e4-a2f8-200922f013f1.sql",
+    "sha256": "8f4f1b9bfd3d8c056a6ebdaa18401db692b0992d628ada05346429da51c135d2"
+  },
+  {
+    "path": "supabase/migrations/20260620104758_96b0cdcd-5d04-4771-91d4-e2a9de742862.sql",
+    "sha256": "c40d65658e36db7da118e895d76afb348a607d5108017739ea9e561df1168a9d"
+  },
+  {
+    "path": "supabase/migrations/20260620104834_66bd1924-6c9c-4531-a0c3-3ed887b90a1e.sql",
+    "sha256": "8156544c0d6ff40894f98df3114a295948a74b44491778f0f6ffc5a3f09d498e"
+  },
+  {
+    "path": "supabase/migrations/20260620105047_5d568878-63ba-46cb-a199-474ae38bda8d.sql",
+    "sha256": "e6f5e29112404ef47ba07ec2cf8f2e1c2eb4661fd843578429430bc80994e488"
+  },
+  {
+    "path": "supabase/migrations/20260620105119_7ed7729c-5fad-4acc-8a96-06e2004cb277.sql",
+    "sha256": "c392b2ba4ba5ee0387aa6df62e15fa2a8c3e2bc2e104d29cd44eef60d109c7cf"
+  },
+  {
+    "path": "supabase/migrations/20260620110630_ac68655f-a5d1-4a0c-bdf8-311fbd4fc8e8.sql",
+    "sha256": "deff64587bb1147264ac386df5c4d1149012e1f22e286f1be2259bafcaa20830"
+  },
+  {
+    "path": "supabase/migrations/20260620112548_92b74a47-15c4-457a-af6f-cc71a6ff592e.sql",
+    "sha256": "f6e577bd45bd340cf651aba7709b8c4f4e9b14bac0de05b5503d839e11390fd2"
+  },
+  {
+    "path": "supabase/migrations/20260620114845_2e167737-1995-4d85-9ecc-b6b1f6ddf37e.sql",
+    "sha256": "c730d9ff584c0b6b8a746a41e1cb4736eb740fe2808abe13b8959c5a8369a335"
+  },
+  {
+    "path": "supabase/migrations/20260620115345_5b58bb05-2b4f-4d0d-a02c-f4bb8dad64d4.sql",
+    "sha256": "426740e4471762abe4b9bb5fa27fba9cedabf7ee0ad19c437475448fd5452938"
+  },
+  {
+    "path": "supabase/migrations/20260620120114_a54dd91a-3f14-4219-a2ca-4a5966177d84.sql",
+    "sha256": "cf826783a7df94430e514dc23d528e6285f5bc0ff593db040ff4a84257a82391"
+  },
+  {
+    "path": "supabase/migrations/20260620121544_035735b0-2251-42bb-96f9-85a120bb71a2.sql",
+    "sha256": "4161843b89263ef2d32ba330bd7540e0270e1b9d8b9df49eeaf87968d6d870fd"
+  },
+  {
+    "path": "supabase/migrations/20260620122144_19d0522b-4dcf-46ca-848a-f398c6a94fc7.sql",
+    "sha256": "608441424d321d12292dfbd0836103a58669fff02491cbbe1c72aefc97b82021"
+  },
+  {
+    "path": "supabase/migrations/20260620122720_3c8aa94a-b13a-4a2e-80ff-4ee8c63d955e.sql",
+    "sha256": "fc827f4572e627b0646b40b53686d1b3d7193070c74639d0a8781bc2dcb3dab0"
+  },
+  {
+    "path": "supabase/migrations/20260620123007_eff71849-91da-4689-a039-d35ac60b2d17.sql",
+    "sha256": "451eab7dfe8602177a9c7cdbd212e891f598008aedc1361dcc0ee2ee7fdfff16"
+  },
+  {
+    "path": "supabase/migrations/20260620125818_c3878fe3-f358-400c-a3a2-f504323cf9c0.sql",
+    "sha256": "819a13d42530e7d93d59078df52a39674225d60bc9f238727db25d8392fff5ec"
+  },
+  {
+    "path": "supabase/migrations/20260620125839_af2976be-4276-472a-82f4-f06e5cb6eec1.sql",
+    "sha256": "b5c5a14c9613adfa37b99648431ad1b5f08284a0058fe0628345de15b338d59c"
+  },
+  {
+    "path": "supabase/migrations/20260620220056_eb483f0e-3135-423c-aaf5-d46d08dce3ed.sql",
+    "sha256": "3a8551b1e26c527da10e0a0927c4405757b9e5bc3bd72271f92c2c5dcb866246"
+  },
+  {
+    "path": "supabase/migrations/20260620220822_e31cfefc-da51-4f78-af79-b53caa07a086.sql",
+    "sha256": "3fe0d450ddeabff431eee064472062078f1db7ae53fc6b552cf0fbd07f02164a"
+  },
+  {
+    "path": "supabase/migrations/20260620221443_0ebe2ea0-0018-4bf9-8f05-37dfeac7b3ae.sql",
+    "sha256": "718eb75a1adc282914f8ead4ed5264aea7b2d5e64a6434ce77867abc9e13355b"
+  },
+  {
+    "path": "supabase/migrations/20260620221531_90b5d595-c743-4cbd-a296-3a78f23ac5b8.sql",
+    "sha256": "6ade8e13ce279353b911208cdde417bb8b6eefb0b1f51ae12fd7eadeac6b3e27"
+  },
+  {
+    "path": "supabase/migrations/20260620223657_1875179a-a3d7-4bc6-b4ab-65d406d4449d.sql",
+    "sha256": "6ef2187d37ff2b31ca46b4ba08aef2d292c5cfa59cb73f55ff3972d190d680e5"
+  },
+  {
+    "path": "supabase/migrations/20260620224311_93ea3822-817f-465c-be46-8a398d56ace9.sql",
+    "sha256": "a4bd41b0357eeb948339d88445c66de7f77b4ac6415481255b2eebfacbcb995a"
+  },
+  {
+    "path": "supabase/migrations/20260620225041_0d130ae3-52ac-4032-b605-63ec651e1e99.sql",
+    "sha256": "081beb05125ee320e32efccada6ba8de972d619374ec409460bdec14b7cbc07a"
+  },
+  {
+    "path": "supabase/migrations/20260620225737_282333f4-21f0-40e3-ad1a-ccecfbea7df2.sql",
+    "sha256": "db13c308c132969259dba7f1670e85cde755f5d846c247ad3d55c757013b3de9"
+  },
+  {
+    "path": "supabase/migrations/20260620230618_b2f74c7b-0af8-415f-a377-b2132b0290bf.sql",
+    "sha256": "ccb3e0718cd3e4b17ac21532b5398f1acf62e1f24455facd092a2595ec4bb10d"
+  },
+  {
+    "path": "supabase/migrations/20260620233635_f1f901c0-e115-44e5-a539-a5caa56d2ef7.sql",
+    "sha256": "e88d13068bbd2a7dacc7251935cf02b5a6a09b1a3be94203bfe69527fb89ad57"
+  },
+  {
+    "path": "supabase/migrations/20260622154550_0b3f891d-bce0-41b3-b001-0c775d12a1ae.sql",
+    "sha256": "b938ed18cf805988e1dcf6655da280bdc4ed57dc51fb6e744bcf5a31233dca7f"
+  },
+  {
+    "path": "supabase/migrations/20260622165248_0c0f2b2d-f3c6-41f9-8a18-54a3643b7458.sql",
+    "sha256": "435913864126f296ad0248460bd7306924e5ece8dded5ec0ad91628de3c5084d"
+  },
+  {
+    "path": "supabase/migrations/20260622180417_6b813338-ba7d-4664-8be6-2824f7cf802f.sql",
+    "sha256": "a9ed7b4f5e6aee750a33f69c07dae7bbcfb80f3b7dc60721dea64db85f66f811"
+  },
+  {
+    "path": "supabase/migrations/20260622183732_85cf1563-6597-475e-ad13-4b26258b7d82.sql",
+    "sha256": "906e52e63feffc1b41bead8d6f9974ea04da9035ef8ad2f1c5e8083a78506c47"
+  },
+  {
+    "path": "supabase/migrations/20260622185746_c34effe1-d42d-4683-bc28-35f52d8b19b6.sql",
+    "sha256": "17630e94fe26e102053531aed1acd0c6571c7893e68b1d0ec065baf66b9d942b"
+  },
+  {
+    "path": "supabase/migrations/20260622185829_7c190bf6-6586-4473-8db7-409f9ff607e4.sql",
+    "sha256": "16ad9d5f269c6c5517fb36c0ff087e41cd7b879c2f81c1932b598ebfd421a254"
+  },
+  {
+    "path": "supabase/migrations/20260622190533_8a6e8a92-767a-4ad1-a113-cd830c6ad9d4.sql",
+    "sha256": "f25b85043e7da1ac0ed33f93050d392585635031e0595546b7b49c2a2c9f79e1"
+  },
+  {
+    "path": "supabase/migrations/20260622192829_2100070c-73f0-4b70-9c89-95b78dfbbbba.sql",
+    "sha256": "fd7944f0083d25d81310d95b9e595e80ef2db81d6844ba21cd44af872226ae13"
+  },
+  {
+    "path": "supabase/migrations/20260622195912_7d1c33d3-a088-4090-81b7-62c5d95b35e6.sql",
+    "sha256": "cf40d7fd76bd155e702228e6ac4ed5ee5bffefa0b4b1e2cd41afd5915e5ec04e"
+  },
+  {
+    "path": "supabase/migrations/20260622220616_912844b6-0e4e-4f63-894a-d2701d3bfa4a.sql",
+    "sha256": "b72ef30e947d3cf488726cfaad160f8c3a749bcc4f7b5c48f82c38b222415999"
+  },
+  {
+    "path": "supabase/migrations/20260622230645_ab8f4534-4b6d-416c-9e72-7f5b4690c7dc.sql",
+    "sha256": "201edba89ffbe3d2aab85cf1bb5ff4f88b8ec67ce294cc0276fc6880b8caf703"
+  },
+  {
+    "path": "supabase/migrations/20260623000929_07e5e0b8-983f-4d04-8f9a-a6590dbed9ce.sql",
+    "sha256": "cd3d50f00c488a4e0850a70cba218650782a0dee96681f564bacc612d356b8cc"
+  },
+  {
+    "path": "supabase/migrations/20260623005836_ac3b935c-ac40-4e16-9dd9-6cd7d02d5ba1.sql",
+    "sha256": "a3e55974d7d25063408360bd4b10584a819985e7864d754d78b3c2c18d6e9131"
+  },
+  {
+    "path": "supabase/migrations/20260623012541_63e64582-fcb2-411d-9458-ca2cd97450e4.sql",
+    "sha256": "6fa9b8c2c7c6b1f0da471428bdfb710f0c4f3a5e1489e22aa36f674b70b84cbf"
+  },
+  {
+    "path": "supabase/migrations/20260623050724_6f66aa04-f684-4939-96b4-9acfe239d2b5.sql",
+    "sha256": "d45303ea2204a3cc3e4aff94ef9edbf78040afc590edfec0cc8d5e74b4079254"
+  },
+  {
+    "path": "supabase/migrations/20260623061047_c9b1bb9a-f7fa-42be-8d3b-0a5be403b511.sql",
+    "sha256": "a1af7688d911337a15ba0a894026e4e01c248b9ad6ada17352349c7977fd53d4"
+  },
+  {
+    "path": "supabase/migrations/20260623072509_febfaf5e-0d78-436e-b461-5ccb48fda712.sql",
+    "sha256": "3a051188a32b3a5601f62f1e5543d86120ebcb04a65c5042d10e9c95973d3f0a"
+  },
+  {
+    "path": "supabase/migrations/20260623083030_9e509e79-1f41-4ccb-8cb2-c6cf8c0ed914.sql",
+    "sha256": "42122121d1d0021fd248a1b112e2ca93554e0604aeb9921bdfe7db828a90eb19"
+  },
+  {
+    "path": "supabase/migrations/20260623083916_0e09ad56-b5fb-44f2-800d-a459a041e32b.sql",
+    "sha256": "91888b9d9cf309cafc9f01e6691670543a179445bd9679410eca67491fe93ea4"
+  },
+  {
+    "path": "supabase/migrations/20260623085338_3a849593-35a6-4f60-a52f-d083412683ba.sql",
+    "sha256": "a2e8fd617404d5d44ad5315adba19e949c4dee71b77d601d6f0eac21fb224df9"
+  },
+  {
+    "path": "supabase/migrations/20260623092607_a5694667-474f-45a9-a4d4-22d86c9bca0c.sql",
+    "sha256": "953379a8a0c90a6efb5473844331050cd44cfebecda3d8f6c76277b21527aebb"
+  },
+  {
+    "path": "supabase/migrations/20260623103527_0479bcfe-9107-4d04-b0bf-76812727bd39.sql",
+    "sha256": "0dcec1df7c29c89f823be3ab53c8b6664e9f2da2331427d4141a49e3fc4ce18f"
+  },
+  {
+    "path": "supabase/migrations/20260623111259_b410786c-0989-4108-8063-bd99dfb54fc9.sql",
+    "sha256": "06acb51275545751b807fa0f94c2bd9926c0cc71506b768544e98e050beeb8dd"
+  },
+  {
+    "path": "supabase/migrations/20260625064852_49fbfbd8-10b8-4184-a16c-0a369602e9c6.sql",
+    "sha256": "911407694a590ff03e09f16e9f2345297fc6d9f73b650f270ac50206de042824"
+  },
+  {
+    "path": "supabase/migrations/20260625074707_4fd5cc6c-fd01-4ee3-b4ca-d221e536ad22.sql",
+    "sha256": "914c3047ce2f3f3e7b02a38186d1eeb949d9a9b1b9bb9e9a58df4b864f3ff20b"
+  },
+  {
+    "path": "supabase/migrations/20260625085149_4db313b1-708a-44fa-b8fa-228a4e7f3fb9.sql",
+    "sha256": "b7c7cf236e78fdd32ab4fae131223904ac0515c7bb45c530349c73327d7c959e"
+  },
+  {
+    "path": "supabase/migrations/20260625085902_3d226060-0893-47aa-9e56-a7b650fb2194.sql",
+    "sha256": "c1d43572cb9f02ba80b08ad221a21894c829fed0032cfbc45e4bc16d67957208"
+  },
+  {
+    "path": "supabase/migrations/20260625090657_55eab9b3-0c7e-4498-9f4e-4455e0c42ef5.sql",
+    "sha256": "755782105a1207cd5f8b3f996f225b3948c02cd378a8738bc01163f5098b8839"
+  },
+  {
+    "path": "supabase/migrations/20260625092540_db8557ea-ae26-4478-99bb-100cd362b828.sql",
+    "sha256": "787c12ebc71d805b3d416221303fcd6fb78a997fc6eddca0a408416e93b7e391"
+  },
+  {
+    "path": "supabase/migrations/20260627203828_9c98047c-8fd9-4957-8b8a-8f88d761274e.sql",
+    "sha256": "5323baa85f5692494e7d5e92eb7c40128f8b280ade8fa5a04bfbdc4e856cc4ce"
+  },
+  {
+    "path": "supabase/migrations/20260627204129_df8077d1-391e-451e-b3af-d6b7f47b1627.sql",
+    "sha256": "1a357a34d0e19a78c82d8ef91c20fc8ff66638d52f1e9ad203c6dc90720aa1b7"
+  },
+  {
+    "path": "supabase/migrations/20260627212051_4b0b8880-10f0-4704-9864-14fa8a917640.sql",
+    "sha256": "4dcaf3187c4af6a91e3eb0db6a76200031e02cea1bd83891e2babc8acc57f0f0"
+  },
+  {
+    "path": "supabase/migrations/20260627215011_fbd2624d-1116-400b-861d-c0033b439e33.sql",
+    "sha256": "7babbc81fb326eb90a8c44f472991c6a8d41cba18fa264fa3a2cd630011fa7b8"
+  },
+  {
+    "path": "supabase/migrations/20260627221139_4a408a27-b343-41df-81a6-15b395aeea09.sql",
+    "sha256": "dbb611b6fa9bb9fda96a8c40d1e976fc81e37e40164476aef9d6b5b242f61d1d"
+  },
+  {
+    "path": "supabase/migrations/20260628051750_a47e9a89-dfe7-42cf-a70e-bf0115947bca.sql",
+    "sha256": "f57f37cdca303a9ce31a607d0d37a54c58d247fa5518c4ba9b6533616fc761cd"
+  },
+  {
+    "path": "supabase/migrations/20260628054933_3f450b7f-bf5c-436e-9931-f0659db820a1.sql",
+    "sha256": "09a3825cbba40fe51bcb26f5615d7bd8715a8771a86c9d26b477a80e5a5fea31"
+  },
+  {
+    "path": "supabase/migrations/20260714133128_c8222e28-8ba4-4c67-ab5f-9c2415d56c13.sql",
+    "sha256": "0535851d71f8311f88090ab8271bc7bee355f928231b29fbb27fbf1bdec1a415"
+  },
+  {
+    "path": "supabase/migrations/20260714141457_faf1e8d7-3144-4772-9fdd-830e691008f8.sql",
+    "sha256": "357b66a84610058ee7297a0a5747ca1fae39083265735dcf4cf4339fe0177ba3"
+  },
+  {
+    "path": "supabase/migrations/20260714142838_8d1d5dec-4bc8-4ee7-a64d-2d52fea463ba.sql",
+    "sha256": "64b7b829449eb6a3ca58d5ea31f09821d4bbabcef24c7f43a591005ab5f09a10"
+  },
+  {
+    "path": "supabase/migrations/20260714142922_eaadc367-da84-4957-aeb3-3599bb4d1e42.sql",
+    "sha256": "0d5677f8a9db0bfc9462ac69455ad9c9c453a042934c0cc237a2a162634b286f"
+  },
+  {
+    "path": "supabase/migrations/20260714144749_8af1a255-f4e2-4be3-932c-c9bde23d3e4a.sql",
+    "sha256": "702a243d439fd52dff68fe1d1be189ecb9c5080d1df99ab26f061ab0c593f2c8"
+  },
+  {
+    "path": "supabase/migrations/20260714150941_ca21b746-19c7-4c05-8360-447317aff822.sql",
+    "sha256": "5181104ba3949f630539a9c21c2fc74ba3e0014568c34469a1f258a424cdaa73"
+  },
+  {
+    "path": "supabase/migrations/20260714160515_2434eea9-a8e0-42c4-b121-39abb650ceb6.sql",
+    "sha256": "356d501d0f5c5428128ca345baf883dd84f74b12818a0f815549ad56ea0c90b5"
+  },
+  {
+    "path": "supabase/migrations/20260714165932_89589d0d-7356-4bae-bd47-9f6814ac9b87.sql",
+    "sha256": "bf651c9a99b6c5dc488254bbab2a338bbabb35e06d43df6cb9533d98f65a0a35"
+  },
+  {
+    "path": "supabase/migrations/20260714195728_6c09917b-6d53-4879-9263-72d70963809a.sql",
+    "sha256": "c3a122668f4b60ba36248b7dda7b0ddb22fed3bdcdecd2c89283be896b0f11ab"
+  },
+  {
+    "path": "supabase/migrations/20260714200838_89c1c25a-4ce3-49d8-b68a-1d68bf559145.sql",
+    "sha256": "fc5529ca8673d0bdd5637bc7213d9271c0b314d4a4b9ee8ee686ad64fca53306"
+  },
+  {
+    "path": "supabase/migrations/20260714210000_restore_hc_doctor_practices_baseline.sql",
+    "sha256": "d99bb04ed866290426aede89ec8040bae3ada0f522025c54afbe743e5f19779c"
+  },
+  {
+    "path": "supabase/migrations/20260714211000_restore_hc_doctor_join_submissions_baseline.sql",
+    "sha256": "ecde3de7e67e9d677c546e031ff1d57b015868f7e18e1f55eac5c197f2711370"
+  },
+  {
+    "path": "supabase/migrations/20260714214534_d540dd5a-a4f6-4010-a2b0-ed6ba6a04d85.sql",
+    "sha256": "6d0b8790e1d6a72b6740905f30d28905e5235827034660940dbcee98dcc566df"
+  },
+  {
+    "path": "supabase/migrations/20260715000929_688ae5f9-47ab-4c67-b70a-29e7c19071ec.sql",
+    "sha256": "0fd9c024857dfc1b7145b10588ca8ca129cdb07ec06fec116706b5397db26f65"
+  },
+  {
+    "path": "supabase/migrations/20260717065544_acdff13b-063c-4f98-8288-fb0a7798aa46.sql",
+    "sha256": "6d620493a4f9369fa7fd0e2537e77fb6d3db1a903123cf48e5de53f22c7f97f6"
+  },
+  {
+    "path": "supabase/migrations/20260717081209_171c8ca7-764a-4ae1-aa53-137543f7c545.sql",
+    "sha256": "437bb8204d84ff8525b51497162d555e830bf83b4eea16cf8bfc1c941d3dd357"
+  },
+  {
+    "path": "supabase/migrations/20260717095141_dec50700-63e2-4322-8d3d-a614c6a38023.sql",
+    "sha256": "1f5760586f4f57bf131f8f1cfed86c4e494a8d84d6a00aaba60fa5dc8a7870ce"
+  },
+  {
+    "path": "supabase/migrations/20260717103933_b2918514-f31e-4344-b6e8-f830c9e5fa55.sql",
+    "sha256": "602c37ea2735af405521ff0aeba9aebccca7b5726fb352de8dfe105ab10de218"
+  },
+  {
+    "path": "supabase/migrations/20260717104726_fb5e8b11-58fc-4b56-8537-8c428df80f45.sql",
+    "sha256": "9eac602e90114b218cece189a11d81d38b49b7bf86d2f214f94332a61eac82c3"
+  },
+  {
+    "path": "supabase/migrations/20260717105518_ae12dfe9-b66d-457a-912d-cd0174cb4aff.sql",
+    "sha256": "71a0cbf3e862507308118b00f00f1cce6917ceaa9e79ec29f67ac37c6ebd4926"
+  },
+  {
+    "path": "supabase/migrations/20260717110258_c84ac1fd-2a27-422d-89e7-ae00e6054867.sql",
+    "sha256": "1464e22c50aaf7430bcebf43b7b15d0f949ea133c0ecc5a98e826b71713fad0f"
+  },
+  {
+    "path": "supabase/migrations/20260717110717_7fe2a0b8-4214-4140-9b16-d5e81d88bbe3.sql",
+    "sha256": "3bef1873ea3ebdc2779c779a38f0f9a36b1111bda4669c6063beb51d734da7a5"
+  },
+  {
+    "path": "supabase/migrations/20260717110806_6d6a5f45-3477-4cda-ada6-b85170503e58.sql",
+    "sha256": "17309ea6d7e8436c91d27a7e89cf2ef14763f50c534f497ce676cf268dd89ecc"
+  },
+  {
+    "path": "supabase/migrations/20260717111746_82ddd50b-63f1-4901-8744-eb86bdd3e546.sql",
+    "sha256": "528299718409347c5d06fefd1c5a127437e0a213ede9d17c51a862637d606794"
+  },
+  {
+    "path": "supabase/migrations/20260717112207_5cf34e3f-3c76-43ef-9633-7dd98e4487f6.sql",
+    "sha256": "588449650770ef11d94336d4b7ecc263ce3daf58db9e247a5e9c97f3f673f889"
+  },
+  {
+    "path": "supabase/migrations/20260717112847_2fc9868c-22d7-4c35-92f7-666d27a1cf23.sql",
+    "sha256": "62287e064badbd94984d25c914a1c6a721cf4c9e62496075c7e191407c992f45"
+  },
+  {
+    "path": "supabase/migrations/20260717112934_307ba8e0-cea4-40cf-b37e-377718a0e45c.sql",
+    "sha256": "0c434059d1f863b4ff78425cdadb9aabb9bb872e8d477a17987747de702ce7c4"
+  },
+  {
+    "path": "supabase/migrations/20260717113431_2d13a014-ad0b-454e-9708-cd4e60e996d9.sql",
+    "sha256": "f9c2d589cf07a740da9d03671f58f9b42c912f9dda4d0257fa286489ceddf6bf"
+  },
+  {
+    "path": "supabase/migrations/20260717114000_restore_hc_doctors_directory_columns.sql",
+    "sha256": "27eb9fc49917e1b59c4c22388ea668579ad73ccc69e647cdd34892721f16b13c"
+  },
+  {
+    "path": "supabase/migrations/20260717114147_f6391c9e-f34f-441a-a60f-2115ee3fdaa6.sql",
+    "sha256": "896ea5f285f3ec92006f248d2e6b635493325c58220dbaec039857d42e155731"
+  },
+  {
+    "path": "supabase/migrations/20260717114240_d4ff6228-b577-4767-905a-b649f79ff5e4.sql",
+    "sha256": "6dde5c452d5411c46414419b628cab510a4c15d776785dcf822c1daead1f6bc5"
+  },
+  {
+    "path": "supabase/migrations/20260717114544_1d222f8c-41ac-4bea-a8cd-8e45a6bcb45e.sql",
+    "sha256": "1d386973947e8ed36772e9cd9975b60d519e0cfafaaaca92bcccf5bf9a9db7fa"
+  },
+  {
+    "path": "supabase/migrations/20260717115811_3a146468-7bb9-4a5e-8880-28caf1513f47.sql",
+    "sha256": "dcc33d3edc3bf34a3a22c7456e6def65a6f28f795a0c70ebd58f56b915af9391"
+  },
+  {
+    "path": "supabase/migrations/20260717120027_a09753bc-9aea-4445-9653-d0c94c6b1663.sql",
+    "sha256": "f0bb3204f57bc1a5f0d663a9f3707dbb5b867247c9380cd1b99c25d851ec846c"
+  },
+  {
+    "path": "supabase/migrations/20260717120347_2774df35-0a3b-44a8-891d-61f61c51c310.sql",
+    "sha256": "bf7df1088845720cc29f98ee037d7dcb4763c6d281df82a2c3cfc3a179c826c5"
+  },
+  {
+    "path": "supabase/migrations/20260717122203_7af3ce7b-8695-4bf9-85f5-bbb36bb06fe9.sql",
+    "sha256": "d5406cf1553d410e4792bcc260d2af8f63569364eb73652049d1aee3944740f7"
+  },
+  {
+    "path": "supabase/migrations/20260717130144_c2de12d0-a29c-489d-a0da-c2788cdc62b7.sql",
+    "sha256": "a842e564a8541019d40432cdd0ed4d1eeefb8d6fabae2484bc7faa2a5fdd551a"
+  },
+  {
+    "path": "supabase/migrations/20260718224309_822273ff-201d-40bb-8812-5a2c8be5eefa.sql",
+    "sha256": "1a5d26f8bff9937c7da99247911ad0a0dc14fb8be2f3c37f5b4f43c2f466ce0f"
+  },
+  {
+    "path": "supabase/migrations/20260718232510_5e99fcc9-d023-4d0e-a393-fea2226c9836.sql",
+    "sha256": "79adb328118a74494d6630e2469029e9216cb76f7ff35672e15448d9e3636e19"
+  },
+  {
+    "path": "supabase/migrations/20260719013353_e8512588-2b23-4354-8b13-cc83d637d7c2.sql",
+    "sha256": "263ca5afd94c17fbf99842db8c3bc14786cd595497acc1790a2a4a5135fed02e"
+  },
+  {
+    "path": "supabase/migrations/20260719013427_b764e92b-bcbf-4f40-853e-abd2be7344e6.sql",
+    "sha256": "56252f4678f31bd73f5927dac589d7f837305f44ad5e90296126c111fbb22e24"
+  },
+  {
+    "path": "supabase/migrations/20260719014216_80ee113d-9cb7-4606-bde8-b572e4dfe9f5.sql",
+    "sha256": "d5eaeae1bcc943c2c6775b43459529e71b6fbdc84fe6a4e1c19be64d9374a353"
+  },
+  {
+    "path": "supabase/migrations/20260719020138_8604324f-f47d-4d75-87f8-96f4010888d6.sql",
+    "sha256": "f7808a3a159b70b0b1ffe1123d219dc79a06d20c366aa91776f1f97c72066b75"
+  },
+  {
+    "path": "supabase/migrations/20260720082144_cb7af7c5-f80d-4dc8-a16a-d5f7a83659f1.sql",
+    "sha256": "9f0d4dab07512b704faf8171c319867ade7890839923c271dd80902281bb5acd"
+  },
+  {
+    "path": "supabase/migrations/20260720083643_428207f9-fd9a-4783-8128-06cb0c0cd0f4.sql",
+    "sha256": "e0b07537460a84af25024ea7a1c8cd8dfd57d72dc5f2c493909e3194994071d6"
+  },
+  {
+    "path": "supabase/migrations/20260720084825_fc4416c8-1b3c-4904-ba25-9254841b035b.sql",
+    "sha256": "d211fb1b03adab1f5e8cf6380bfdbe7c8b0d157d605d09e71fbc5184288857fb"
+  },
+  {
+    "path": "supabase/migrations/20260720092134_2ab7d58d-35e3-449f-8b3f-e852a1638a6c.sql",
+    "sha256": "d643c9e47dc2da326e15e7aa1ec683c3ac4a4fe3ac9c0e250258df0f90b0f0b2"
+  },
+  {
+    "path": "supabase/migrations/20260720094138_657e1243-53fa-4630-9f28-79b5b93e380b.sql",
+    "sha256": "75181f5c043ad44028d2c98fc3fe694872274cbffaf0bb713c571d8383fe8898"
+  },
+  {
+    "path": "supabase/migrations/20260720095425_fff0a98d-cc30-47a4-b2ff-34cffa1c9b13.sql",
+    "sha256": "543bf2f1a02260b2deee1f979864531ca2686e2ca54faea34111b626b290991e"
+  },
+  {
+    "path": "supabase/migrations/20260720101151_db3a7a82-45c8-4907-8d64-d6db62a9a398.sql",
+    "sha256": "2a87d628661fe26b32cf0de426e1ae57906c6bb5e7a65ad2f21e15ebe37c543c"
+  },
+  {
+    "path": "supabase/migrations/20260720101754_b46295c1-235b-44db-8fde-b7390f9533ec.sql",
+    "sha256": "d75da367158118ab8d3eaf6687f678fc2b21d9f7f13bb12d4fa7c0a344c8f787"
+  },
+  {
+    "path": "supabase/migrations/20260720103843_4063e7a7-2406-40b1-b6ce-d968febc7b21.sql",
+    "sha256": "cbc1c35988091095dcfb7b05ee9071980c0cbc8fb4f72cab808aa6bf78341753"
+  },
+  {
+    "path": "supabase/migrations/20260720104833_dcc12605-a992-496c-9cf3-da56c95cfed4.sql",
+    "sha256": "a0274429012f501727394d3c842253afde39d649e5ab7e95231e92a3d76597b6"
+  },
+  {
+    "path": "supabase/migrations/20260720110955_5d9446dc-6c8d-4926-9f64-301090da5151.sql",
+    "sha256": "56fc7386c295b2df69d98cbcc127c3b32db6129b652519331dbceca82abec586"
+  },
+  {
+    "path": "supabase/migrations/20260720113024_100f15f8-60a0-46f9-8469-593c4901488f.sql",
+    "sha256": "547dd85d10930480257d41aac9ae2efb450f207046b7451d3984e1b651f2cfe7"
+  },
+  {
+    "path": "supabase/migrations/20260720114604_43a4409e-c9f5-4225-9aee-02231afae313.sql",
+    "sha256": "5eb08f0ca0f5d3e01ad8d0436321efafdff9a1fc23645d5c022f9b736f443a55"
+  },
+  {
+    "path": "supabase/migrations/20260720121237_98f501a5-7a8d-457c-a6ef-2a0008a9f833.sql",
+    "sha256": "ccc74cfc554efa1950a4a3a60db217241dd935d576f2f1fee5e4a9ee1623454a"
+  },
+  {
+    "path": "supabase/migrations/20260720171541_e85211ec-d89d-494d-bda4-5c85bba1f1ad.sql",
+    "sha256": "a33f3af4a90307df7b2533778865a4aa5a087b6507b47eed245e910112fe7537"
+  },
+  {
+    "path": "supabase/migrations/20260720173722_4ec72657-cc5e-4106-9694-482850e1b9dc.sql",
+    "sha256": "ecb8b93b38211a5fe6d1b5e4e0f44e7569d0658e31f0cd45273ee9e930572e00"
+  },
+  {
+    "path": "supabase/migrations/20260720232503_d7eb0a53-da16-4853-b738-0046b419308c.sql",
+    "sha256": "42ba84ec384e6929ff575c951ecdd17a74da56d888528425e212bfcc836ca2bf"
+  },
+  {
+    "path": "supabase/migrations/20260720232519_35346f91-b771-4ada-a298-f4c7074bcce2.sql",
+    "sha256": "f2675fac23565fd28e4ef0680cd22ca3f2d782876c8092defb26f165f0b66c11"
+  },
+  {
+    "path": "supabase/migrations/20260721001838_b423c020-98ef-47f3-829e-9be63690eeb4.sql",
+    "sha256": "edd61b1e32c9d5b7be229a973077c227474bd067d617991ede7e436b098fecf8"
+  },
+  {
+    "path": "supabase/migrations/20260721003151_b50633b4-1bfa-4bf6-b2a6-0e0796f85bcd.sql",
+    "sha256": "00f9fe24fe0787c145df50e365a36b7c076706948bde76b523ae1bb39acadbc9"
+  },
+  {
+    "path": "supabase/migrations/20260721021140_e7684082-8e66-41c5-9a33-a4a6698b15d7.sql",
+    "sha256": "832685628abf02a176e45b29e81224359e4666b0d015c8e5bad10c059fd7374d"
+  },
+  {
+    "path": "supabase/migrations/20260721021927_a431a4ba-6281-4892-be9f-4386d4868321.sql",
+    "sha256": "fbd934e3851b537831f319b12169eb8772410eec0d71a15e689bbf2097974e9d"
+  },
+  {
+    "path": "supabase/migrations/20260721033132_a6db4e16-3cbc-4d70-9814-f0e02e49e752.sql",
+    "sha256": "ea8fd9d01fe330ecdacdde47dee9d83ccbfedba22755d244ebdd2429584e7047"
+  },
+  {
+    "path": "supabase/migrations/20260721033209_03c0a085-3546-4b76-bfe0-fd390ad042bd.sql",
+    "sha256": "cd30371063ce20947fdb74f4e671049bb7add3d0d876f81f4204270ae2aca410"
+  },
+  {
+    "path": "supabase/migrations/20260721044150_335d28f2-cf6b-4eb4-8e9b-10a181af6bdd.sql",
+    "sha256": "929b091f35771ebe708103af015e8fff14db163e86845dba56ca7400539bab43"
+  },
+  {
+    "path": "supabase/migrations/20260721050342_663a6547-2f49-4248-8367-de344db49307.sql",
+    "sha256": "998ee03ab9538e8e71ad1f70de910ec246b0796c2d8a163b001d451be36dbc57"
+  },
+  {
+    "path": "supabase/migrations/20260721053735_9c622d12-b590-4fed-89b3-2df9ea7a22f2.sql",
+    "sha256": "93b0373594a9c564a65ad6c753b328b635752e15cb32f17910e8f1ac8df47dcd"
+  },
+  {
+    "path": "supabase/migrations/20260721053750_bee26701-34ec-47df-b75f-428deff5cab2.sql",
+    "sha256": "9b681d89e6537082545e749ff12bd82b2fe7feacca57c3ec64989e0d10f0970e"
+  },
+  {
+    "path": "supabase/migrations/20260721055231_7b55a477-e2f0-4cb1-bd84-b9d82715938b.sql",
+    "sha256": "27d3ad8be9cf227eb009ca264605e093ea31fb3b3a6ae3cd249ef584eabf53cc"
+  },
+  {
+    "path": "supabase/migrations/20260721055426_1e251094-cdbd-455c-a578-77c05310a7ea.sql",
+    "sha256": "a8721bc3be2bf2749d7bcc729dd08e5a47ce0d565b7c64fcc6c20904068800b0"
+  },
+  {
+    "path": "supabase/migrations/20260721055517_f091fd49-2dc1-4444-a44b-55e5b8213bd0.sql",
+    "sha256": "4ffdd75a539cc80829e032875eb6eb851cd784c1f324c33c48ab2c77b5f33066"
+  },
+  {
+    "path": "supabase/migrations/20260721055633_953d1cea-d2fe-4454-b427-b454e60df44d.sql",
+    "sha256": "feb9fc38c6bc68282c82069d23d5035c81d111dd2e8e008f077123b4b1b50d94"
+  },
+  {
+    "path": "supabase/migrations/20260721060544_5628942b-684e-44a4-996a-64db0b76a884.sql",
+    "sha256": "d723d55bac162883d08e801bb7860fa1aa5ab183aae370a6e44e692af7ea4419"
+  },
+  {
+    "path": "supabase/migrations/20260721073752_56a85466-60e4-49ee-a07a-4de742099b80.sql",
+    "sha256": "32184574f58bd8c307e30f34e4d919740a65d225d4a0b7697d65e47ed7d1017d"
+  },
+  {
+    "path": "supabase/migrations/20260721074523_5f0ce8ea-fd9f-46fe-ab7a-afd756c4331c.sql",
+    "sha256": "4e4cc9c53aa9c3ca4277b956623ece4cd820e6a5a2e39814b33cfbab988a6ec5"
+  },
+  {
+    "path": "supabase/migrations/20260721074540_3e3b56c4-b6eb-42b9-b3c9-5c5040c44f36.sql",
+    "sha256": "f58a0614ae45ff551c944f53ba03858a3cbebea2ebdff93e473cb53ac8b9d0bc"
+  },
+  {
+    "path": "supabase/migrations/20260721074744_6f765181-d981-4cc5-80fd-68bb8768edbb.sql",
+    "sha256": "46687a2edcdc0057b24bbdbe8aab95241afebd2ba855d13650952f207188689a"
+  },
+  {
+    "path": "supabase/migrations/20260721081014_e7d49876-e004-408f-8f6e-31d46f6b16d4.sql",
+    "sha256": "92c062695dc7f499f3e5a2d0f2e1afdd49ffc34c5a675cd8c2f3796ae4d0461a"
+  },
+  {
+    "path": "supabase/migrations/20260721093336_47059d5a-4954-42aa-9cdc-2fd873d1ffa9.sql",
+    "sha256": "8783be45e27ff84444dc0191b00f35f9cb3e305eb10acf951e3aa690cf75bf06"
+  },
+  {
+    "path": "supabase/migrations/20260721095925_7037b480-f013-40b4-9b79-9496819f7184.sql",
+    "sha256": "22406cb244a2ff343d8a22b6a339237a21503f86156546eeed5b456ab623c7a0"
+  },
+  {
+    "path": "supabase/migrations/20260721095951_004ea861-7971-455a-9582-7c1a6d98266f.sql",
+    "sha256": "5df00760c81a82542c5b87c5452d67de9c4f282e02071c59f563e9b6bedeb6bf"
+  },
+  {
+    "path": "supabase/migrations/20260726101826_d9d2a687-31cd-45da-926c-b9d4dae67fd5.sql",
+    "sha256": "15f92b5461fe55df314fb855ec0abd279907e7de8f7984ada0a590edd31307df"
+  },
+  {
+    "path": "supabase/migrations/20260726104852_2281747c-9f1e-4f32-b6c1-5d3c6d3cba6a.sql",
+    "sha256": "27c02883fdb8f4f743391f27a46dfee00bd80cbbd54f0189f4216aaa04e15b24"
+  },
+  {
+    "path": "supabase/migrations/20260726104953_94a39b25-b345-4ffe-94b5-0830a9f1309f.sql",
+    "sha256": "4579e1105ee383a190325be5d1b8f0929d49f65d12067bfbcdba89b995ffd8b9"
+  },
+  {
+    "path": "supabase/migrations/20260726105844_c17e5407-d876-4176-800b-918b0f309cae.sql",
+    "sha256": "ae2ac4b154c00f0ef39339e82cf0fc821acd3c4d93d213d853fd88e855a8e9be"
+  },
+  {
+    "path": "supabase/migrations/20260726120259_25e9ab79-bdeb-4b80-ac83-664c8cc93d64.sql",
+    "sha256": "d9983bee20fdcdee5a2908e1bfe34badbd2ea5243ab2eb81eb8a74620ce12409"
+  },
+  {
+    "path": "supabase/migrations/20260726154414_19de511e-aebd-4439-8638-cbbd9485fcb0.sql",
+    "sha256": "f922ba6b52d44891789d4dda5bf109df7bd6857333803e773c1aab4d24a57ece"
+  },
+  {
+    "path": "supabase/migrations/20260726154711_2deb9531-79e7-4d84-a126-6ab4c4215134.sql",
+    "sha256": "976fe463c1a2b796851399eeb7e5610e89ad98b0d1c804f5bc5507f76a9a1696"
+  },
+  {
+    "path": "supabase/migrations/20260726155931_baf6f206-dcbf-4959-a55e-db6cd33d3aa8.sql",
+    "sha256": "28beb83207fd8069ffc02ee40d8ace024943fd8c6b47a08a19732290a057e557"
+  },
+  {
+    "path": "supabase/migrations/20260804184859_8e025fe8-57a7-4d1f-8137-8de8daef60ac.sql",
+    "sha256": "2b0f5c6e7f488ba78f7888c17ae2174a6ae21104e29b4f4fb68a3c78d637376e"
+  },
+  {
+    "path": "supabase/migrations/20260806032342_14aa0ff4-3594-43f4-8453-f1050d1f05ae.sql",
+    "sha256": "7de0bff5ab30305a6837b5629a34cd85584fd88fd9e6636173441370f2a115f5"
+  },
+  {
+    "path": "supabase/migrations/20260811212519_26f6ee69-b098-463f-91b7-177817410064.sql",
+    "sha256": "083b537580216d384446eca2bff8521aa9e2e28f72721893959fd79428d67580"
+  },
+  {
+    "path": "supabase/migrations/20260811224240_65b88feb-a1c1-48bb-a6f3-5e48468b5fbc.sql",
+    "sha256": "ea69b80ee63b2a8a081a31c074ae2ebb9d7e38a1ed699dfe523a836cc84f5cc7"
+  },
+  {
+    "path": "supabase/migrations/20260811225841_31db497e-c121-45b0-8f2a-777be72f8a1a.sql",
+    "sha256": "38755d1ec8b146aa9794d0c5e1020c739000ec984c2f75b243bc9b59df821ad1"
+  },
+  {
+    "path": "supabase/migrations/20260812001647_e4243a6c-5b02-4523-a69c-e53d3b90223f.sql",
+    "sha256": "bc1202c3372654dc31e3f7aa80fc7135580de487bba3304a0642feac41ecd8e0"
+  },
+  {
+    "path": "supabase/migrations/20260812015012_f7a1d724-8df8-459c-a80f-6ab7d4fcdd4b.sql",
+    "sha256": "6e58d4fc20a056b106dddefd0d70628448b31e31c529c431c8b657da60d56dcb"
+  },
+  {
+    "path": "supabase/migrations/20260812023504_6712fd50-02b7-4ca5-b602-c83ff83a3b6c.sql",
+    "sha256": "1f12a0a2b36abb3ccef415f0474693c22a39dc13f27202587323a3914646d164"
+  },
+  {
+    "path": "supabase/migrations/20260812033217_0c368080-33ea-4966-a7b4-bf90b0fce7ec.sql",
+    "sha256": "771f5268ce0d05bd517d9c53da5f7fb82f7825831960bb915a85d1ddf48db560"
+  },
+  {
+    "path": "supabase/migrations/20260814000610_1a5c9339-de4e-4130-a34a-85fa0237dbb5.sql",
+    "sha256": "29eee13a88e06d2bd2f036712949abff8903841ad61202d2a64e2a813dd2ce9a"
+  },
+  {
+    "path": "supabase/migrations/20260814120724_1de11bd0-93c0-4594-9d28-a593632f5a26.sql",
+    "sha256": "4d8204d967123fc01b07aa0a790d587e6731b28817306d91c139e5af3818b853"
+  },
+  {
+    "path": "supabase/migrations/20260814120802_52b6c661-a344-4844-8c0b-aedbc76d010c.sql",
+    "sha256": "535676dfcb5c8cc8fa172b547ebb411bc5a7fca6fcbf02f28d5f3a3102df3e1f"
+  },
+  {
+    "path": "supabase/migrations/20260815152929_30049b71-873c-43d5-9335-676354f3b578.sql",
+    "sha256": "d163bef0c09534d2311a5f08d3b827c897bac324040efc37d1a847249a99b790"
+  },
+  {
+    "path": "supabase/migrations/20260815153020_c1c9e9db-bb0a-499d-bf24-3141800ec960.sql",
+    "sha256": "c14e39977bb92397021982b14c4f2fdee764a8244572429ea952ce3371a0ef69"
+  },
+  {
+    "path": "supabase/migrations/20260815200019_684b99a7-68a5-4b4c-94c0-f3c29a50929c.sql",
+    "sha256": "00d6c1f6767b349ea00e8c4f1afb96c5e3d4bd809a37f85a734c8adfd5c3a5fd"
+  },
+  {
+    "path": "supabase/migrations/20260815200131_ab56d7f9-87be-4b21-bdff-2a3d6bda8a1e.sql",
+    "sha256": "c7c3b399b0b156cbde802eece9591f11280850402bdf65322ef0a3cfb392f04e"
+  },
+  {
+    "path": "supabase/migrations/20260815200600_26b0cc9b-0713-4f61-af60-060682b5f661.sql",
+    "sha256": "34e97411a050907323badf1ca6ff1883fb43e1f5d70b1d44bdf4cb2bbe53c597"
+  },
+  {
+    "path": "supabase/migrations/20260815212021_f62acfbf-1ef2-4237-b392-cae9eace0eeb.sql",
+    "sha256": "0749770c75f6bf1869c334951695eee0d7f23f412f08d2031c4581ad5f520963"
+  },
+  {
+    "path": "supabase/migrations/20260816001307_c627ec90-8016-4467-b4fc-6b8f928e66f5.sql",
+    "sha256": "dee0f0e9eae68e2d24fbe9c5a4e7b2ebb17611d6cdc0302a1b943486999b0b64"
+  },
+  {
+    "path": "supabase/migrations/20260816001335_a87dc01a-9fcb-4bcd-ae97-34a094c1105d.sql",
+    "sha256": "b69670581eecadffe3883982108582bef9979610ee3c343f9aba70c03e86c80e"
+  },
+  {
+    "path": "supabase/migrations/20260816040000_omni_architect_lock_internal_rpcs.sql",
+    "sha256": "25213ce9d1bfc3e805103df3092e90768c0b76b7bf0e7c9bfe9d1aef8b8ba29e"
+  },
+  {
+    "path": "supabase/migrations/20260816050000_lock_ai_governance_to_member_org.sql",
+    "sha256": "1d938b14e2bcb6063286166df261263c2e49ce51eb1572bd43e2e1219dfea621"
+  },
+  {
+    "path": "supabase/migrations/20260816051000_harden_import_staging_tables.sql",
+    "sha256": "6ca8d71eb1403d1d5f6dae7128d4dc609e90c5ec5102035c17989b37b411eb57"
+  },
+  {
+    "path": "supabase/migrations/20260829204859_95bd9337-267c-4ef8-b352-e551634bd716.sql",
+    "sha256": "fca0f7714576fcae22a3de495e869c8d601b3cfe9678d9c0df4d4d0fdc2d65d4"
+  },
+  {
+    "path": "supabase/migrations/20261027001634_enforce_catalog_media_review_boundaries.sql",
+    "sha256": "63228cd0928e39e3c0d2e1d236a9ddfceb47522b8d30d56f3bf58ed7609fd8e9"
+  },
+  {
+    "path": "supabase/migrations/20261027002146_restrict_catalog_image_object_boundaries.sql",
+    "sha256": "9651ab2158c35db1369ddcea204ffc68c17e31f555be2dc9d5d0acfeeb0f60b3"
+  },
+  {
+    "path": "supabase/migrations/20261111213535_lock_legacy_accounting_inventory_rpcs_20261112.sql",
+    "sha256": "15be17c963e7be021baeb2be10be9ec6ad0aaffa4965921857ef1ffeb93b89d6"
+  },
+  {
+    "path": "supabase/migrations/20261111215832_restrict_internal_backup_inventory_event_rpcs_20261112.sql",
+    "sha256": "b32d779364fec94d90dcbe889eda2b7fce1a40af5450d19a888567c30145829a"
+  },
+  {
+    "path": "supabase/migrations/20261111221813_restrict_internal_reporting_retention_cron_20261112.sql",
+    "sha256": "296b6cc03735f4fed2c920ab2ab434001345f656fb32a3a94d056b1aa5d60ba0"
+  }
+]
