@@ -6,6 +6,7 @@ import { Camera, FileCheck2, Loader2, ScanLine } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/integrations/supabase/client'
 import { analyzeInvoiceImage, createVisionUploadUrl } from '@/lib/vision.functions'
+import { analyzeLocalOcrInvoice } from '@/lib/local-ocr.functions'
 import {
   createDraftPoFromInvoice,
   listInvoiceJobRows,
@@ -29,10 +30,13 @@ function ScanInvoicePage() {
   const [jobId, setJobId] = useState<string | null>(null)
   const [supplierId, setSupplierId] = useState('')
   const [warehouseId, setWarehouseId] = useState('')
+  const [uploadedPath, setUploadedPath] = useState<string | null>(null)
+  const [localOcrText, setLocalOcrText] = useState<string | null>(null)
   const [currency, setCurrency] = useState<'YER' | 'SAR' | 'USD' | ''>('')
 
   const uploadFn = useServerFn(createVisionUploadUrl)
   const analyzeFn = useServerFn(analyzeInvoiceImage)
+  const localOcrFn = useServerFn(analyzeLocalOcrInvoice)
   const draftFn = useServerFn(createDraftPoFromInvoice)
 
   const { data: suppliers = [] } = useQuery({
@@ -58,6 +62,7 @@ function ScanInvoicePage() {
         .from(signed.bucket)
         .uploadToSignedUrl(signed.path, signed.token, file)
       if (error) throw new Error(error.message)
+      setUploadedPath(signed.path)
       return analyzeFn({ data: { storagePath: signed.path, sourceName: file.name } })
     },
     onSuccess: (res) => {
@@ -71,6 +76,19 @@ function ScanInvoicePage() {
       )
     },
     onError: (e: Error) => toast.error(e.message),
+  })
+
+  // Optional read-only OCR preview from the Windows computer's D: drive.
+  // It cannot approve inventory, create a purchase order or post accounting entries.
+  const localOcr = useMutation({
+    mutationFn: async () => {
+      if (!uploadedPath) throw new Error('ارفع الصورة أولًا')
+      const result = await localOcrFn({ data: { storagePath: uploadedPath } })
+      if (!result.ok) throw new Error(result.error)
+      return result.rawText
+    },
+    onSuccess: (text) => setLocalOcrText(text),
+    onError: (error: Error) => toast.error(error.message),
   })
 
   const draft = useMutation({
@@ -94,6 +112,9 @@ function ScanInvoicePage() {
     if (!file) return
     setPreview(URL.createObjectURL(file))
     setJobId(null)
+    setUploadedPath(null)
+    setLocalOcrText(null)
+    localOcr.reset()
     scan.mutate(file)
   }
 
@@ -144,6 +165,36 @@ function ScanInvoicePage() {
           />
         )}
       </section>
+
+      {uploadedPath && (
+        <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <h2 className="mb-2 text-base font-semibold text-gray-900">OCR المحلي — قراءة نص الفاتورة</h2>
+          <p className="mb-3 text-sm text-gray-600">
+            استخراج النص من محرك Tesseract على جهاز Windows. النص للمراجعة فقط؛ لا يغيّر المخزون أو القيود المالية.
+          </p>
+          <button
+            type="button"
+            onClick={() => localOcr.mutate()}
+            disabled={scan.isPending || localOcr.isPending}
+            className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+          >
+            {localOcr.isPending ? 'جارٍ استخراج النص...' : 'استخراج محلي بالعربية والإنجليزية'}
+          </button>
+          {localOcrText !== null && (
+            <label className="mt-3 flex flex-col gap-2 text-sm text-gray-700">
+              النص المستخرج — طابق القيم مع الصورة قبل الاعتماد
+              <textarea
+                readOnly
+                dir="auto"
+                value={localOcrText}
+                rows={8}
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm"
+                aria-label="نتيجة OCR المحلي للفاتورة"
+              />
+            </label>
+          )}
+        </section>
+      )}
 
       {jobId && (
         <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
