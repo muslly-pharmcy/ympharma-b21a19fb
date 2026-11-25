@@ -33,6 +33,7 @@
     "skillui:extract:help": "echo 'skillui (npm package `skillui`) is an optional design-system extractor. Use npx skillui url <site> or npx skillui dir <path> locally. Do not run on production sites without authorization.'",
     "ctx7:help": "npx ctx7 --help",
     "test:static": "vitest run tests",
+    "test:db-security": "REQUIRE_DB_SECURITY_TESTS=1 vitest run tests/security-grants-regression.test.ts",
     "check:secrets": "node scripts/check-no-secrets.mjs"
   },
   "dependencies": {
