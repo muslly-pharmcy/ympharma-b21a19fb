@@ -8,7 +8,7 @@
  *   5. Both self-update triggers audit reverted attempts into audit_events.
  *
  * Skips (does not fail) when PGHOST is not configured, so unit-test runners
- * without DB access remain green. CI must set PG* env to exercise the check.
+ * without DB access remain green. Set REQUIRE_DB_SECURITY_TESTS=1 and PG*\n * for mandatory isolated-database release validation.
  */
 import { describe, expect, it } from 'vitest'
 import { execFileSync } from 'node:child_process'
@@ -33,6 +33,13 @@ function databaseReachable(): boolean {
 }
 
 const HAS_DB = databaseReachable()
+const REQUIRE_DB = process.env.REQUIRE_DB_SECURITY_TESTS === '1'
+
+// Ordinary unit runs may omit Postgres. Release validation must explicitly
+// require a reachable, isolated database with the real migrated schema.
+if (REQUIRE_DB && !HAS_DB) {
+  throw new Error('Database security verification required: isolated PostgreSQL is unreachable or PGHOST is missing')
+}
 const d = HAS_DB ? describe : describe.skip
 
 
