@@ -33,6 +33,7 @@
     "skillui:extract:help": "echo 'skillui (npm package `skillui`) is an optional design-system extractor. Use npx skillui url <site> or npx skillui dir <path> locally. Do not run on production sites without authorization.'",
     "ctx7:help": "npx ctx7 --help",
     "test:static": "vitest run tests",
+    "test:db-security": "REQUIRE_DB_SECURITY_TESTS=1 vitest run tests/security-grants-regression.test.ts",
     "check:secrets": "node scripts/check-no-secrets.mjs"
   },
   "dependencies": {
@@ -164,7 +165,11 @@
     "fast-uri": "3.1.9",
     "ip-address": "10.7.4",
     "launch-editor": "2.14.2",
-    "undici": "7.30.1"
+    "undici": "7.30.1",
+    "@hono/node-server": "2.1.6",
+    "hono": "4.13.16",
+    "qs": "6.16.1",
+    "seroval": "1.6.11"
   },
   "resolutions": {
     "htmlparser2": "^10.1.0"

@@ -43,6 +43,16 @@ jobs:
       - name: Unit tests
         run: bunx vitest run
 
+      - name: Verify mandatory database gate rejects missing connection
+        run: |
+          log="$(mktemp)"
+          trap 'rm -f "$log"' EXIT
+          if env -u PGHOST REQUIRE_DB_SECURITY_TESTS=1 bunx vitest run tests/security-grants-regression.test.ts >"$log" 2>&1; then
+            echo "Database release gate unexpectedly passed without PGHOST"
+            exit 1
+          fi
+          grep -F 'Database security verification required: isolated PostgreSQL is unreachable or PGHOST is missing' "$log"
+
       - name: Audit locked dependencies
         run: bun audit --audit-level=high
 
@@ -56,7 +66,7 @@ jobs:
         run: bunx playwright install --with-deps chromium
 
       - name: Connection and offline browser regression tests
-        run: E2E_MOCK_SERVER=1 bunx playwright test e2e/connection-repair.e2e.ts e2e/clinical-safety.e2e.ts
+        run: E2E_MOCK_SERVER=1 bunx playwright test e2e/connection-repair.e2e.ts e2e/clinical-safety.e2e.ts --fail-on-flaky-tests
 
       - name: Validate Cloudflare Worker bundle (no deployment)
         run: |

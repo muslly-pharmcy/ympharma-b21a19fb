@@ -3,6 +3,11 @@ name: Legacy stock RPC PostgreSQL 17 integration
 on:
   pull_request:
     paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'supabase/migrations/**'
+      - 'drizzle/migrations/**'
+      - '.github/workflows/ci.yml'
       - 'supabase/migrations/20261116021000_guard_legacy_inv_adjust_stock.sql'
       - 'scripts/sql/legacy-stock-rpc-*'
       - '.github/workflows/legacy-stock-rpc-db-tests.yml'
